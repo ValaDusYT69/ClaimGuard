@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Create Account | ClaimGuard</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+</head>
+
+
+<body class="auth-page">
+
+    <div class="auth-container">
+
+        <!-- =================================================
+             LEFT PANEL
+             ================================================= -->
+
+        <div class="auth-brand-panel">
+
+            <div class="auth-brand">
+
+                <div class="brand-icon">
+                    CG
+                </div>
+
+                <div>
+
+                    <h2>
+                        ClaimGuard
+                    </h2>
+
+                    <span>
+                        Invoice Intelligence
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="auth-message">
+
+                <span class="auth-label">
+                    GET STARTED
+                </span>
+
+
+                <h1>
+                    Build trust
+                    <br>
+                    into every invoice.
+                </h1>
+
+
+                <p>
+                    Create your ClaimGuard account to verify
+                    invoices, compare market prices, review
+                    anomalies and make informed payment decisions.
+                </p>
+
+
+                <div class="auth-features">
+
+                    <div>
+
+                        <strong>
+                            01
+                        </strong>
+
+                        <span>
+                            Invoice Verification
+                        </span>
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+                            02
+                        </strong>
+
+                        <span>
+                            Market Price Intelligence
+                        </span>
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+                            03
+                        </strong>
+
+                        <span>
+                            Human Review Workflow
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="auth-footer">
+                © 2026 ClaimGuard
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RIGHT PANEL
+             ================================================= -->
+
+        <div class="auth-form-panel">
+
+            <div class="auth-form-box">
+
+                <div class="mobile-brand">
+
+                    <div class="brand-icon">
+                        CG
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            ClaimGuard
+                        </h2>
+
+                        <span>
+                            Invoice Intelligence
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-heading">
+
+                    <span>
+                        CREATE ACCOUNT
+                    </span>
+
+                    <h2>
+                        Create your account
+                    </h2>
+
+                    <p>
+                        Get started with ClaimGuard.
+                    </p>
+
+                </div>
+
+
+                <!-- GOOGLE -->
+
+                <button
+                    type="button"
+                    class="google-btn"
+                    id="googleRegisterBtn"
+                >
+                    <span>G</span>
+                    Continue with Google
+                </button>
+
+
+                <div class="or-divider">
+
+                    <span>
+                        OR
+                    </span>
+
+                </div>
+
+
+                <!-- =================================================
+                     REGISTER FORM
+                     ================================================= -->
+
+                <form
+                    id="registerForm"
+                    novalidate
+                >
+
+                    <div class="input-group">
+
+                        <label for="fullName">
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="fullName"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label for="registerEmail">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="registerEmail"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label for="registerPassword">
+                            Password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="registerPassword"
+                                placeholder="Create a password"
+                                autocomplete="new-password"
+                                required
+                                minlength="8"
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="toggleRegisterPassword"
+                            >
+                                Show
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label for="confirmPassword">
+                            Confirm Password
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                placeholder="Confirm your password"
+                                autocomplete="new-password"
+                                required
+                                minlength="8"
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="toggleConfirmPassword"
+                            >
+                                Show
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="register-terms">
+
+                        <label>
+
+                            <input
+                                type="checkbox"
+                                id="terms"
+                            >
+
+                            <span>
+                                I agree to the Terms of Service
+                                and Privacy Policy.
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    <div
+                        id="registerMessage"
+                        class="login-message"
+                    ></div>
+
+
+                    <button
+                        type="submit"
+                        class="login-submit"
+                        id="createAccountButton"
+                    >
+                        Create Account
+                    </button>
+
+                </form>
+
+
+                <p class="signup-link">
+
+                    Already have an account?
+
+                    <a href="login.html">
+                        Sign in
+                    </a>
+
+                </p>
+
+
+                <div class="security-note">
+
+                    <span>
+                        🔒
+                    </span>
+
+                    <p>
+                        Your account information is protected
+                        using secure authentication.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         REGISTER PAGE SCRIPT
+         ================================================= -->
+
+    <script>
+
+        const CLAIMGUARD_API =
+            "http://127.0.0.1:8000";
+
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+                const form =
+                    document.getElementById(
+                        "registerForm"
+                    );
+
+
+                const button =
+                    document.getElementById(
+                        "createAccountButton"
+                    );
+
+
+                const message =
+                    document.getElementById(
+                        "registerMessage"
+                    );
+
+
+                const password =
+                    document.getElementById(
+                        "registerPassword"
+                    );
+
+
+                const confirmPassword =
+                    document.getElementById(
+                        "confirmPassword"
+                    );
+
+
+                const terms =
+                    document.getElementById(
+                        "terms"
+                    );
+
+
+                // =================================================
+                // PASSWORD TOGGLE
+                // =================================================
+
+                const togglePassword =
+                    document.getElementById(
+                        "toggleRegisterPassword"
+                    );
+
+
+                const toggleConfirm =
+                    document.getElementById(
+                        "toggleConfirmPassword"
+                    );
+
+
+                if (togglePassword) {
+
+                    togglePassword.addEventListener(
+                        "click",
+                        () => {
+
+                            const showing =
+                                password.type ===
+                                "text";
+
+
+                            password.type =
+                                showing
+                                    ? "password"
+                                    : "text";
+
+
+                            togglePassword.textContent =
+                                showing
+                                    ? "Show"
+                                    : "Hide";
+
+                        }
+                    );
+
+                }
+
+
+                if (toggleConfirm) {
+
+                    toggleConfirm.addEventListener(
+                        "click",
+                        () => {
+
+                            const showing =
+                                confirmPassword.type ===
+                                "text";
+
+
+                            confirmPassword.type =
+                                showing
+                                    ? "password"
+                                    : "text";
+
+
+                            toggleConfirm.textContent =
+                                showing
+                                    ? "Show"
+                                    : "Hide";
+
+                        }
+                    );
+
+                }
+
+
+                // =================================================
+                // REGISTER SUBMIT
+                // =================================================
+
+                form.addEventListener(
+                    "submit",
+                    async (event) => {
+
+                        event.preventDefault();
+
+
+                        const fullName =
+                            document.getElementById(
+                                "fullName"
+                            )
+                            .value
+                            .trim();
+
+
+                        const email =
+                            document.getElementById(
+                                "registerEmail"
+                            )
+                            .value
+                            .trim();
+
+
+                        const passwordValue =
+                            password.value;
+
+
+                        const confirmValue =
+                            confirmPassword.value;
+
+
+                        // -----------------------------------------
+                        // VALIDATION
+                        // -----------------------------------------
+
+                        if (
+                            !fullName ||
+                            !email ||
+                            !passwordValue ||
+                            !confirmValue
+                        ) {
+
+                            showMessage(
+                                "Please complete all required fields."
+                            );
+
+                            return;
+                        }
+
+
+                        if (
+                            passwordValue.length < 8
+                        ) {
+
+                            showMessage(
+                                "Password must contain at least 8 characters."
+                            );
+
+                            return;
+                        }
+
+
+                        if (
+                            passwordValue !==
+                            confirmValue
+                        ) {
+
+                            showMessage(
+                                "Passwords do not match."
+                            );
+
+                            return;
+                        }
+
+
+                        if (!terms.checked) {
+
+                            showMessage(
+                                "Please accept the Terms of Service and Privacy Policy."
+                            );
+
+                            return;
+                        }
+
+
+                        // -----------------------------------------
+                        // DISABLE BUTTON
+                        // -----------------------------------------
+
+                        button.disabled =
+                            true;
+
+                        button.textContent =
+                            "Creating account...";
+
+
+                        try {
+
+                            console.log(
+                                "Sending registration request..."
+                            );
+
+
+                            const response =
+                                await fetch(
+                                    `${CLAIMGUARD_API}/api/auth/register`,
+                                    {
+                                        method:
+                                            "POST",
+
+                                        headers: {
+                                            "Content-Type":
+                                                "application/json"
+                                        },
+
+                                        body:
+                                            JSON.stringify({
+                                                full_name:
+                                                    fullName,
+
+                                                email:
+                                                    email,
+
+                                                password:
+                                                    passwordValue
+                                            })
+                                    }
+                                );
+
+
+                            console.log(
+                                "Registration status:",
+                                response.status
+                            );
+
+
+                            let data = {};
+
+                            try {
+
+                                data =
+                                    await response.json();
+
+                            } catch {
+
+                                data = {};
+
+                            }
+
+
+                            console.log(
+                                "Registration response:",
+                                data
+                            );
+
+
+                            // -------------------------------------
+                            // ERROR
+                            // -------------------------------------
+
+                            if (!response.ok) {
+
+                                throw new Error(
+                                    data.detail ||
+                                    "Registration failed."
+                                );
+
+                            }
+
+
+                            // -------------------------------------
+                            // SAVE EMAIL
+                            // -------------------------------------
+
+                            localStorage.setItem(
+                                "claimguard_pending_verification_email",
+                                data.email
+                            );
+
+
+                            sessionStorage.setItem(
+                                "claimguard_verification_email",
+                                data.email
+                            );
+
+
+                            // -------------------------------------
+                            // SUCCESS
+                            // -------------------------------------
+
+                            console.log(
+                                "Registration successful."
+                            );
+
+
+                            console.log(
+                                "Redirecting to verification page..."
+                            );
+
+
+                            const verificationUrl =
+                                `verify-email.html?email=${encodeURIComponent(
+                                    data.email
+                                )}`;
+
+
+                            // -------------------------------------
+                            // DIRECT REDIRECT
+                            // -------------------------------------
+
+                            window.location.replace(
+                                verificationUrl
+                            );
+
+                        } catch (error) {
+
+                            console.error(
+                                "Registration error:",
+                                error
+                            );
+
+
+                            showMessage(
+                                error.message ||
+                                "Unable to connect to ClaimGuard."
+                            );
+
+
+                            button.disabled =
+                                false;
+
+                            button.textContent =
+                                "Create Account";
+
+                        }
+
+                    }
+                );
+
+
+                // =================================================
+                // MESSAGE
+                // =================================================
+
+                function showMessage(
+                    text
+                ) {
+
+                    message.textContent =
+                        text;
+
+                    message.style.display =
+                        "block";
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>

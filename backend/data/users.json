@@ -1,0 +1,12 @@
+[
+    {
+        "id": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+        "full_name": "Tazim Kb",
+        "email": "tazimkb120@gmail.com",
+        "hashed_password": "$argon2id$v=19$m=65536,t=3,p=4$M5/xCESE6HIoD8WrY4Cv3Q$tfGkiETJXI+lJmeH2+ny9vCfxrj8+BZZxnGEzKJj50U",
+        "role": "user",
+        "is_verified": true,
+        "is_active": true,
+        "created_at": "2026-10-01T21:39:27.121599+00:00"
+    }
+]

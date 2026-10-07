@@ -1,0 +1,6191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Invoice Verification | ClaimGuard</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <style>
+
+        .invoice-details-page {
+            min-height: calc(100vh - 80px);
+            padding: 55px 6%;
+            background: #f7f9fc;
+        }
+
+        .invoice-details-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .details-header {
+            margin-bottom: 30px;
+        }
+
+        .details-header .auth-label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .details-header h1 {
+            font-size: clamp(32px, 4vw, 48px);
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 10px;
+        }
+
+        .details-header p {
+            color: #64748b;
+            max-width: 720px;
+        }
+
+        .invoice-grid {
+            display: grid;
+            grid-template-columns: 1.35fr 0.85fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .details-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .details-panel:last-child {
+            margin-bottom: 0;
+        }
+
+        .panel-top {
+            padding: 22px 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .panel-top span {
+            color: #2563eb;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+        }
+
+        .panel-top h2 {
+            margin-top: 6px;
+            font-size: 20px;
+        }
+
+        .panel-body {
+            padding: 24px;
+        }
+
+        .invoice-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 13px;
+        }
+
+        .summary-item {
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 11px;
+            background: #f8fafc;
+        }
+
+        .summary-item span {
+            display: block;
+            color: #64748b;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .summary-item strong {
+            display: block;
+            font-size: 15px;
+            word-break: break-word;
+        }
+
+        .verification-box {
+            padding: 20px;
+            border-radius: 13px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .verification-code {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-top: 6px;
+        }
+
+        .verification-message {
+            margin-top: 10px;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .status-badge-large {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 11px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+        }
+
+        .status-success {
+            background: #ecfdf3;
+            color: #15803d;
+        }
+
+        .status-warning {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .status-error {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .status-neutral {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .checks-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .check-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .check-row span {
+            color: #475569;
+            font-size: 12px;
+        }
+
+        .check-result {
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .check-pass {
+            color: #15803d;
+        }
+
+        .check-fail {
+            color: #dc2626;
+        }
+
+        .check-pending {
+            color: #c2410c;
+        }
+
+        .duplicate-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 10px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        .duplicate-box strong {
+            display: block;
+            font-size: 12px;
+            color: #c2410c;
+            margin-bottom: 4px;
+        }
+
+        .duplicate-box span {
+            font-size: 11px;
+            color: #9a3412;
+        }
+
+        .document-status {
+            padding: 17px;
+            border-radius: 12px;
+            background: #0f172a;
+            color: white;
+        }
+
+        .document-status span {
+            display: block;
+            color: #94a3b8;
+            font-size: 10px;
+            margin-bottom: 5px;
+        }
+
+        .document-status strong {
+            font-size: 22px;
+        }
+
+        .loading-state {
+            padding: 70px 20px;
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .error-state {
+            display: none;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 11px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            font-size: 12px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+
+        .report-download-button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 46px;
+            padding: 0 18px;
+            border-radius: 10px;
+            border: 1px solid #2563eb;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+
+        .report-download-button:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+
+        .report-download-button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        .back-button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 46px;
+            padding: 0 18px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .back-button:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        @media (max-width: 900px) {
+
+            .invoice-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+
+        /* =====================================================
+           MARKET PRICE INTELLIGENCE
+           ===================================================== */
+
+        .market-panel {
+            margin-top: 20px;
+        }
+
+        .market-intro {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.7;
+            margin: 0 0 18px;
+        }
+
+        .market-reference-note {
+            padding: 14px 16px;
+            border-radius: 11px;
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            color: #1e40af;
+            font-size: 11px;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+
+        .market-reference-note strong {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 12px;
+        }
+
+        .market-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .market-stat {
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 11px;
+            background: #f8fafc;
+            min-width: 0;
+        }
+
+        .market-stat span {
+            display: block;
+            color: #64748b;
+            font-size: 10px;
+            margin-bottom: 5px;
+        }
+
+        .market-stat strong {
+            display: block;
+            font-size: 16px;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+
+        .market-delta {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            margin-bottom: 18px;
+        }
+
+        .market-delta-copy span {
+            display: block;
+            color: #64748b;
+            font-size: 10px;
+            margin-bottom: 4px;
+        }
+
+        .market-delta-copy strong {
+            font-size: 15px;
+        }
+
+        .market-delta-value {
+            font-size: 18px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .market-delta-positive {
+            color: #b91c1c;
+        }
+
+        .market-delta-negative {
+            color: #15803d;
+        }
+
+        .market-delta-neutral {
+            color: #475569;
+        }
+
+        .market-source-group {
+            margin-top: 18px;
+        }
+
+        .market-source-group h3 {
+            margin: 0 0 10px;
+            font-size: 14px;
+        }
+
+        .market-source-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .market-source-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .market-source-main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            padding: 15px;
+            align-items: start;
+        }
+
+        .market-source-title-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        .market-source-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .market-source-meta {
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .market-source-price {
+            text-align: right;
+        }
+
+        .market-source-price strong {
+            display: block;
+            font-size: 18px;
+        }
+
+        .market-source-price span {
+            color: #64748b;
+            font-size: 10px;
+        }
+
+        .market-source-badge,
+        .market-availability-badge,
+        .market-confidence-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 7px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+
+        .market-badge-marketplace {
+            background: #f5f3ff;
+            color: #6d28d9;
+        }
+
+        .market-badge-retailer {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .market-badge-official {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .market-badge-vendor {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .market-badge-web {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .market-availability-listed {
+            background: #ecfdf3;
+            color: #15803d;
+        }
+
+        .market-availability-out {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .market-availability-unknown {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .market-confidence-badge {
+            background: #f8fafc;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .market-source-details {
+            border-top: 1px solid #e2e8f0;
+            padding: 13px 15px 15px;
+            background: #f8fafc;
+        }
+
+        .market-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .market-detail-item {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            background: white;
+        }
+
+        .market-detail-item span {
+            display: block;
+            color: #64748b;
+            font-size: 9px;
+            margin-bottom: 4px;
+        }
+
+        .market-detail-item strong {
+            display: block;
+            color: #0f172a;
+            font-size: 11px;
+            word-break: break-word;
+        }
+
+        .market-source-note {
+            margin-top: 10px;
+            padding: 10px 11px;
+            border-radius: 9px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .market-source-link {
+            display: inline-flex;
+            margin-top: 10px;
+            color: #2563eb;
+            font-size: 10px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .market-source-link:hover {
+            text-decoration: underline;
+        }
+
+        .market-empty {
+            padding: 18px;
+            border-radius: 11px;
+            border: 1px dashed #cbd5e1;
+            color: #64748b;
+            background: #f8fafc;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .market-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 9px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .market-status-ready {
+            background: #ecfdf3;
+            color: #15803d;
+        }
+
+        .market-status-limited {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .market-status-unavailable {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .market-expandable {
+            margin-top: 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .market-expandable summary {
+            cursor: pointer;
+            list-style: none;
+            padding: 14px 15px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .market-expandable summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .market-expandable summary::after {
+            content: "+";
+            float: right;
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .market-expandable[open] summary::after {
+            content: "−";
+        }
+
+        .market-expandable-body {
+            border-top: 1px solid #e2e8f0;
+            padding: 15px;
+            background: #f8fafc;
+        }
+
+        .market-diagnostics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .market-diagnostic-item {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            background: #fff;
+        }
+
+        .market-diagnostic-item span {
+            display: block;
+            color: #64748b;
+            font-size: 9px;
+            margin-bottom: 4px;
+        }
+
+        .market-diagnostic-item strong {
+            display: block;
+            font-size: 12px;
+        }
+
+        .market-methodology {
+            margin-top: 12px;
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.65;
+        }
+
+        .market-vendor-relation {
+            margin-top: 10px;
+            padding: 10px 11px;
+            border-radius: 9px;
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            color: #1e40af;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1000px) {
+
+            .market-summary-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .market-diagnostics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            .market-summary-grid,
+            .market-detail-grid,
+            .market-diagnostics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .market-source-main {
+                grid-template-columns: 1fr;
+            }
+
+            .market-source-price {
+                text-align: left;
+            }
+
+        }
+
+        @media (max-width: 500px) {
+
+            .market-summary-grid,
+            .market-detail-grid,
+            .market-diagnostics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .market-delta {
+                grid-template-columns: 1fr;
+            }
+
+            .market-delta-value {
+                white-space: normal;
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .invoice-details-page {
+                padding: 35px 5%;
+            }
+
+            .invoice-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-body {
+                padding: 18px;
+            }
+
+        }
+
+
+
+        /* =====================================================
+           RISK & ANOMALY UI
+           ===================================================== */
+
+        .risk-overview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .risk-score-card,
+        .risk-level-card {
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+            background: #f8fafc;
+        }
+
+        .risk-score-card > span,
+        .risk-level-card > span {
+            display: block;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+        }
+
+        .risk-score-card strong {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 34px;
+            line-height: 1;
+        }
+
+        .risk-score-card small,
+        .risk-level-card small {
+            display: block;
+            margin-top: 7px;
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .risk-level-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 9px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.6px;
+        }
+
+        .risk-level-high {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .risk-level-medium {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .risk-level-low {
+            background: #ecfdf3;
+            color: #15803d;
+        }
+
+        .risk-level-none {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .risk-summary-message {
+            padding: 14px 16px;
+            border-left: 3px solid #2563eb;
+            background: #f8fafc;
+            border-radius: 10px;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.65;
+            margin-bottom: 20px;
+        }
+
+        .risk-section-label {
+            margin: 19px 0 10px;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.1px;
+        }
+
+        .anomalies-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .anomaly-item {
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 11px;
+            background: #fff;
+        }
+
+        .anomaly-item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .anomaly-type {
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .anomaly-severity {
+            flex: 0 0 auto;
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .anomaly-severity.high {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .anomaly-severity.medium {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .anomaly-severity.low {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .anomaly-message {
+            margin-top: 8px;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .anomaly-evidence {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .anomaly-evidence-item {
+            padding: 9px 10px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #eef2f7;
+        }
+
+        .anomaly-evidence-item span {
+            display: block;
+            color: #64748b;
+            font-size: 9px;
+            margin-bottom: 3px;
+        }
+
+        .anomaly-evidence-item strong {
+            display: block;
+            font-size: 11px;
+            word-break: break-word;
+        }
+
+        .risk-breakdown-grid,
+        .risk-evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .risk-breakdown-item,
+        .risk-evidence-item {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .risk-breakdown-item span,
+        .risk-evidence-item span {
+            display: block;
+            color: #64748b;
+            font-size: 9px;
+            margin-bottom: 4px;
+        }
+
+        .risk-breakdown-item strong,
+        .risk-evidence-item strong {
+            display: block;
+            font-size: 13px;
+            word-break: break-word;
+        }
+
+        .risk-expandable {
+            margin-top: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .risk-expandable summary {
+            padding: 13px 14px;
+            cursor: pointer;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .risk-evidence-body {
+            padding: 0 14px 14px;
+        }
+
+        .risk-ml-message {
+            margin-top: 12px;
+            padding: 11px 12px;
+            border-radius: 9px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 11px;
+            line-height: 1.55;
+        }
+
+        .ai-model-panel {
+            margin-top: 16px;
+            padding: 15px;
+            border: 1px solid #dbeafe;
+            border-radius: 11px;
+            background: #f8fbff;
+        }
+
+        .ai-model-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .ai-model-title {
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .ai-model-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .ai-model-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 9px;
+        }
+
+        .ai-model-item {
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            background: #ffffff;
+        }
+
+        .ai-model-item span {
+            display: block;
+            color: #64748b;
+            font-size: 9px;
+            margin-bottom: 4px;
+        }
+
+        .ai-model-item strong {
+            display: block;
+            color: #0f172a;
+            font-size: 12px;
+            word-break: break-word;
+        }
+
+        .ai-model-message {
+            margin-top: 10px;
+            padding: 10px 11px;
+            border-radius: 9px;
+            background: #eef6ff;
+            color: #475569;
+            font-size: 11px;
+            line-height: 1.55;
+        }
+
+        .risk-empty {
+            padding: 14px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+            color: #64748b;
+            font-size: 12px;
+            text-align: center;
+            background: #f8fafc;
+        }
+
+        @media (max-width: 800px) {
+
+            .risk-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .risk-breakdown-grid,
+            .risk-evidence-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .anomaly-evidence {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-model-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+
+
+
+        /* =====================================================
+           REVIEW DECISION UI
+           ===================================================== */
+
+                .review-audit-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .review-audit-item {
+            padding: 11px 12px;
+            border: 1px solid rgba(127,127,127,0.15);
+            border-radius: 9px;
+            background: #f8fafc;
+        }
+
+        .review-audit-item strong {
+            display: block;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .review-audit-item span {
+            display: block;
+            margin-top: 3px;
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.45;
+        }
+
+        .review-audit-empty {
+            color: #64748b;
+            font-size: 11px;
+            line-height: 1.55;
+        }
+
+.verification-response-panel {
+            border-left: 3px solid #d97706;
+        }
+
+        .verification-response-state {
+            padding: 11px 12px;
+            margin-bottom: 13px;
+            border-radius: 9px;
+            background: #fff7ed;
+            color: #9a3412;
+            font-size: 11px;
+            line-height: 1.55;
+        }
+
+        .verification-response-note {
+            width: 100%;
+            min-height: 110px;
+            box-sizing: border-box;
+            padding: 11px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            resize: vertical;
+            font: inherit;
+            font-size: 12px;
+        }
+
+        .verification-response-actions {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+            margin-top: 11px;
+        }
+
+        .verification-response-button {
+            min-height: 38px;
+            padding: 0 12px;
+            border-radius: 9px;
+            border: 1px solid #fed7aa;
+            background: #fff7ed;
+            color: #9a3412;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .review-decision-state {
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .review-note-label {
+            display: block;
+            margin-bottom: 7px;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .review-note-input {
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 92px;
+            resize: vertical;
+            padding: 11px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: white;
+            color: #0f172a;
+            font: inherit;
+            font-size: 12px;
+            line-height: 1.55;
+            outline: none;
+        }
+
+        .review-note-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+        }
+
+        .review-decision-message {
+            margin-top: 12px;
+            padding: 11px 12px;
+            border-radius: 9px;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .review-decision-message.success {
+            background: #ecfdf3;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .review-decision-message.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
+
+        .review-decision-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 9px;
+            margin-top: 14px;
+        }
+
+        .review-decision-button {
+            min-height: 42px;
+            padding: 0 11px;
+            border-radius: 9px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .review-decision-button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .review-approve {
+            background: #ecfdf3;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        .review-reject {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
+        .review-verify {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #1d4ed8;
+        }
+
+        .review-decision-hint {
+            display: block;
+            margin-top: 10px;
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .review-decision-record {
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .review-decision-record strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #0f172a;
+            font-size: 12px;
+        }
+
+        .review-decision-record span {
+            display: block;
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.55;
+        }
+
+        @media (max-width: 800px) {
+
+            .review-decision-actions {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+    </style>
+
+</head>
+
+
+<body class="theme-reviewer">
+
+    <header class="navbar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                CG
+            </div>
+
+            <div class="brand-text">
+
+                <h2>
+                    ClaimGuard
+                </h2>
+
+                <span>
+                    Invoice Intelligence
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="nav-utility">
+            <div class="search-box" aria-label="Search invoice">
+                <span>⌕</span>
+                <input type="search" id="invoiceSearch" placeholder="Search evidence..." />
+            </div>
+            <span class="notification-pill" id="detailsNotificationCount">2</span>
+            <a
+                href="user-dashboard.html"
+                class="nav-login"
+            >
+                Dashboard
+            </a>
+        </div>
+
+    </header>
+
+    <main class="invoice-details-page">
+
+        <div class="invoice-details-container">
+
+            <section class="role-banner">
+                <div class="role-banner-inner">
+                    <div class="role-banner-copy">
+                        <span class="role-banner-label">Invoice review</span>
+                        <h1 id="invoiceTitleBanner">Invoice verification</h1>
+                        <p>Review extracted details, verification logic, market signals, and routing evidence before approving or rejecting the claim.</p>
+                    </div>
+                    <div class="role-banner-actions">
+                        <a href="reviewer-dashboard.html" class="inline-action">Review queue</a>
+                        <a href="user-dashboard.html" class="back-link">← Dashboard</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="details-header">
+
+                <span class="auth-label">
+                    INVOICE VERIFICATION
+                </span>
+
+                <h1>
+                    Verification result
+                </h1>
+
+                <p>
+                    Review the extracted invoice information and
+                    ClaimGuard's current document-level verification checks.
+                </p>
+
+            </section>
+
+
+            <!-- ERROR -->
+
+            <div
+                id="errorState"
+                class="error-state"
+            ></div>
+
+
+            <!-- LOADING -->
+
+            <div
+                id="loadingState"
+                class="details-panel"
+            >
+
+                <div class="loading-state">
+                    Loading invoice verification...
+                </div>
+
+            </div>
+
+
+            <!-- CONTENT -->
+
+            <div
+                id="detailsContent"
+                class="invoice-grid"
+                style="display:none;"
+            >
+
+
+                <!-- =================================================
+                     LEFT COLUMN
+                     ================================================= -->
+
+                <div>
+
+
+                    <!-- INVOICE SUMMARY -->
+
+                    <section class="details-panel">
+
+                        <div class="panel-top">
+
+                            <span>
+                                INVOICE INFORMATION
+                            </span>
+
+                            <h2>
+                                Extracted details
+                            </h2>
+
+                        </div>
+
+
+                        <div class="panel-body">
+
+                            <div class="invoice-summary">
+
+                                <div class="summary-item">
+
+                                    <span>
+                                        Invoice ID
+                                    </span>
+
+                                    <strong id="invoiceId">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="summary-item">
+
+                                    <span>
+                                        Invoice Number
+                                    </span>
+
+                                    <strong id="invoiceNumber">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="summary-item">
+
+                                    <span>
+                                        Vendor
+                                    </span>
+
+                                    <strong id="vendorName">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="summary-item">
+
+                                    <span>
+                                        Invoice Date
+                                    </span>
+
+                                    <strong id="invoiceDate">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="summary-item">
+
+                                    <span>
+                                        Quantity
+                                    </span>
+
+                                    <strong id="quantity">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="summary-item">
+
+                                    <span>
+                                        Unit Price
+                                    </span>
+
+                                    <strong id="unitPrice">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="summary-item">
+
+                                    <span>
+                                        Subtotal
+                                    </span>
+
+                                    <strong id="subtotal">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="summary-item">
+
+                                    <span>
+                                        Tax / VAT
+                                    </span>
+
+                                    <strong id="taxAmount">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="summary-item">
+
+                                    <span>
+                                        Total Amount
+                                    </span>
+
+                                    <strong id="totalAmount">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="summary-item">
+
+                                    <span>
+                                        Verification Code
+                                    </span>
+
+                                    <strong id="verificationCode">
+                                        —
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- VERIFICATION CHECKS -->
+
+                    <section class="details-panel">
+
+                        <div class="panel-top">
+
+                            <span>
+                                DOCUMENT CHECKS
+                            </span>
+
+                            <h2>
+                                Verification checks
+                            </h2>
+
+                        </div>
+
+
+                        <div class="panel-body">
+
+                            <div
+                                id="verificationStatus"
+                                class="status-badge-large status-neutral"
+                            >
+                                CHECKING
+                            </div>
+
+
+                            <div class="verification-box">
+
+                                <div
+                                    id="verificationCodeLarge"
+                                    class="verification-code"
+                                >
+                                    —
+                                </div>
+
+                                <div
+                                    id="verificationMessage"
+                                    class="verification-message"
+                                >
+                                    —
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                id="duplicateBox"
+                                class="duplicate-box"
+                                style="display:none;"
+                            >
+
+                                <strong>
+                                    Possible duplicate detected
+                                </strong>
+
+                                <span>
+                                    Existing invoice:
+                                    <b id="duplicateInvoiceId">
+                                        —
+                                    </b>
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+
+                <!-- =================================================
+                     RIGHT COLUMN
+                     ================================================= -->
+
+                <div>
+
+
+                    <!-- CHECK RESULTS -->
+
+                    <section class="details-panel">
+
+                        <div class="panel-top">
+
+                            <span>
+                                VALIDATION RESULTS
+                            </span>
+
+                            <h2>
+                                Check summary
+                            </h2>
+
+                        </div>
+
+
+                        <div class="panel-body">
+
+                            <div
+                                id="checksList"
+                                class="checks-list"
+                            ></div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- STATUS -->
+
+                    <section class="details-panel">
+
+                        <div class="panel-top">
+
+                            <span>
+                                CURRENT STATE
+                            </span>
+
+                            <h2>
+                                Invoice status
+                            </h2>
+
+                        </div>
+
+
+                        <div class="panel-body">
+
+                            <div class="document-status">
+
+                                <span>
+                                    CLAIMGUARD STATUS
+                                </span>
+
+                                <strong id="documentStatus">
+                                    —
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- USER VERIFICATION RESPONSE -->
+
+                    <section
+                        id="verificationResponsePanel"
+                        class="details-panel verification-response-panel"
+                        style="display:none;"
+                    >
+
+                        <div class="panel-top">
+
+                            <span>
+                                VERIFICATION REQUEST
+                            </span>
+
+                            <h2>
+                                Provide additional information
+                            </h2>
+
+                        </div>
+
+                        <div class="panel-body">
+
+                            <div
+                                id="verificationResponseState"
+                                class="verification-response-state"
+                            >
+                                Finance/Reviewer has requested additional verification.
+                            </div>
+
+                            <label
+                                for="verificationResponseNote"
+                                class="review-note-label"
+                            >
+                                Verification information
+                            </label>
+
+                            <textarea
+                                id="verificationResponseNote"
+                                class="verification-response-note"
+                                rows="5"
+                                maxlength="3000"
+                                placeholder="Enter the requested verification details, explanation or supporting information."
+                            ></textarea>
+
+                            <div
+                                id="verificationResponseMessage"
+                                class="review-decision-message"
+                                style="display:none;"
+                            ></div>
+
+                            <div class="verification-response-actions">
+
+                                <button
+                                    type="button"
+                                    id="submitVerificationResponseButton"
+                                    class="verification-response-button"
+                                >
+                                    Submit Verification
+                                </button>
+
+                            </div>
+
+                            <small class="review-decision-hint">
+                                The invoice will return to the Finance/Reviewer queue after submission.
+                            </small>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- REVIEW DECISION -->
+
+                    <section
+                        id="reviewDecisionPanel"
+                        class="details-panel review-decision-panel"
+                        style="display:none;"
+                    >
+
+                        <div class="panel-top">
+
+                            <span>
+                                REVIEW DECISION
+                            </span>
+
+                            <h2>
+                                Authorized reviewer action
+                            </h2>
+
+                        </div>
+
+
+                        <div class="panel-body">
+
+                            <div
+                                id="reviewDecisionState"
+                                class="review-decision-state"
+                            >
+                                No final decision has been recorded.
+                            </div>
+
+
+                            <label
+                                for="reviewDecisionNote"
+                                class="review-note-label"
+                            >
+                                Reviewer note
+                            </label>
+
+
+                            <textarea
+                                id="reviewDecisionNote"
+                                class="review-note-input"
+                                rows="4"
+                                maxlength="2000"
+                                placeholder="Optional: explain the decision or required verification."
+                            ></textarea>
+
+
+                            <div
+                                id="reviewDecisionMessage"
+                                class="review-decision-message"
+                                style="display:none;"
+                            ></div>
+
+
+                            <div class="review-decision-actions">
+
+                                <button
+                                    type="button"
+                                    id="approveInvoiceButton"
+                                    class="review-decision-button review-approve"
+                                >
+                                    Approve Invoice
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    id="rejectInvoiceButton"
+                                    class="review-decision-button review-reject"
+                                >
+                                    Reject Invoice
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    id="requestVerificationButton"
+                                    class="review-decision-button review-verify"
+                                >
+                                    Request Verification
+                                </button>
+
+                            </div>
+
+
+                            <small class="review-decision-hint">
+                                Only Admin and Finance/Reviewer accounts can submit a decision.
+                            </small>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- REVIEW AUDIT TRAIL -->
+
+                    <section
+                        class="details-panel"
+                        id="reviewAuditPanel"
+                    >
+
+                        <div class="panel-top">
+
+                            <span>
+                                AUDIT TRAIL
+                            </span>
+
+                            <h2>
+                                Finance review history
+                            </h2>
+
+                        </div>
+
+
+                        <div class="panel-body">
+
+                            <div
+                                id="reviewAuditList"
+                                class="review-audit-list"
+                            >
+                                Loading review history...
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- ACTIONS -->
+
+                    <section class="details-panel">
+
+                        <div class="panel-body">
+
+                            <div class="action-row">
+
+                                <a
+                                    href="user-dashboard.html"
+                                    class="back-button"
+                                >
+                                    Back to Dashboard
+                                </a>
+
+                                <a
+                                    href="upload-invoice.html"
+                                    class="btn-primary"
+                                >
+                                    Upload Another
+
+                                </a>
+
+
+                                <button
+                                    type="button"
+                                    id="downloadReportButton"
+                                    class="report-download-button"
+                                >
+                                    Download PDF Report
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+            <!-- =================================================
+                 MARKET PRICE INTELLIGENCE
+                 ================================================= -->
+
+
+            <!-- =================================================
+                 RISK & ANOMALY INTELLIGENCE
+                 ================================================= -->
+
+            <section
+                id="riskAnalysisPanel"
+                class="details-panel risk-analysis-panel"
+            >
+
+                <div class="panel-top">
+
+                    <span>
+                        RISK &amp; ANOMALY INTELLIGENCE
+                    </span>
+
+                    <h2>
+                        Evidence-based risk analysis
+                    </h2>
+
+                </div>
+
+
+                <div class="panel-body">
+
+                    <div
+                        id="riskOverview"
+                        class="risk-overview"
+                    >
+
+                        <div class="risk-score-card">
+
+                            <span>
+                                RISK SCORE
+                            </span>
+
+                            <strong id="riskScoreValue">
+                                —
+                            </strong>
+
+                            <small>
+                                out of 100
+                            </small>
+
+                        </div>
+
+
+                        <div class="risk-level-card">
+
+                            <span>
+                                RISK LEVEL
+                            </span>
+
+                            <strong
+                                id="riskLevelValue"
+                                class="risk-level-badge risk-level-none"
+                            >
+                                NOT SCORED
+                            </strong>
+
+                            <small id="riskReviewValue">
+                                Human review required
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="riskSummaryMessage"
+                        class="risk-summary-message"
+                    >
+                        Loading risk analysis...
+                    </div>
+
+
+                    <div class="risk-section-label">
+                        LOCAL AI / ML INTELLIGENCE
+                    </div>
+
+                    <div
+                        id="aiModelPanel"
+                        class="ai-model-panel"
+                    >
+
+                        <div class="ai-model-header">
+
+                            <span class="ai-model-title">
+                                ClaimGuard Local AI Anomaly Engine
+                            </span>
+
+                            <span
+                                id="aiModelStatus"
+                                class="ai-model-badge"
+                            >
+                                NOT SCORED
+                            </span>
+
+                        </div>
+
+                        <div
+                            id="aiModelGrid"
+                            class="ai-model-grid"
+                        ></div>
+
+                        <div
+                            id="aiModelMessage"
+                            class="ai-model-message"
+                        >
+                            Loading local AI model analysis...
+                        </div>
+
+                    </div>
+
+                    <div class="risk-section-label">
+                        DETECTED ANOMALIES
+                    </div>
+
+
+                    <div
+                        id="anomaliesList"
+                        class="anomalies-list"
+                    ></div>
+
+
+                    <div class="risk-section-label">
+                        SCORE BREAKDOWN
+                    </div>
+
+
+                    <div
+                        id="riskBreakdownGrid"
+                        class="risk-breakdown-grid"
+                    ></div>
+
+
+                    <details
+                        id="riskEvidenceDetails"
+                        class="risk-expandable"
+                    >
+
+                        <summary>
+                            Evidence &amp; model details
+                        </summary>
+
+
+                        <div class="risk-evidence-body">
+
+                            <div
+                                id="riskEvidenceGrid"
+                                class="risk-evidence-grid"
+                            ></div>
+
+
+                            <div
+                                id="riskMlMessage"
+                                class="risk-ml-message"
+                            ></div>
+
+                        </div>
+
+                    </details>
+
+                </div>
+
+            </section>
+
+            <section
+                id="marketPricePanel"
+                class="details-panel market-panel"
+            >
+
+                <div class="panel-top">
+
+                    <span>
+                        MARKET PRICE INTELLIGENCE
+                    </span>
+
+                    <h2>
+                        Observed market reference
+                    </h2>
+
+                </div>
+
+                <div class="panel-body">
+
+                    <div
+                        id="marketStatus"
+                        class="market-status market-status-unavailable"
+                    >
+                        NO MARKET DATA
+                    </div>
+
+                    <p class="market-intro">
+                        ClaimGuard compares the invoice unit price with comparable web-observed prices.
+                        These references are observations from public web sources and are not represented
+                        as the actual purchase price paid by the vendor.
+                    </p>
+
+                    <div
+                        id="marketReferenceNote"
+                        class="market-reference-note"
+                    >
+                        <strong>
+                            Market reference rule
+                        </strong>
+                        Only sources that pass the product/variant matching checks are included in the
+                        market statistics used by ClaimGuard.
+                    </div>
+
+                    <div
+                        id="marketSummaryGrid"
+                        class="market-summary-grid"
+                    ></div>
+
+                    <div
+                        id="marketDelta"
+                        class="market-delta"
+                        style="display:none;"
+                    ></div>
+
+                    <div
+                        id="marketVendorRelation"
+                        class="market-vendor-relation"
+                        style="display:none;"
+                    ></div>
+
+                    <div
+                        id="marketSourcesContainer"
+                    ></div>
+
+                    <details
+                        id="marketAverageDetails"
+                        class="market-expandable"
+                    >
+
+                        <summary>
+                            Market Average &amp; calculation details
+                        </summary>
+
+                        <div class="market-expandable-body">
+
+                            <div
+                                id="marketDiagnosticsGrid"
+                                class="market-diagnostics-grid"
+                            ></div>
+
+                            <div
+                                id="marketMethodology"
+                                class="market-methodology"
+                            ></div>
+
+                        </div>
+
+                    </details>
+
+                </div>
+
+            </section>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script>
+
+        const API_BASE_URL =
+            "http://127.0.0.1:8000";
+
+
+        const accessToken =
+            localStorage.getItem(
+                "claimguard_access_token"
+            );
+
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+
+        const invoiceId =
+            params.get(
+                "invoice_id"
+            );
+
+
+        const loadingState =
+            document.getElementById(
+                "loadingState"
+            );
+
+
+        const detailsContent =
+            document.getElementById(
+                "detailsContent"
+            );
+
+
+        const errorState =
+            document.getElementById(
+                "errorState"
+            );
+
+
+        // =====================================================
+        // HELPERS
+        // =====================================================
+
+        function formatNumber(
+            value
+        ) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                value === ""
+            ) {
+
+                return "—";
+
+            }
+
+
+            if (
+                typeof value === "number"
+            ) {
+
+                return value.toLocaleString(
+                    "en-US"
+                );
+
+            }
+
+
+            return String(
+                value
+            );
+
+        }
+
+
+        function checkText(
+            value
+        ) {
+
+            return value
+                ? "Passed"
+                : "Not passed";
+
+        }
+
+
+        function checkClass(
+            value
+        ) {
+
+            return value
+                ? "check-pass"
+                : "check-fail";
+
+        }
+
+
+        function statusClass(
+            status
+        ) {
+
+            if (
+                status ===
+                "verified_document"
+            ) {
+
+                return "status-success";
+
+            }
+
+
+            if (
+                status ===
+                "possible_duplicate"
+            ) {
+
+                return "status-warning";
+
+            }
+
+
+            if (
+                status ===
+                "verification_failed"
+            ) {
+
+                return "status-error";
+
+            }
+
+
+            return "status-neutral";
+
+        }
+
+
+        function displayStatus(
+            status
+        ) {
+
+            const names = {
+
+                verified_document:
+                    "VERIFIED DOCUMENT",
+
+                possible_duplicate:
+                    "POSSIBLE DUPLICATE",
+
+                verification_failed:
+                    "VERIFICATION FAILED",
+
+                verification_required:
+                    "VERIFICATION REQUIRED",
+
+                verification_error:
+                    "VERIFICATION ERROR",
+
+                extracted:
+                    "EXTRACTED",
+
+                uploaded:
+                    "UPLOADED",
+
+                extraction_failed:
+                    "EXTRACTION FAILED",
+
+                no_text_found:
+                    "NO TEXT FOUND",
+
+            };
+
+
+            return names[
+                status
+            ]
+            || String(
+                status || "UNKNOWN"
+            )
+                .replaceAll(
+                    "_",
+                    " "
+                )
+                .toUpperCase();
+
+        }
+
+
+        // =====================================================
+        // RENDER CHECKS
+        // =====================================================
+
+        function renderChecks(
+            checks
+        ) {
+
+            const checksList =
+                document.getElementById(
+                    "checksList"
+                );
+
+
+            const items = [
+
+                [
+                    "Verification code present",
+                    checks.code_present
+                ],
+
+                [
+                    "Verification code format",
+                    checks.format_valid
+                ],
+
+                [
+                    "Duplicate code check",
+                    !checks.duplicate_code
+                ],
+
+                [
+                    "Invoice number present",
+                    checks.invoice_number_present
+                ],
+
+                [
+                    "Vendor present",
+                    checks.vendor_present
+                ],
+
+                [
+                    "Total amount present",
+                    checks.total_amount_present
+                ],
+
+            ];
+
+
+            checksList.innerHTML = "";
+
+
+            items.forEach(
+                ([label, passed]) => {
+
+                    const row =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    row.className =
+                        "check-row";
+
+
+                    row.innerHTML = `
+
+                        <span>
+                            ${label}
+                        </span>
+
+                        <strong
+                            class="check-result ${
+                                checkClass(
+                                    passed
+                                )
+                            }"
+                        >
+                            ${checkText(
+                                passed
+                            )}
+                        </strong>
+
+                    `;
+
+
+                    checksList.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+        }
+
+
+        // =====================================================
+        // LOAD INVOICE
+        // =====================================================
+
+        async function loadInvoice() {
+
+            if (!accessToken) {
+
+                window.location.href =
+                    "login.html";
+
+                return;
+
+            }
+
+
+            if (!invoiceId) {
+
+                showError(
+                    "No invoice ID was provided."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/invoices/${encodeURIComponent(
+                            invoiceId
+                        )}`,
+                        {
+
+                            method:
+                                "GET",
+
+                            headers: {
+
+                                "Authorization":
+                                    `Bearer ${accessToken}`
+
+                            }
+
+                        }
+                    );
+
+
+                let data =
+                    {};
+
+
+                try {
+
+                    data =
+                        await response.json();
+
+                } catch {
+
+                    data =
+                        {};
+
+                }
+
+
+                if (
+                    !response.ok
+                ) {
+
+                    throw new Error(
+                        data.detail
+                        ||
+                        "Unable to load invoice."
+                    );
+
+                }
+
+
+                renderInvoice(
+                    data.invoice
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Invoice details error:",
+                    error
+                );
+
+
+                showError(
+                    error.message
+                    ||
+                    "Unable to load invoice details."
+                );
+
+            }
+
+        }
+
+
+        // =====================================================
+        // RENDER INVOICE
+        // =====================================================
+
+        function renderInvoice(
+            invoice
+        ) {
+
+            const extracted =
+                invoice.extracted_data
+                || {};
+
+
+            const verification =
+                invoice.verification
+                || {};
+
+
+            const checks =
+                verification.checks
+                || {};
+
+
+            // -------------------------------------------------
+            // Basic information
+            // -------------------------------------------------
+
+            document.getElementById(
+                "invoiceId"
+            ).textContent =
+                invoice.invoice_id
+                || "—";
+
+
+            document.getElementById(
+                "invoiceNumber"
+            ).textContent =
+                extracted.invoice_number
+                || "—";
+
+
+            document.getElementById(
+                "vendorName"
+            ).textContent =
+                extracted.vendor_name
+                || "—";
+
+
+            document.getElementById(
+                "invoiceDate"
+            ).textContent =
+                extracted.invoice_date
+                || "—";
+
+
+            document.getElementById(
+                "quantity"
+            ).textContent =
+                formatNumber(
+                    extracted.quantity
+                );
+
+
+            document.getElementById(
+                "unitPrice"
+            ).textContent =
+                formatNumber(
+                    extracted.unit_price
+                );
+
+
+            document.getElementById(
+                "subtotal"
+            ).textContent =
+                formatNumber(
+                    extracted.subtotal
+                );
+
+
+            document.getElementById(
+                "taxAmount"
+            ).textContent =
+                formatNumber(
+                    extracted.tax_amount
+                );
+
+
+            document.getElementById(
+                "totalAmount"
+            ).textContent =
+                formatNumber(
+                    extracted.total_amount
+                );
+
+
+            document.getElementById(
+                "verificationCode"
+            ).textContent =
+                extracted.verification_code
+                || invoice.verification_code
+                || "—";
+
+
+            // -------------------------------------------------
+            // Verification code box
+            // -------------------------------------------------
+
+            document.getElementById(
+                "verificationCodeLarge"
+            ).textContent =
+                verification.verification_code
+                || extracted.verification_code
+                || "No code found";
+
+
+            document.getElementById(
+                "verificationMessage"
+            ).textContent =
+                verification.message
+                || "No verification message available.";
+
+
+            // -------------------------------------------------
+            // Status
+            // -------------------------------------------------
+
+            const status =
+                verification.status
+                || invoice.status
+                || "unknown";
+
+
+            const statusElement =
+                document.getElementById(
+                    "verificationStatus"
+                );
+
+
+            statusElement.className =
+                `status-badge-large ${
+                    statusClass(
+                        status
+                    )
+                }`;
+
+
+            statusElement.textContent =
+                displayStatus(
+                    status
+                );
+
+
+            document.getElementById(
+                "documentStatus"
+            ).textContent =
+                displayStatus(
+                    invoice.status
+                    || status
+                );
+
+
+            // -------------------------------------------------
+            // Checks
+            // -------------------------------------------------
+
+            renderChecks(
+                checks
+            );
+
+
+            // -------------------------------------------------
+            // Market price intelligence
+            // -------------------------------------------------
+
+            renderRiskAnalysis(
+                invoice
+            );
+
+
+            renderReviewDecision(
+                invoice
+            );
+
+
+            renderVerificationResponse(
+                invoice
+            );
+
+            renderReviewAuditTrail(
+                invoice
+            );
+
+
+            renderMarketAnalysis(
+                invoice.market_analysis
+                || null
+            );
+
+
+            // -------------------------------------------------
+            // Duplicate information
+            // -------------------------------------------------
+
+            const duplicateInvoiceId =
+                verification.duplicate_invoice_id;
+
+
+            if (
+                duplicateInvoiceId
+            ) {
+
+                const duplicateBox =
+                    document.getElementById(
+                        "duplicateBox"
+                    );
+
+
+                duplicateBox.style.display =
+                    "block";
+
+
+                document.getElementById(
+                    "duplicateInvoiceId"
+                ).textContent =
+                    duplicateInvoiceId;
+
+            }
+
+
+            // -------------------------------------------------
+            // Show page
+            // -------------------------------------------------
+
+            loadingState.style.display =
+                "none";
+
+
+            detailsContent.style.display =
+                "grid";
+
+        }
+
+
+
+
+        // =====================================================
+        // MARKET PRICE INTELLIGENCE
+        // =====================================================
+
+        function escapeHtml(
+            value
+        ) {
+
+            return String(
+                value === null || value === undefined
+                    ? ""
+                    : value
+            )
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+
+        }
+
+
+        function formatCurrency(
+            value,
+            currency
+        ) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                value === ""
+            ) {
+
+                return "—";
+
+            }
+
+
+            const numeric =
+                Number(
+                    value
+                );
+
+
+            if (
+                Number.isNaN(
+                    numeric
+                )
+            ) {
+
+                return `${escapeHtml(value)}${
+                    currency
+                        ? ` ${escapeHtml(currency)}`
+                        : ""
+                }`;
+
+            }
+
+
+            const formatted =
+                numeric.toLocaleString(
+                    "en-US",
+                    {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+
+            if (
+                String(
+                    currency || ""
+                ).toUpperCase() === "BDT"
+            ) {
+
+                return `৳${formatted}`;
+
+            }
+
+
+            return `${formatted}${
+                currency
+                    ? ` ${escapeHtml(currency)}`
+                    : ""
+            }`;
+
+        }
+
+
+        function formatPercent(
+            value
+        ) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                value === ""
+            ) {
+
+                return "—";
+
+            }
+
+
+            const numeric =
+                Number(
+                    value
+                );
+
+
+            if (
+                Number.isNaN(
+                    numeric
+                )
+            ) {
+
+                return "—";
+
+            }
+
+
+            const sign =
+                numeric > 0
+                    ? "+"
+                    : "";
+
+
+            return `${sign}${numeric.toFixed(2)}%`;
+
+        }
+
+
+        function formatObservedDate(
+            value
+        ) {
+
+            if (!value) {
+
+                return "Unknown";
+
+            }
+
+
+            const date =
+                new Date(
+                    value
+                );
+
+
+            if (
+                Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                return String(
+                    value
+                );
+
+            }
+
+
+            return date.toLocaleString(
+                "en-GB",
+                {
+                    dateStyle: "medium",
+                    timeStyle: "short"
+                }
+            );
+
+        }
+
+
+        function sourceTypeLabel(
+            source
+        ) {
+
+            if (
+                source.official_brand
+                ||
+                source.source_category ===
+                "official_brand"
+            ) {
+
+                return [
+                    "Official Brand"
+                ];
+
+            }
+
+
+            if (
+                source.vendor_owned
+                ||
+                source.vendor_relationship
+            ) {
+
+                return [
+                    "Vendor / Distributor"
+                ];
+
+            }
+
+
+            if (
+                source.source_category ===
+                "marketplace"
+            ) {
+
+                return [
+                    "Marketplace"
+                ];
+
+            }
+
+
+            if (
+                source.source_category ===
+                "retailer"
+            ) {
+
+                return [
+                    "Retailer"
+                ];
+
+            }
+
+
+            return [
+                "Web Source"
+            ];
+
+        }
+
+
+        function sourceTypeClass(
+            source
+        ) {
+
+            if (
+                source.official_brand
+                ||
+                source.source_category ===
+                "official_brand"
+            ) {
+
+                return "market-badge-official";
+
+            }
+
+
+            if (
+                source.vendor_owned
+                ||
+                source.vendor_relationship
+            ) {
+
+                return "market-badge-vendor";
+
+            }
+
+
+            if (
+                source.source_category ===
+                "marketplace"
+            ) {
+
+                return "market-badge-marketplace";
+
+            }
+
+
+            if (
+                source.source_category ===
+                "retailer"
+            ) {
+
+                return "market-badge-retailer";
+
+            }
+
+
+            return "market-badge-web";
+
+        }
+
+
+        function availabilityLabel(
+            availability
+        ) {
+
+            const normalized =
+                String(
+                    availability ||
+                    "unknown"
+                )
+                    .toLowerCase();
+
+
+            if (
+                normalized === "available" ||
+                normalized === "listed" ||
+                normalized === "in_stock"
+            ) {
+
+                return [
+                    "Listed / Available",
+                    "market-availability-listed"
+                ];
+
+            }
+
+
+            if (
+                normalized === "out_of_stock"
+            ) {
+
+                return [
+                    "Out of stock",
+                    "market-availability-out"
+                ];
+
+            }
+
+
+            return [
+                "Availability unknown",
+                "market-availability-unknown"
+            ];
+
+        }
+
+
+        function normalizeMarketSources(
+            market
+        ) {
+
+            if (
+                Array.isArray(
+                    market.sources
+                )
+                &&
+                market.sources.length
+            ) {
+
+                return market.sources;
+
+            }
+
+
+            const groups = [
+                market.vendor_website_sources,
+                market.official_brand_sources,
+                market.marketplace_sources,
+                market.retailer_sources,
+                market.other_web_sources
+            ];
+
+
+            const seen =
+                new Set();
+
+            const result = [];
+
+
+            groups.forEach(
+                group => {
+
+                    if (!Array.isArray(group)) {
+
+                        return;
+
+                    }
+
+
+                    group.forEach(
+                        source => {
+
+                            const key =
+                                String(
+                                    source.url ||
+                                    source.source_name ||
+                                    source.title ||
+                                    result.length
+                                );
+
+
+                            if (
+                                seen.has(key)
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            seen.add(key);
+
+                            result.push(
+                                source
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+            return result;
+
+        }
+
+
+        function renderMarketSource(
+            source,
+            currency
+        ) {
+
+            const sourceLabels =
+                sourceTypeLabel(
+                    source
+                );
+
+
+            const availability =
+                availabilityLabel(
+                    source.availability
+                );
+
+
+            const confidence =
+                Number(
+                    source.match_confidence
+                );
+
+
+            const confidenceText =
+                Number.isNaN(
+                    confidence
+                )
+                    ? "Not stated"
+                    : `${Math.round(
+                        confidence * 100
+                    )}%`;
+
+
+            const variant =
+                source.variant_evidence
+                || {};
+
+
+            const notes = [];
+
+
+            if (
+                source.variant_match_note
+            ) {
+
+                notes.push(
+                    source.variant_match_note
+                );
+
+            }
+
+
+            if (
+                source.brand_metadata_conflict
+            ) {
+
+                notes.push(
+                    `Marketplace brand metadata: ${
+                        source.marketplace_brand_label
+                        ||
+                        "conflict detected"
+                    }.`
+                );
+
+            }
+
+
+            if (
+                source.vendor_relationship
+            ) {
+
+                notes.push(
+                    `Vendor relationship: ${
+                        source.vendor_relationship
+                    }.`
+                );
+
+            }
+
+
+            if (
+                variant.wired_confirmed === false
+            ) {
+
+                notes.push(
+                    "Wired construction was not explicitly confirmed by this source."
+                );
+
+            }
+
+
+            const model =
+                variant.model
+                || "Not stated";
+
+            const size =
+                variant.size
+                || "Not stated";
+
+            const variantName =
+                variant.variant
+                || "Not stated";
+
+            const sourceUrl =
+                source.url
+                || "";
+
+
+            return `
+
+                <article class="market-source-card">
+
+                    <div class="market-source-main">
+
+                        <div>
+
+                            <div class="market-source-title-row">
+
+                                <span
+                                    class="market-source-badge ${
+                                        sourceTypeClass(
+                                            source
+                                        )
+                                    }"
+                                >
+                                    ${escapeHtml(
+                                        sourceLabels[0]
+                                    )}
+                                </span>
+
+                                <span
+                                    class="market-confidence-badge"
+                                >
+                                    Match ${escapeHtml(
+                                        confidenceText
+                                    )}
+                                </span>
+
+                                <span
+                                    class="market-availability-badge ${
+                                        availability[1]
+                                    }"
+                                >
+                                    ${escapeHtml(
+                                        availability[0]
+                                    )}
+                                </span>
+
+                            </div>
+
+                            <div class="market-source-title">
+                                ${escapeHtml(
+                                    source.source_name
+                                    ||
+                                    source.title
+                                    ||
+                                    "Web Source"
+                                )}
+                            </div>
+
+                            <div class="market-source-meta">
+                                ${escapeHtml(
+                                    source.title
+                                    ||
+                                    "Comparable product reference"
+                                )}
+                                <br>
+                                Observed: ${escapeHtml(
+                                    formatObservedDate(
+                                        source.observed_at
+                                    )
+                                )}
+                            </div>
+
+                        </div>
+
+                        <div class="market-source-price">
+
+                            <strong>
+                                ${formatCurrency(
+                                    source.price,
+                                    currency || source.currency
+                                )}
+                            </strong>
+
+                            <span>
+                                ${escapeHtml(
+                                    source.price_source
+                                    ||
+                                    source.retrieval_method
+                                    ||
+                                    "Observed price"
+                                )}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="market-source-details">
+
+                        <div class="market-detail-grid">
+
+                            <div class="market-detail-item">
+                                <span>Model / SKU</span>
+                                <strong>
+                                    ${escapeHtml(model)}
+                                </strong>
+                            </div>
+
+                            <div class="market-detail-item">
+                                <span>Size</span>
+                                <strong>
+                                    ${escapeHtml(size)}
+                                </strong>
+                            </div>
+
+                            <div class="market-detail-item">
+                                <span>Variant</span>
+                                <strong>
+                                    ${escapeHtml(variantName)}
+                                </strong>
+                            </div>
+
+                            <div class="market-detail-item">
+                                <span>Direct source</span>
+                                <strong>
+                                    ${source.direct_source
+                                        ? "Yes"
+                                        : "No"}
+                                </strong>
+                            </div>
+
+                            <div class="market-detail-item">
+                                <span>Official brand</span>
+                                <strong>
+                                    ${source.official_brand
+                                        ? "Yes"
+                                        : "No"}
+                                </strong>
+                            </div>
+
+                            <div class="market-detail-item">
+                                <span>Source domain</span>
+                                <strong>
+                                    ${escapeHtml(
+                                        source.source_name
+                                        ||
+                                        "—"
+                                    )}
+                                </strong>
+                            </div>
+
+                        </div>
+
+                        ${notes.length
+                            ? `
+                                <div class="market-source-note">
+                                    ${notes.map(
+                                        note => escapeHtml(note)
+                                    ).join(" ")}
+                                </div>
+                            `
+                            : ""}
+
+                        ${sourceUrl
+                            ? `
+                                <a
+                                    class="market-source-link"
+                                    href="${escapeHtml(sourceUrl)}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Open source ↗
+                                </a>
+                            `
+                            : ""}
+
+                    </div>
+
+                </article>
+
+            `;
+
+        }
+
+
+        function renderMarketSources(
+            market
+        ) {
+
+            const container =
+                document.getElementById(
+                    "marketSourcesContainer"
+                );
+
+            const sources =
+                normalizeMarketSources(
+                    market
+                );
+
+
+            if (!sources.length) {
+
+                container.innerHTML = `
+                    <div class="market-empty">
+                        No comparable web-observed source passed the current matching rules.
+                        The market price should not be used as a benchmark until a reliable comparable source is found.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            const official =
+                sources.filter(
+                    source =>
+                        source.official_brand
+                        ||
+                        source.source_category ===
+                        "official_brand"
+                );
+
+            const vendor =
+                sources.filter(
+                    source =>
+                        source.vendor_owned
+                        ||
+                        source.vendor_relationship
+                );
+
+            const marketplaces =
+                sources.filter(
+                    source =>
+                        source.source_category ===
+                        "marketplace"
+                );
+
+            const retailers =
+                sources.filter(
+                    source =>
+                        source.source_category ===
+                        "retailer"
+                );
+
+            const other =
+                sources.filter(
+                    source =>
+                        !official.includes(source)
+                        &&
+                        !vendor.includes(source)
+                        &&
+                        !marketplaces.includes(source)
+                        &&
+                        !retailers.includes(source)
+                );
+
+
+            const groups = [
+                [
+                    "Official brand references",
+                    official
+                ],
+                [
+                    "Vendor / distributor references",
+                    vendor.filter(
+                        source =>
+                            !official.includes(source)
+                    )
+                ],
+                [
+                    "Marketplace sources",
+                    marketplaces
+                ],
+                [
+                    "Retailer sources",
+                    retailers
+                ],
+                [
+                    "Other web sources",
+                    other
+                ]
+            ];
+
+
+            container.innerHTML =
+                groups
+                    .filter(
+                        ([, items]) =>
+                            items.length
+                    )
+                    .map(
+                        ([title, items]) => `
+                            <div class="market-source-group">
+                                <h3>
+                                    ${escapeHtml(title)}
+                                </h3>
+                                <div class="market-source-list">
+                                    ${items.map(
+                                        source =>
+                                            renderMarketSource(
+                                                source,
+                                                market.invoice_currency
+                                                ||
+                                                market.market_statistics?.currency
+                                            )
+                                    ).join("")}
+                                </div>
+                            </div>
+                        `
+                    )
+                    .join("");
+
+        }
+
+
+        function renderMarketAnalysis(
+            market
+        ) {
+
+            const panel =
+                document.getElementById(
+                    "marketPricePanel"
+                );
+
+            if (!panel) {
+
+                return;
+
+            }
+
+
+            if (!market) {
+
+                document.getElementById(
+                    "marketStatus"
+                ).textContent =
+                    "NO MARKET DATA";
+
+                document.getElementById(
+                    "marketStatus"
+                ).className =
+                    "market-status market-status-unavailable";
+
+                document.getElementById(
+                    "marketSourcesContainer"
+                ).innerHTML = `
+                    <div class="market-empty">
+                        Market price intelligence is not available for this invoice.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            const statistics =
+                market.market_statistics
+                || {};
+
+            const invoicePrice =
+                Number(
+                    market.invoice_unit_price
+                );
+
+            const currency =
+                market.invoice_currency
+                ||
+                statistics.currency
+                || "";
+
+            const sourceCount =
+                Array.isArray(
+                    market.sources
+                )
+                    ? market.sources.length
+                    : 0;
+
+            const usable =
+                Boolean(
+                    market.usable_for_risk_calculation
+                );
+
+
+            const status =
+                document.getElementById(
+                    "marketStatus"
+                );
+
+            status.textContent =
+                usable
+                    ? "READY FOR RISK REFERENCE"
+                    : sourceCount
+                        ? "LIMITED MARKET REFERENCE"
+                        : "NO MARKET DATA";
+
+            status.className =
+                `market-status ${
+                    usable
+                        ? "market-status-ready"
+                        : sourceCount
+                            ? "market-status-limited"
+                            : "market-status-unavailable"
+                }`;
+
+
+            document.getElementById(
+                "marketSummaryGrid"
+            ).innerHTML = `
+
+                <div class="market-stat">
+                    <span>Invoice Unit Price</span>
+                    <strong>
+                        ${formatCurrency(
+                            market.invoice_unit_price,
+                            currency
+                        )}
+                    </strong>
+                </div>
+
+                <div class="market-stat">
+                    <span>Market Average</span>
+                    <strong>
+                        ${formatCurrency(
+                            statistics.average,
+                            currency
+                        )}
+                    </strong>
+                </div>
+
+                <div class="market-stat">
+                    <span>Lowest</span>
+                    <strong>
+                        ${formatCurrency(
+                            statistics.lowest,
+                            currency
+                        )}
+                    </strong>
+                </div>
+
+                <div class="market-stat">
+                    <span>Highest</span>
+                    <strong>
+                        ${formatCurrency(
+                            statistics.highest,
+                            currency
+                        )}
+                    </strong>
+                </div>
+
+                <div class="market-stat">
+                    <span>Median</span>
+                    <strong>
+                        ${formatCurrency(
+                            statistics.median,
+                            currency
+                        )}
+                    </strong>
+                </div>
+
+                <div class="market-stat">
+                    <span>Independent Sources</span>
+                    <strong>
+                        ${formatNumber(
+                            market.search_diagnostics?.unique_source_domains
+                            ??
+                            sourceCount
+                        )}
+                    </strong>
+                </div>
+
+            `;
+
+
+            const difference =
+                Number(
+                    market.price_difference
+                );
+
+            const differencePercent =
+                Number(
+                    market.price_difference_percent
+                );
+
+            const deltaBox =
+                document.getElementById(
+                    "marketDelta"
+                );
+
+
+            if (
+                !Number.isNaN(difference)
+                ||
+                !Number.isNaN(differencePercent)
+            ) {
+
+                const deltaClass =
+                    difference > 0
+                        ? "market-delta-positive"
+                        : difference < 0
+                            ? "market-delta-negative"
+                            : "market-delta-neutral";
+
+
+                let comparisonText =
+                    "Invoice and observed market reference are equal.";
+
+
+                if (
+                    difference > 0
+                ) {
+
+                    comparisonText =
+                        "Invoice unit price is above the observed market reference."
+
+                } else if (
+                    difference < 0
+                ) {
+
+                    comparisonText =
+                        "Invoice unit price is below the observed market reference."
+
+                }
+
+
+                deltaBox.innerHTML = `
+                    <div class="market-delta-copy">
+                        <span>
+                            Invoice vs. observed market reference
+                        </span>
+                        <strong>
+                            ${escapeHtml(comparisonText)}
+                        </strong>
+                    </div>
+                    <div
+                        class="market-delta-value ${
+                            deltaClass
+                        }"
+                    >
+                        ${formatCurrency(
+                            difference,
+                            currency
+                        )}
+                        <span>
+                            (${formatPercent(
+                                differencePercent
+                            )})
+                        </span>
+                    </div>
+                `;
+
+                deltaBox.style.display =
+                    "grid";
+
+            } else {
+
+                deltaBox.style.display =
+                    "none";
+
+            }
+
+
+            const vendorRelation =
+                document.getElementById(
+                    "marketVendorRelation"
+                );
+
+            const vendorSources =
+                Array.isArray(
+                    market.vendor_website_sources
+                )
+                    ? market.vendor_website_sources
+                    : [];
+
+            const officialSources =
+                Array.isArray(
+                    market.official_brand_sources
+                )
+                    ? market.official_brand_sources
+                    : [];
+
+
+            if (
+                vendorSources.length
+                ||
+                officialSources.length
+            ) {
+
+                vendorRelation.innerHTML = `
+                    Official/vendor-related references are shown separately from general retailers and marketplaces.
+                    ClaimGuard does not treat an official brand site as the vendor's own website unless the source is explicitly marked as vendor-owned.
+                `;
+
+                vendorRelation.style.display =
+                    "block";
+
+            } else {
+
+                vendorRelation.style.display =
+                    "none";
+
+            }
+
+
+            renderMarketSources(
+                market
+            );
+
+
+            const diagnostics =
+                market.search_diagnostics
+                || {};
+
+            const diagnosticsGrid =
+                document.getElementById(
+                    "marketDiagnosticsGrid"
+                );
+
+
+            diagnosticsGrid.innerHTML = `
+
+                <div class="market-diagnostic-item">
+                    <span>Observed Sources</span>
+                    <strong>
+                        ${escapeHtml(
+                            String(
+                                sourceCount
+                            )
+                        )}
+                    </strong>
+                </div>
+
+                <div class="market-diagnostic-item">
+                    <span>Independent Domains</span>
+                    <strong>
+                        ${escapeHtml(
+                            String(
+                                diagnostics.unique_source_domains
+                                ??
+                                sourceCount
+                            )
+                        )}
+                    </strong>
+                </div>
+
+                <div class="market-diagnostic-item">
+                    <span>Analysis Time</span>
+                    <strong>
+                        ${escapeHtml(
+                            diagnostics.elapsed_seconds !== undefined
+                                ? `${diagnostics.elapsed_seconds}s`
+                                : "Not stated"
+                        )}
+                    </strong>
+                </div>
+
+                <div class="market-diagnostic-item">
+                    <span>Fast Path</span>
+                    <strong>
+                        ${diagnostics.fast_path_used
+                            ? "Used"
+                            : "Not used"}
+                    </strong>
+                </div>
+
+                <div class="market-diagnostic-item">
+                    <span>Generic Search</span>
+                    <strong>
+                        ${diagnostics.generic_search_skipped
+                            ? "Skipped"
+                            : "Used / unknown"}
+                    </strong>
+                </div>
+
+                <div class="market-diagnostic-item">
+                    <span>Risk Reference</span>
+                    <strong>
+                        ${usable
+                            ? "Usable"
+                            : "Not usable"}
+                    </strong>
+                </div>
+
+                <div class="market-diagnostic-item">
+                    <span>Marketplaces</span>
+                    <strong>
+                        ${escapeHtml(
+                            String(
+                                diagnostics.marketplace_sources_accepted
+                                ??
+                                market.marketplace_sources?.length
+                                ??
+                                0
+                            )
+                        )}
+                    </strong>
+                </div>
+
+                <div class="market-diagnostic-item">
+                    <span>Retailers</span>
+                    <strong>
+                        ${escapeHtml(
+                            String(
+                                diagnostics.retailer_sources_accepted
+                                ??
+                                market.retailer_sources?.length
+                                ??
+                                0
+                            )
+                        )}
+                    </strong>
+                </div>
+
+            `;
+
+
+            document.getElementById(
+                "marketMethodology"
+            ).textContent =
+                `${market.message || "Comparable web-observed prices were found."} Market statistics are calculated only from accepted comparable sources in this analysis. Web-observed prices can change over time, and source availability may vary.`;
+
+        }
+
+
+
+        // =====================================================
+
+        // =====================================================
+        // RISK & ANOMALY ANALYSIS
+        // =====================================================
+
+        function formatRiskType(
+            value
+        ) {
+
+            return String(
+                value
+                ||
+                "Anomaly"
+            )
+                .replaceAll(
+                    "_",
+                    " "
+                )
+                .replace(
+                    /\b\w/g,
+                    character =>
+                        character.toUpperCase()
+                );
+
+        }
+
+
+        function formatRiskValue(
+            value
+        ) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                value === ""
+            ) {
+
+                return "—";
+
+            }
+
+
+            if (
+                typeof value === "number"
+            ) {
+
+                return value.toLocaleString(
+                    "en-US",
+                    {
+                        maximumFractionDigits: 2
+                    }
+                );
+
+            }
+
+
+            if (
+                typeof value === "boolean"
+            ) {
+
+                return value
+                    ? "Yes"
+                    : "No";
+
+            }
+
+
+            return String(
+                value
+            );
+
+        }
+
+
+        function riskLevelClass(
+            level
+        ) {
+
+            const normalized =
+                String(
+                    level
+                    ||
+                    ""
+                ).toLowerCase();
+
+
+            if (
+                normalized ===
+                "high"
+            ) {
+
+                return "risk-level-high";
+
+            }
+
+
+            if (
+                normalized ===
+                "medium"
+            ) {
+
+                return "risk-level-medium";
+
+            }
+
+
+            if (
+                normalized ===
+                "low"
+            ) {
+
+                return "risk-level-low";
+
+            }
+
+
+            return "risk-level-none";
+
+        }
+
+
+        function riskLevelLabel(
+            level
+        ) {
+
+            const normalized =
+                String(
+                    level
+                    ||
+                    ""
+                ).toLowerCase();
+
+
+            const labels = {
+
+                high:
+                    "HIGH RISK",
+
+                medium:
+                    "MEDIUM RISK",
+
+                low:
+                    "LOW RISK",
+
+                unknown:
+                    "NOT SCORED",
+
+                "":
+                    "NOT SCORED"
+
+            };
+
+
+            return (
+                labels[
+                    normalized
+                ]
+                ||
+                "NOT SCORED"
+            );
+
+        }
+
+
+        function renderRiskAnalysis(
+            invoice
+        ) {
+
+            const risk =
+                invoice?.risk_analysis
+                || {};
+
+
+            const numericScore =
+                Number(
+                    invoice?.risk_score
+                    ??
+                    risk.risk_score
+                );
+
+
+            const score =
+                Number.isFinite(
+                    numericScore
+                )
+                    ? numericScore
+                    : null;
+
+
+            const level =
+                invoice?.risk_level
+                ||
+                risk.risk_level
+                ||
+                "unknown";
+
+
+            document.getElementById(
+                "riskScoreValue"
+            ).textContent =
+                score === null
+                    ? "—"
+                    : Math.round(
+                        score
+                    );
+
+
+            const riskLevelElement =
+                document.getElementById(
+                    "riskLevelValue"
+                );
+
+
+            riskLevelElement.textContent =
+                riskLevelLabel(
+                    level
+                );
+
+
+            riskLevelElement.className =
+                `risk-level-badge ${
+                    riskLevelClass(
+                        level
+                    )
+                }`;
+
+
+            document.getElementById(
+                "riskReviewValue"
+            ).textContent =
+                risk.human_review_required === false
+                    ? "Human review not required by engine"
+                    : "Human review required";
+
+
+            document.getElementById(
+                "riskSummaryMessage"
+            ).textContent =
+                risk.explanation?.summary
+                ||
+                (
+                    score === null
+                        ? "Risk analysis is not available."
+                        : "Risk analysis completed."
+                );
+
+
+            // -------------------------------------------------
+            // Local AI / ML analysis
+            // -------------------------------------------------
+
+            const ai =
+                risk.ai_analysis
+                ||
+                risk.ml_engine
+                ||
+                {};
+
+            const aiScore =
+                Number(
+                    ai.score
+                );
+
+            const aiScoreText =
+                Number.isFinite(
+                    aiScore
+                )
+                    ? aiScore.toFixed(2)
+                    : "—";
+
+            const aiStatus =
+                String(
+                    ai.status
+                    ||
+                    "not_scored"
+                );
+
+            const aiInterpretation =
+                String(
+                    ai.interpretation
+                    ||
+                    "not_scored"
+                )
+                .replace(
+                    /_/g,
+                    " "
+                );
+
+            const aiTrainingRows =
+                Number(
+                    ai.training_rows
+                );
+
+            document.getElementById(
+                "aiModelStatus"
+            ).textContent =
+                aiStatus === "scored"
+                    ? "AI ACTIVE"
+                    : "AI READY";
+
+            document.getElementById(
+                "aiModelGrid"
+            ).innerHTML =
+                `
+
+                    <div class="ai-model-item">
+                        <span>Model</span>
+                        <strong>
+                            ${escapeHtml(
+                                ai.model
+                                ||
+                                "Local AI"
+                            )}
+                        </strong>
+                    </div>
+
+                    <div class="ai-model-item">
+                        <span>AI Anomaly Score</span>
+                        <strong>
+                            ${escapeHtml(
+                                aiScoreText
+                            )}
+                        </strong>
+                    </div>
+
+                    <div class="ai-model-item">
+                        <span>Interpretation</span>
+                        <strong>
+                            ${escapeHtml(
+                                aiInterpretation
+                            )}
+                        </strong>
+                    </div>
+
+                    <div class="ai-model-item">
+                        <span>Training Records</span>
+                        <strong>
+                            ${escapeHtml(
+                                Number.isFinite(
+                                    aiTrainingRows
+                                )
+                                    ? aiTrainingRows
+                                    : "0"
+                            )}
+                        </strong>
+                    </div>
+
+                    <div class="ai-model-item">
+                        <span>Reliability</span>
+                        <strong>
+                            ${escapeHtml(
+                                ai.reliability
+                                ||
+                                "—"
+                            )}
+                        </strong>
+                    </div>
+
+                    <div class="ai-model-item">
+                        <span>AI Contribution</span>
+                        <strong>
+                            ${escapeHtml(
+                                formatRiskValue(
+                                    risk.score_breakdown?.ml_contribution
+                                )
+                            )}
+                        </strong>
+                    </div>
+
+                `;
+
+            document.getElementById(
+                "aiModelMessage"
+            ).textContent =
+                ai.message
+                ||
+                (
+                    aiStatus === "scored"
+                        ? "The local AI model was used as one component of the final risk score."
+                        : "The local AI model is integrated but was not activated for this invoice."
+                );
+
+            // -------------------------------------------------
+            // Anomalies
+            // -------------------------------------------------
+
+            const anomalies =
+                Array.isArray(
+                    invoice?.anomalies
+                )
+                    ? invoice.anomalies
+                    : Array.isArray(
+                        risk.anomalies
+                    )
+                        ? risk.anomalies
+                        : [];
+
+
+            const anomaliesList =
+                document.getElementById(
+                    "anomaliesList"
+                );
+
+
+            if (
+                !anomalies.length
+            ) {
+
+                anomaliesList.innerHTML =
+                    `
+                        <div class="risk-empty">
+                            No deterministic anomaly rule was triggered by the available evidence.
+                        </div>
+                    `;
+
+            } else {
+
+                anomaliesList.innerHTML =
+                    anomalies
+                        .map(
+                            anomaly => {
+
+                                const severity =
+                                    String(
+                                        anomaly?.severity
+                                        ||
+                                        "low"
+                                    )
+                                    .toLowerCase();
+
+
+                                const evidence =
+                                    anomaly?.evidence
+                                    || {};
+
+
+                                const evidenceEntries =
+                                    Object.entries(
+                                        evidence
+                                    )
+                                    .slice(
+                                        0,
+                                        6
+                                    );
+
+
+                                const evidenceHtml =
+                                    evidenceEntries.length
+                                        ? `
+                                            <div class="anomaly-evidence">
+
+                                                ${
+                                                    evidenceEntries
+                                                        .map(
+                                                            ([key, value]) =>
+                                                                `
+                                                                    <div class="anomaly-evidence-item">
+
+                                                                        <span>
+                                                                            ${escapeHtml(
+                                                                                formatRiskType(
+                                                                                    key
+                                                                                )
+                                                                            )}
+                                                                        </span>
+
+                                                                        <strong>
+                                                                            ${escapeHtml(
+                                                                                formatRiskValue(
+                                                                                    value
+                                                                                )
+                                                                            )}
+                                                                        </strong>
+
+                                                                    </div>
+                                                                `
+                                                        )
+                                                        .join("")
+                                                }
+
+                                            </div>
+                                        `
+                                        : "";
+
+
+                                return `
+                                    <div class="anomaly-item">
+
+                                        <div class="anomaly-item-top">
+
+                                            <span class="anomaly-type">
+                                                ${escapeHtml(
+                                                    formatRiskType(
+                                                        anomaly?.anomaly_type
+                                                    )
+                                                )}
+                                            </span>
+
+                                            <span
+                                                class="anomaly-severity ${escapeHtml(
+                                                    severity
+                                                )}"
+                                            >
+                                                ${escapeHtml(
+                                                    severity
+                                                )}
+                                            </span>
+
+                                        </div>
+
+                                        <div class="anomaly-message">
+                                            ${escapeHtml(
+                                                anomaly?.message
+                                                ||
+                                                "Anomaly detected by the rules engine."
+                                            )}
+                                        </div>
+
+                                        ${evidenceHtml}
+
+                                    </div>
+                                `;
+
+                            }
+                        )
+                        .join("");
+
+            }
+
+
+            // -------------------------------------------------
+            // Score breakdown
+            // -------------------------------------------------
+
+            const breakdown =
+                risk.score_breakdown
+                || {};
+
+
+            document.getElementById(
+                "riskBreakdownGrid"
+            ).innerHTML =
+                `
+
+                    <div class="risk-breakdown-item">
+
+                        <span>
+                            Deterministic Score
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                formatRiskValue(
+                                    breakdown.deterministic_score
+                                )
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="risk-breakdown-item">
+
+                        <span>
+                            ML Score
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                formatRiskValue(
+                                    breakdown.ml_score
+                                )
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="risk-breakdown-item">
+
+                        <span>
+                            ML Contribution
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                formatRiskValue(
+                                    breakdown.ml_contribution
+                                )
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="risk-breakdown-item">
+
+                        <span>
+                            Final Score
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                formatRiskValue(
+                                    breakdown.final_score
+                                    ??
+                                    risk.risk_score
+                                )
+                            )}
+                        </strong>
+
+                    </div>
+
+                `;
+
+
+            // -------------------------------------------------
+            // Evidence & model details
+            // -------------------------------------------------
+
+            const deterministic =
+                risk.deterministic_engine
+                || {};
+
+
+            const marketContext =
+                risk.market_context
+                || {};
+
+
+            const historical =
+                deterministic.historical_baseline
+                || {};
+
+
+            const evidence =
+                deterministic.evidence
+                || {};
+
+
+            const evidenceItems = [
+
+                [
+                    "Triggered rules",
+                    deterministic.rule_count_triggered
+                ],
+
+                [
+                    "Duplicate invoice",
+                    deterministic.duplicate_invoice_id
+                ],
+
+                [
+                    "Historical price count",
+                    evidence.historical_unit_price_count
+                    ??
+                    historical.count
+                ],
+
+                [
+                    "Historical average",
+                    evidence.historical_average
+                ],
+
+                [
+                    "Market difference",
+                    evidence.market_price_difference_percent !== undefined
+                        ? `${evidence.market_price_difference_percent}%`
+                        : null
+                ],
+
+                [
+                    "Market reference average",
+                    evidence.market_reference_average
+                ],
+
+                [
+                    "Market risk usable",
+                    marketContext.usable_for_risk_calculation
+                ],
+
+                [
+                    "Human review",
+                    risk.human_review_required
+                ]
+
+            ];
+
+
+            document.getElementById(
+                "riskEvidenceGrid"
+            ).innerHTML =
+                evidenceItems
+                    .map(
+                        ([label, value]) =>
+                            `
+                                <div class="risk-evidence-item">
+
+                                    <span>
+                                        ${escapeHtml(label)}
+                                    </span>
+
+                                    <strong>
+                                        ${escapeHtml(
+                                            formatRiskValue(
+                                                value
+                                            )
+                                        )}
+                                    </strong>
+
+                                </div>
+                            `
+                    )
+                    .join("");
+
+
+            const ml =
+                risk.ml_engine
+                || {};
+
+
+            document.getElementById(
+                "riskMlMessage"
+            ).textContent =
+                ml.message
+                ||
+                (
+                    ml.available
+                        ? "The local AI anomaly model was used."
+                        : "The local AI anomaly model was not activated."
+                );
+
+        }
+
+
+
+
+        // =====================================================
+        // REVIEW AUDIT TRAIL
+        // =====================================================
+
+        function auditEventLabel(
+            event
+        ) {
+
+            const type =
+                String(
+                    event?.event_type
+                    ||
+                    ""
+                ).toLowerCase();
+
+            const decision =
+                String(
+                    event?.decision
+                    ||
+                    ""
+                ).toLowerCase();
+
+            if (
+                type ===
+                "review_decision"
+            ) {
+
+                return (
+                    {
+                        approved:
+                            "Finance Reviewer Approved Invoice",
+
+                        rejected:
+                            "Finance Reviewer Rejected Invoice",
+
+                        request_verification:
+                            "Finance Reviewer Requested Verification"
+
+                    }[
+                        decision
+                    ]
+                    ||
+                    "Finance Reviewer Decision"
+                );
+
+            }
+
+            return (
+                event?.event_type
+                ||
+                "Review Activity"
+            );
+
+        }
+
+
+        function renderReviewAuditTrail(
+            invoice
+        ) {
+
+            const list =
+                document.getElementById(
+                    "reviewAuditList"
+                );
+
+            if (
+                !list
+            ) {
+                return;
+            }
+
+            const history =
+                Array.isArray(
+                    invoice?.review_audit_trail
+                )
+                    ? invoice.review_audit_trail
+                    : [];
+
+            if (
+                !history.length
+            ) {
+
+                list.innerHTML =
+                    `
+                        <div class="review-audit-empty">
+                            No Finance review events have been recorded yet.
+                        </div>
+                    `;
+
+                return;
+
+            }
+
+            list.innerHTML =
+                [...history]
+                    .reverse()
+                    .map(
+                        event => {
+
+                            const actor =
+                                event?.actor_name
+                                ||
+                                event?.actor_email
+                                ||
+                                "Authorized account";
+
+                            return `
+                                <div class="review-audit-item">
+
+                                    <strong>
+                                        ${escapeHtml(
+                                            auditEventLabel(
+                                                event
+                                            )
+                                        )}
+                                    </strong>
+
+                                    <span>
+                                        By: ${escapeHtml(actor)}
+                                    </span>
+
+                                    <span>
+                                        Role: ${escapeHtml(
+                                            event?.actor_role
+                                            ||
+                                            "—"
+                                        )}
+                                    </span>
+
+                                    <span>
+                                        ${escapeHtml(
+                                            formatDate(
+                                                event?.timestamp
+                                            )
+                                        )}
+                                    </span>
+
+                                    ${
+                                        event?.note
+                                            ? `
+                                                <span>
+                                                    Note: ${escapeHtml(
+                                                        event.note
+                                                    )}
+                                                </span>
+                                              `
+                                            : ""
+                                    }
+
+                                </div>
+                            `;
+
+                        }
+                    )
+                    .join("");
+
+        }
+
+
+        // =====================================================
+        // USER VERIFICATION RESPONSE
+        // =====================================================
+
+        function renderVerificationResponse(
+            invoice
+        ) {
+
+            const panel =
+                document.getElementById(
+                    "verificationResponsePanel"
+                );
+
+            const user =
+                getStoredUser();
+
+            if (!panel || !user) {
+                return;
+            }
+
+            const role =
+                normalizeRoleValue(
+                    user?.role
+                );
+
+            const isReviewer = [
+                "admin",
+                "reviewer",
+                "finance",
+                "finance-reviewer"
+            ].includes(role);
+
+            const decision =
+                invoice?.decision;
+
+            const decisionName =
+                decision && typeof decision === "object"
+                    ? String(decision.decision || "").toLowerCase()
+                    : "";
+
+            const requested =
+                String(invoice?.status || "").toLowerCase() === "verification_required"
+                ||
+                decisionName === "request_verification";
+
+            const isOwner =
+                String(user?.id || "") ===
+                String(invoice?.uploaded_by || "");
+
+            if (
+                isReviewer
+                ||
+                !isOwner
+                ||
+                !requested
+            ) {
+
+                panel.style.display = "none";
+                return;
+
+            }
+
+            panel.style.display = "block";
+
+            const state =
+                document.getElementById(
+                    "verificationResponseState"
+                );
+
+            const note =
+                document.getElementById(
+                    "verificationResponseNote"
+                );
+
+            const priorNote =
+                decision && typeof decision === "object"
+                    ? decision.note
+                    : "";
+
+            if (
+                priorNote
+            ) {
+
+                state.textContent =
+                    `Finance/Reviewer requested verification: ${priorNote}`;
+
+            }
+
+            if (
+                invoice?.verification_submission?.note
+            ) {
+
+                state.textContent =
+                    "A verification response has already been submitted and the invoice is awaiting Finance/Reviewer review.";
+
+                note.value =
+                    invoice.verification_submission.note;
+
+            }
+
+        }
+
+
+        async function submitVerificationResponse() {
+
+            const noteInput =
+                document.getElementById(
+                    "verificationResponseNote"
+                );
+
+            const button =
+                document.getElementById(
+                    "submitVerificationResponseButton"
+                );
+
+            const message =
+                document.getElementById(
+                    "verificationResponseMessage"
+                );
+
+            const note =
+                noteInput?.value.trim()
+                ||
+                "";
+
+            if (!note) {
+
+                message.textContent =
+                    "Please enter the requested verification information.";
+
+                message.className =
+                    "review-decision-message error";
+
+                message.style.display = "block";
+                return;
+
+            }
+
+            if (!accessToken || !invoiceId) {
+                return;
+            }
+
+            button.disabled = true;
+            message.textContent = "Submitting verification...";
+            message.className = "review-decision-message success";
+            message.style.display = "block";
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/invoices/${encodeURIComponent(invoiceId)}/verification-response`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Authorization": `Bearer ${accessToken}`,
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify({ note })
+                        }
+                    );
+
+                let data = {};
+
+                try {
+                    data = await response.json();
+                } catch {
+                    data = {};
+                }
+
+                if (response.status === 401) {
+                    localStorage.removeItem("claimguard_access_token");
+                    localStorage.removeItem("claimguard_user");
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(
+                        data?.detail
+                        ||
+                        "Verification could not be submitted."
+                    );
+                }
+
+                message.textContent =
+                    data?.message
+                    ||
+                    "Verification submitted successfully.";
+
+                if (data?.invoice) {
+                    renderInvoice(data.invoice);
+                    renderVerificationResponse(data.invoice);
+                }
+
+            } catch (error) {
+
+                message.textContent =
+                    error?.message
+                    ||
+                    "Verification could not be submitted.";
+
+                message.className =
+                    "review-decision-message error";
+
+            } finally {
+
+                button.disabled = false;
+
+            }
+
+        }
+
+
+        // =====================================================
+        // REVIEW DECISION
+        // =====================================================
+
+        function getStoredUser() {
+
+            const rawUser =
+                localStorage.getItem(
+                    "claimguard_user"
+                );
+
+
+            if (
+                !rawUser
+            ) {
+
+                return null;
+
+            }
+
+
+            try {
+
+                return JSON.parse(
+                    rawUser
+                );
+
+            } catch (
+                error
+            ) {
+
+                return null;
+
+            }
+
+        }
+
+
+        function normalizeRoleValue(
+            value
+        ) {
+
+            return String(
+                value ?? ""
+            )
+                .trim()
+                .toLowerCase()
+                .replace(/[_/\s]+/g, "-")
+                .replace(/-+/g, "-");
+
+        }
+
+
+        function isReviewerAccount(
+            user
+        ) {
+
+            const role =
+                normalizeRoleValue(
+                    user?.role
+                );
+
+
+            return [
+                "admin",
+                "reviewer",
+                "finance",
+                "finance-reviewer"
+            ].includes(
+                role
+            );
+
+        }
+
+
+        function decisionLabel(
+            decision
+        ) {
+
+            const normalized =
+                String(
+                    decision
+                    ||
+                    ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            const labels = {
+
+                approved:
+                    "APPROVED",
+
+                rejected:
+                    "REJECTED",
+
+                request_verification:
+                    "VERIFICATION REQUESTED"
+
+            };
+
+
+            return (
+                labels[
+                    normalized
+                ]
+                ||
+                "DECISION RECORDED"
+            );
+
+        }
+
+
+        function renderReviewDecision(
+            invoice
+        ) {
+
+            const panel =
+                document.getElementById(
+                    "reviewDecisionPanel"
+                );
+
+
+            if (
+                !panel
+            ) {
+
+                return;
+
+            }
+
+
+            const user =
+                getStoredUser();
+
+
+            if (
+                !isReviewerAccount(
+                    user
+                )
+            ) {
+
+                panel.style.display =
+                    "none";
+
+                return;
+
+            }
+
+
+            panel.style.display =
+                "block";
+
+
+            const decision =
+                invoice?.decision;
+
+
+            const state =
+                document.getElementById(
+                    "reviewDecisionState"
+                );
+
+
+            const noteInput =
+                document.getElementById(
+                    "reviewDecisionNote"
+                );
+
+
+            const approveButton =
+                document.getElementById(
+                    "approveInvoiceButton"
+                );
+
+
+            const rejectButton =
+                document.getElementById(
+                    "rejectInvoiceButton"
+                );
+
+
+            const verifyButton =
+                document.getElementById(
+                    "requestVerificationButton"
+                );
+
+
+            if (
+                decision
+                &&
+                typeof decision ===
+                "object"
+            ) {
+
+                state.innerHTML =
+                    `
+                        <div class="review-decision-record">
+
+                            <strong>
+                                ${escapeHtml(
+                                    decisionLabel(
+                                        decision.decision
+                                    )
+                                )}
+                            </strong>
+
+                            <span>
+                                Reviewer:
+                                ${escapeHtml(
+                                    decision.reviewer_name
+                                    ||
+                                    decision.reviewer_email
+                                    ||
+                                    "Authorized reviewer"
+                                )}
+                            </span>
+
+                            <span>
+                                Decided:
+                                ${escapeHtml(
+                                    formatDate(
+                                        decision.decided_at
+                                    )
+                                )}
+                            </span>
+
+                            ${
+                                decision.note
+                                    ? `
+                                        <span>
+                                            Note:
+                                            ${escapeHtml(
+                                                decision.note
+                                            )}
+                                        </span>
+                                      `
+                                    : ""
+                            }
+
+                        </div>
+                    `;
+
+
+                noteInput.value =
+                    decision.note
+                    ||
+                    "";
+
+
+                approveButton.disabled =
+                    true;
+
+                rejectButton.disabled =
+                    true;
+
+                verifyButton.disabled =
+                    true;
+
+
+                return;
+
+            }
+
+
+            state.textContent =
+                "No final decision has been recorded.";
+
+
+            noteInput.value =
+                "";
+
+
+            approveButton.disabled =
+                false;
+
+            rejectButton.disabled =
+                false;
+
+            verifyButton.disabled =
+                false;
+
+        }
+
+
+        function showReviewDecisionMessage(
+            message,
+            type
+        ) {
+
+            const element =
+                document.getElementById(
+                    "reviewDecisionMessage"
+                );
+
+
+            element.textContent =
+                message
+                ||
+                "";
+
+
+            element.className =
+                `review-decision-message ${
+                    type
+                    ||
+                    "success"
+                }`;
+
+
+            element.style.display =
+                "block";
+
+        }
+
+
+        function setReviewButtonsBusy(
+            busy
+        ) {
+
+            [
+                "approveInvoiceButton",
+                "rejectInvoiceButton",
+                "requestVerificationButton"
+            ]
+                .forEach(
+                    id => {
+
+                        const button =
+                            document.getElementById(
+                                id
+                            );
+
+
+                        if (
+                            button
+                        ) {
+
+                            button.disabled =
+                                busy;
+
+                        }
+
+                    }
+                );
+
+        }
+
+
+        async function submitInvoiceDecision(
+            decision
+        ) {
+
+            if (
+                !invoiceId
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                !accessToken
+            ) {
+
+                window.location.href =
+                    "login.html";
+
+                return;
+
+            }
+
+
+            const noteInput =
+                document.getElementById(
+                    "reviewDecisionNote"
+                );
+
+
+            const note =
+                noteInput?.value
+                ||
+                "";
+
+
+            setReviewButtonsBusy(
+                true
+            );
+
+
+            showReviewDecisionMessage(
+                "Saving review decision...",
+                "success"
+            );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/invoices/${encodeURIComponent(invoiceId)}/decision`,
+                        {
+
+                            method:
+                                "POST",
+
+                            headers:
+                                {
+                                    "Authorization":
+                                        `Bearer ${accessToken}`,
+
+                                    "Content-Type":
+                                        "application/json",
+
+                                    "Accept":
+                                        "application/json"
+
+                                },
+
+                            body:
+                                JSON.stringify(
+                                    {
+                                        decision,
+                                        note
+                                    }
+                                )
+
+                        }
+                    );
+
+
+                let data =
+                    {};
+
+
+                try {
+
+                    data =
+                        await response.json();
+
+                } catch (
+                    error
+                ) {
+
+                    data =
+                        {};
+
+                }
+
+
+                if (
+                    response.status ===
+                    401
+                ) {
+
+                    localStorage.removeItem(
+                        "claimguard_access_token"
+                    );
+
+                    localStorage.removeItem(
+                        "claimguard_user"
+                    );
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+
+                }
+
+
+                if (
+                    response.status ===
+                    403
+                ) {
+
+                    throw new Error(
+                        data.detail
+                        ||
+                        "Reviewer access is required."
+                    );
+
+                }
+
+
+                if (
+                    !response.ok
+                ) {
+
+                    throw new Error(
+                        data.detail
+                        ||
+                        "The review decision could not be saved."
+                    );
+
+                }
+
+
+                showReviewDecisionMessage(
+                    data.message
+                    ||
+                    "Review decision saved successfully.",
+                    "success"
+                );
+
+
+                if (
+                    data.invoice
+                ) {
+
+                    renderInvoice(
+                        data.invoice
+                    );
+
+                }
+
+
+            } catch (
+                error
+            ) {
+
+                setReviewButtonsBusy(
+                    false
+                );
+
+
+                showReviewDecisionMessage(
+                    error?.message
+                    ||
+                    "The review decision could not be saved.",
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        function initializeReviewDecisionActions() {
+
+            const approveButton =
+                document.getElementById(
+                    "approveInvoiceButton"
+                );
+
+
+            const rejectButton =
+                document.getElementById(
+                    "rejectInvoiceButton"
+                );
+
+
+            const verifyButton =
+                document.getElementById(
+                    "requestVerificationButton"
+                );
+
+
+            if (
+                approveButton
+            ) {
+
+                approveButton.addEventListener(
+                    "click",
+                    () =>
+                        submitInvoiceDecision(
+                            "approved"
+                        )
+                );
+
+            }
+
+
+            if (
+                rejectButton
+            ) {
+
+                rejectButton.addEventListener(
+                    "click",
+                    () =>
+                        submitInvoiceDecision(
+                            "rejected"
+                        )
+                );
+
+            }
+
+
+            if (
+                verifyButton
+            ) {
+
+                verifyButton.addEventListener(
+                    "click",
+                    () =>
+                        submitInvoiceDecision(
+                            "request_verification"
+                        )
+                );
+
+            }
+
+        }
+
+
+
+        const verificationSubmitButton =
+            document.getElementById(
+                "submitVerificationResponseButton"
+            );
+
+
+        if (
+            verificationSubmitButton
+        ) {
+
+            verificationSubmitButton.addEventListener(
+                "click",
+                submitVerificationResponse
+            );
+
+        }
+
+
+        // =====================================================
+        // PDF REPORT EXPORT
+        // =====================================================
+
+        async function downloadInvoiceReport() {
+
+            const button =
+                document.getElementById(
+                    "downloadReportButton"
+                );
+
+
+            if (
+                !invoiceId
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                !accessToken
+            ) {
+
+                window.location.href =
+                    "login.html";
+
+                return;
+
+            }
+
+
+            if (
+                button
+            ) {
+
+                button.disabled =
+                    true;
+
+                button.textContent =
+                    "Generating PDF...";
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/invoices/${encodeURIComponent(
+                            invoiceId
+                        )}/report`,
+                        {
+                            method:
+                                "GET",
+
+                            headers:
+                                {
+                                    "Authorization":
+                                        `Bearer ${accessToken}`,
+
+                                    "Accept":
+                                        "application/pdf"
+                                }
+                        }
+                    );
+
+
+                if (
+                    response.status ===
+                    401
+                ) {
+
+                    localStorage.removeItem(
+                        "claimguard_access_token"
+                    );
+
+                    localStorage.removeItem(
+                        "claimguard_user"
+                    );
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+
+                }
+
+
+                if (
+                    response.status ===
+                    403
+                ) {
+
+                    throw new Error(
+                        "You are not authorized to download this report."
+                    );
+
+                }
+
+
+                if (
+                    !response.ok
+                ) {
+
+                    let detail =
+                        "The PDF report could not be generated.";
+
+                    try {
+
+                        const errorData =
+                            await response.json();
+
+                        detail =
+                            errorData?.detail
+                            ||
+                            detail;
+
+                    } catch (
+                        error
+                    ) {
+
+                        // Keep the default message.
+
+                    }
+
+                    throw new Error(
+                        detail
+                    );
+
+                }
+
+
+                const blob =
+                    await response.blob();
+
+
+                if (
+                    !blob.size
+                ) {
+
+                    throw new Error(
+                        "The generated report was empty."
+                    );
+
+                }
+
+
+                const contentDisposition =
+                    response.headers.get(
+                        "Content-Disposition"
+                    )
+                    ||
+                    "";
+
+
+                const filenameMatch =
+                    contentDisposition.match(
+                        /filename="?([^"]+)"?/i
+                    );
+
+
+                const filename =
+                    filenameMatch?.[1]
+                    ||
+                    `ClaimGuard_Report_${invoiceId}.pdf`;
+
+
+                const objectUrl =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+
+                const anchor =
+                    document.createElement(
+                        "a"
+                    );
+
+                anchor.href =
+                    objectUrl;
+
+                anchor.download =
+                    filename;
+
+                document.body.appendChild(
+                    anchor
+                );
+
+                anchor.click();
+
+                anchor.remove();
+
+                URL.revokeObjectURL(
+                    objectUrl
+                );
+
+            } catch (
+                error
+            ) {
+
+                showError(
+                    error?.message
+                    ||
+                    "The PDF report could not be generated."
+                );
+
+            } finally {
+
+                if (
+                    button
+                ) {
+
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        "Download PDF Report";
+
+                }
+
+            }
+
+        }
+
+
+        // ERROR
+        // =====================================================
+
+        function showError(
+            message
+        ) {
+
+            loadingState.style.display =
+                "none";
+
+
+            errorState.textContent =
+                message;
+
+
+            errorState.style.display =
+                "block";
+
+        }
+
+
+        // =====================================================
+        // START
+        // =====================================================
+
+        initializeReviewDecisionActions();
+
+
+        const downloadReportButton =
+            document.getElementById(
+                "downloadReportButton"
+            );
+
+
+        if (
+            downloadReportButton
+        ) {
+
+            downloadReportButton.addEventListener(
+                "click",
+                downloadInvoiceReport
+            );
+
+        }
+
+
+        loadInvoice();
+
+    </script>
+
+</body>
+
+</html>

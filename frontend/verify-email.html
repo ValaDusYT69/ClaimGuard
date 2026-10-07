@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Verify Email | ClaimGuard</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+</head>
+
+
+<body class="auth-page">
+
+
+    <div class="auth-container">
+
+
+        <!-- =================================================
+             LEFT SIDE
+             ================================================= -->
+
+        <div class="auth-brand-panel">
+
+
+            <div class="auth-brand">
+
+                <div class="brand-icon">
+                    CG
+                </div>
+
+
+                <div>
+
+                    <h2>
+                        ClaimGuard
+                    </h2>
+
+                    <span>
+                        Invoice Intelligence
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="auth-message">
+
+                <span class="auth-label">
+                    ACCOUNT SECURITY
+                </span>
+
+
+                <h1>
+                    One more step
+                    <br>
+                    to secure your account.
+                </h1>
+
+
+                <p>
+                    Verify your email address to activate
+                    your ClaimGuard account and gain access
+                    to your secure workspace.
+                </p>
+
+
+                <div class="auth-features">
+
+                    <div>
+                        <strong>01</strong>
+                        <span>
+                            Secure account activation
+                        </span>
+                    </div>
+
+
+                    <div>
+                        <strong>02</strong>
+                        <span>
+                            Email ownership verification
+                        </span>
+                    </div>
+
+
+                    <div>
+                        <strong>03</strong>
+                        <span>
+                            Protected access to invoices
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="auth-footer">
+                © 2026 ClaimGuard
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             RIGHT SIDE
+             ================================================= -->
+
+        <div class="auth-form-panel">
+
+
+            <div class="auth-form-box">
+
+
+                <!-- MOBILE BRAND -->
+
+                <div class="mobile-brand">
+
+                    <div class="brand-icon">
+                        CG
+                    </div>
+
+
+                    <div>
+
+                        <h2>
+                            ClaimGuard
+                        </h2>
+
+                        <span>
+                            Invoice Intelligence
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ICON -->
+
+                <div class="verification-icon">
+                    ✉
+                </div>
+
+
+                <!-- HEADING -->
+
+                <div class="form-heading verification-heading">
+
+                    <span>
+                        VERIFY YOUR EMAIL
+                    </span>
+
+
+                    <h2>
+                        Check your inbox
+                    </h2>
+
+
+                    <p>
+                        Enter the 6-digit verification code
+                        sent to your email address.
+                    </p>
+
+                </div>
+
+
+                <!-- =================================================
+                     EMAIL
+                     ================================================= -->
+
+                <form id="verificationForm">
+
+
+                    <div class="input-group">
+
+                        <label
+                            for="verificationEmailInput"
+                        >
+                            Verification Email
+                        </label>
+
+
+                        <input
+                            type="email"
+                            id="verificationEmailInput"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- =================================================
+                         OTP
+                         ================================================= -->
+
+                    <label class="otp-label">
+
+                        Verification Code
+
+                    </label>
+
+
+                    <div class="otp-container">
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                        >
+
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                        >
+
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                        >
+
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                        >
+
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                        >
+
+
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                        >
+
+                    </div>
+
+
+                    <!-- VERIFY -->
+
+                    <button
+                        type="submit"
+                        class="login-submit"
+                    >
+                        Verify Email
+                    </button>
+
+
+                </form>
+
+
+                <!-- MESSAGE -->
+
+                <div
+                    id="verificationMessage"
+                    class="login-message"
+                ></div>
+
+
+                <!-- =================================================
+                     RESEND
+                     ================================================= -->
+
+                <div class="resend-section">
+
+                    <p>
+                        Didn't receive the code?
+                    </p>
+
+
+                    <button
+                        type="button"
+                        id="resendCodeBtn"
+                        class="resend-btn"
+                    >
+                        Resend Code
+                    </button>
+
+
+                    <span id="resendTimer"></span>
+
+                </div>
+
+
+                <!-- BACK -->
+
+                <p class="signup-link">
+
+                    Wrong email?
+
+                    <a href="register.html">
+                        Go back
+                    </a>
+
+                </p>
+
+
+                <!-- SECURITY -->
+
+                <div class="security-note">
+
+                    <span>
+                        🔒
+                    </span>
+
+
+                    <p>
+                        Never share your verification
+                        code with anyone.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>

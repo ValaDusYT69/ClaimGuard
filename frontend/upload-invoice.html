@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Upload Invoice | ClaimGuard</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <style>
+
+        /* =====================================================
+           UPLOAD PAGE
+           ===================================================== */
+
+        .upload-page {
+            min-height: calc(100vh - 80px);
+            padding: 60px 6%;
+            background: #f7f9fc;
+        }
+
+
+        .upload-container {
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+
+        .upload-header {
+            margin-bottom: 32px;
+        }
+
+
+        .upload-header .auth-label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+
+        .upload-header h1 {
+            font-size: clamp(34px, 4vw, 48px);
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 12px;
+        }
+
+
+        .upload-header p {
+            color: #64748b;
+            max-width: 700px;
+        }
+
+
+        /* =====================================================
+           MAIN GRID
+           ===================================================== */
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1.45fr 0.75fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+
+        .upload-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+
+        .upload-panel-header {
+            margin-bottom: 22px;
+        }
+
+
+        .upload-panel-header span {
+            color: #2563eb;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+        }
+
+
+        .upload-panel-header h2 {
+            margin-top: 6px;
+            font-size: 21px;
+        }
+
+
+        .upload-panel-header p {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+
+        /* =====================================================
+           DROP ZONE
+           ===================================================== */
+
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 15px;
+            min-height: 285px;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            background: #f8fafc;
+            transition: 0.25s ease;
+        }
+
+
+        .drop-zone:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+
+        .drop-zone.dragover {
+            border-color: #2563eb;
+            background: #eff6ff;
+            transform: scale(1.01);
+        }
+
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            color: #2563eb;
+            font-size: 28px;
+            margin-bottom: 17px;
+        }
+
+
+        .drop-zone h3 {
+            font-size: 19px;
+            margin-bottom: 6px;
+        }
+
+
+        .drop-zone p {
+            color: #64748b;
+            font-size: 13px;
+            max-width: 440px;
+            margin-bottom: 14px;
+        }
+
+
+        .browse-text {
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+
+        .supported-formats {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+
+        #invoiceFile {
+            display: none;
+        }
+
+
+        /* =====================================================
+           SELECTED FILE
+           ===================================================== */
+
+        .selected-file {
+            display: none;
+            margin-top: 18px;
+            padding: 15px;
+            border: 1px solid #dbeafe;
+            border-radius: 11px;
+            background: #eff6ff;
+        }
+
+
+        .selected-file.active {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+        }
+
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 9px;
+            background: white;
+            border: 1px solid #dbeafe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            font-weight: 700;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+
+        .file-text {
+            min-width: 0;
+        }
+
+
+        .file-text strong {
+            display: block;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+
+        .file-text span {
+            display: block;
+            margin-top: 2px;
+            color: #64748b;
+            font-size: 11px;
+        }
+
+
+        .remove-file {
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+
+        .remove-file:hover {
+            color: #dc2626;
+        }
+
+
+        /* =====================================================
+           BUTTON
+           ===================================================== */
+
+        .upload-submit {
+            width: 100%;
+            margin-top: 18px;
+        }
+
+
+        .upload-submit:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        /* =====================================================
+           MESSAGE
+           ===================================================== */
+
+        .upload-message {
+            display: none;
+            margin-top: 15px;
+            padding: 12px 14px;
+            border-radius: 9px;
+            font-size: 12px;
+        }
+
+
+        .upload-message.show {
+            display: block;
+        }
+
+
+        .upload-message.info {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+
+        .upload-message.success {
+            background: #ecfdf3;
+            color: #15803d;
+        }
+
+
+        .upload-message.error {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+
+        /* =====================================================
+           RESULT
+           ===================================================== */
+
+        .upload-result {
+            display: none;
+            margin-top: 18px;
+            padding: 17px;
+            border-radius: 11px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+
+        .upload-result.show {
+            display: block;
+        }
+
+
+        .result-status {
+            display: inline-flex;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #ecfdf3;
+            color: #15803d;
+            font-size: 10px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+
+        .result-id {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+
+        .result-file {
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+
+        /* =====================================================
+           INFO CARDS
+           ===================================================== */
+
+        .upload-info-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 18px;
+        }
+
+
+        .upload-info-card:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .upload-info-card h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+
+        .upload-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+
+        .upload-step:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+
+        .upload-step strong {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+
+        .upload-step span {
+            color: #64748b;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+
+        .format-list {
+            display: grid;
+            gap: 8px;
+        }
+
+
+        .format-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            background: #f8fafc;
+        }
+
+
+        .format-item span {
+            color: #64748b;
+            font-size: 11px;
+        }
+
+
+        .format-item strong {
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        @media (max-width: 900px) {
+
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .upload-page {
+                padding: 35px 5%;
+            }
+
+
+            .upload-panel {
+                padding: 20px;
+            }
+
+
+            .drop-zone {
+                min-height: 240px;
+                padding: 25px;
+            }
+
+
+            .selected-file.active {
+                align-items: flex-start;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body class="theme-user">
+
+    <header class="navbar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                CG
+            </div>
+
+            <div class="brand-text">
+
+                <h2>
+                    ClaimGuard
+                </h2>
+
+                <span>
+                    Invoice Intelligence
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="nav-utility">
+            <div class="search-box" aria-label="Search upload">
+                <span>⌕</span>
+                <input type="search" placeholder="Search workflow..." />
+            </div>
+            <span class="notification-pill" id="uploadNotificationCount">1</span>
+            <a
+                href="user-dashboard.html"
+                class="nav-login"
+            >
+                Dashboard
+            </a>
+        </div>
+
+    </header>
+
+    <main class="upload-page">
+
+        <div class="upload-container">
+
+            <section class="role-banner">
+                <div class="role-banner-inner">
+                    <div class="role-banner-copy">
+                        <span class="role-banner-label">Invoice capture</span>
+                        <h1>Upload and validate a new claim</h1>
+                        <p>Submit the invoice for secure parsing, market comparison, anomaly detection, and reviewer triage without leaving your workspace.</p>
+                    </div>
+                    <div class="role-banner-actions">
+                        <a href="user-dashboard.html" class="inline-action">My dashboard</a>
+                        <a href="index.html" class="back-link">← Overview</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="upload-header">
+
+                <span class="auth-label">
+                    INVOICE PROCESSING
+                </span>
+
+                <h1>
+                    Upload your invoice
+                </h1>
+
+                <p>
+                    Submit a PDF, image or Excel invoice.
+                    ClaimGuard will securely store the document
+                    and prepare it for verification and anomaly analysis.
+                </p>
+
+            </section>
+
+
+            <!-- =================================================
+                 MAIN GRID
+                 ================================================= -->
+
+            <section class="upload-grid">
+
+
+                <!-- =================================================
+                     LEFT COLUMN
+                     ================================================= -->
+
+                <div class="upload-panel">
+
+                    <div class="upload-panel-header">
+
+                        <span>
+                            DOCUMENT UPLOAD
+                        </span>
+
+                        <h2>
+                            Select an invoice
+                        </h2>
+
+                        <p>
+                            Maximum file size: 10 MB
+                        </p>
+
+                    </div>
+
+
+                    <!-- DROP ZONE -->
+
+                    <div
+                        class="drop-zone"
+                        id="dropZone"
+                    >
+
+                        <div class="upload-icon">
+                            ↑
+                        </div>
+
+                        <h3>
+                            Drop your invoice here
+                        </h3>
+
+                        <p>
+                            Drag and drop your file here,
+                            or
+                            <span class="browse-text">
+                                browse files
+                            </span>
+                        </p>
+
+                        <div class="supported-formats">
+                            PDF · PNG · JPG · JPEG · WEBP · XLS · XLSX
+                        </div>
+
+                    </div>
+
+
+                    <!-- FILE INPUT -->
+
+                    <input
+                        type="file"
+                        id="invoiceFile"
+                        accept=".pdf,.png,.jpg,.jpeg,.webp,.xls,.xlsx"
+                    >
+
+
+                    <!-- SELECTED FILE -->
+
+                    <div
+                        class="selected-file"
+                        id="selectedFile"
+                    >
+
+                        <div class="file-info">
+
+                            <div
+                                class="file-icon"
+                                id="fileIcon"
+                            >
+                                PDF
+                            </div>
+
+                            <div class="file-text">
+
+                                <strong
+                                    id="fileName"
+                                >
+                                    invoice.pdf
+                                </strong>
+
+                                <span
+                                    id="fileSize"
+                                >
+                                    0 KB
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="remove-file"
+                            id="removeFile"
+                        >
+                            Remove
+                        </button>
+
+                    </div>
+
+
+                    <!-- MESSAGE -->
+
+                    <div
+                        class="upload-message"
+                        id="uploadMessage"
+                    ></div>
+
+
+                    <!-- UPLOAD BUTTON -->
+
+                    <button
+                        type="button"
+                        class="login-submit upload-submit"
+                        id="uploadButton"
+                        disabled
+                    >
+                        Upload Invoice
+                    </button>
+
+
+                    <!-- RESULT -->
+
+                    <div
+                        class="upload-result"
+                        id="uploadResult"
+                    >
+
+                        <div class="result-status">
+                            UPLOAD COMPLETE
+                        </div>
+
+                        <div
+                            class="result-id"
+                            id="resultInvoiceId"
+                        >
+                            —
+                        </div>
+
+                        <div
+                            class="result-file"
+                            id="resultFileName"
+                        >
+                            Invoice uploaded successfully.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     RIGHT COLUMN
+                     ================================================= -->
+
+                <div>
+
+
+                    <!-- WHAT HAPPENS NEXT -->
+
+                    <div class="upload-info-card">
+
+                        <h3>
+                            What happens next?
+                        </h3>
+
+
+                        <div class="upload-step">
+
+                            <div class="step-number">
+                                01
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Secure Upload
+                                </strong>
+
+                                <span>
+                                    Your invoice is stored under your
+                                    ClaimGuard account.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="upload-step">
+
+                            <div class="step-number">
+                                02
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Data Extraction
+                                </strong>
+
+                                <span>
+                                    Invoice information will be prepared
+                                    for field validation and analysis.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="upload-step">
+
+                            <div class="step-number">
+                                03
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Verification
+                                </strong>
+
+                                <span>
+                                    The system will check the invoice
+                                    against available evidence.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="upload-step">
+
+                            <div class="step-number">
+                                04
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Anomaly Analysis
+                                </strong>
+
+                                <span>
+                                    Suspicious inconsistencies can then
+                                    be analyzed and explained.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SUPPORTED FORMATS -->
+
+                    <div class="upload-info-card">
+
+                        <h3>
+                            Supported formats
+                        </h3>
+
+
+                        <div class="format-list">
+
+                            <div class="format-item">
+
+                                <strong>
+                                    PDF
+                                </strong>
+
+                                <span>
+                                    Documents
+                                </span>
+
+                            </div>
+
+
+                            <div class="format-item">
+
+                                <strong>
+                                    PNG / JPG
+                                </strong>
+
+                                <span>
+                                    Invoice images
+                                </span>
+
+                            </div>
+
+
+                            <div class="format-item">
+
+                                <strong>
+                                    XLS / XLSX
+                                </strong>
+
+                                <span>
+                                    Spreadsheet invoices
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script>
+
+        const API_BASE_URL =
+            "http://127.0.0.1:8000";
+
+
+        // =====================================================
+        // ELEMENTS
+        // =====================================================
+
+        const dropZone =
+            document.getElementById(
+                "dropZone"
+            );
+
+
+        const invoiceFileInput =
+            document.getElementById(
+                "invoiceFile"
+            );
+
+
+        const selectedFile =
+            document.getElementById(
+                "selectedFile"
+            );
+
+
+        const fileName =
+            document.getElementById(
+                "fileName"
+            );
+
+
+        const fileSize =
+            document.getElementById(
+                "fileSize"
+            );
+
+
+        const fileIcon =
+            document.getElementById(
+                "fileIcon"
+            );
+
+
+        const removeFile =
+            document.getElementById(
+                "removeFile"
+            );
+
+
+        const uploadButton =
+            document.getElementById(
+                "uploadButton"
+            );
+
+
+        const uploadMessage =
+            document.getElementById(
+                "uploadMessage"
+            );
+
+
+        const uploadResult =
+            document.getElementById(
+                "uploadResult"
+            );
+
+
+        const resultInvoiceId =
+            document.getElementById(
+                "resultInvoiceId"
+            );
+
+
+        const resultFileName =
+            document.getElementById(
+                "resultFileName"
+            );
+
+
+        let selectedInvoiceFile =
+            null;
+
+
+        // =====================================================
+        // AUTH CHECK
+        // =====================================================
+
+        const accessToken =
+            localStorage.getItem(
+                "claimguard_access_token"
+            );
+
+
+        const userData =
+            localStorage.getItem(
+                "claimguard_user"
+            );
+
+
+        if (
+            !accessToken ||
+            !userData
+        ) {
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        // =====================================================
+        // FILE SIZE FORMATTER
+        // =====================================================
+
+        function formatFileSize(
+            bytes
+        ) {
+
+            if (
+                bytes < 1024
+            ) {
+
+                return `${bytes} B`;
+
+            }
+
+
+            if (
+                bytes < 1024 * 1024
+            ) {
+
+                return `${(
+                    bytes / 1024
+                ).toFixed(1)} KB`;
+
+            }
+
+
+            return `${(
+                bytes /
+                (1024 * 1024)
+            ).toFixed(2)} MB`;
+
+        }
+
+
+        // =====================================================
+        // MESSAGE
+        // =====================================================
+
+        function showMessage(
+            message,
+            type
+        ) {
+
+            uploadMessage.textContent =
+                message;
+
+
+            uploadMessage.className =
+                `upload-message show ${type}`;
+
+        }
+
+
+        function clearMessage() {
+
+            uploadMessage.textContent =
+                "";
+
+
+            uploadMessage.className =
+                "upload-message";
+
+        }
+
+
+        // =====================================================
+        // SET SELECTED FILE
+        // =====================================================
+
+        function setSelectedFile(
+            file
+        ) {
+
+            if (!file) {
+
+                return;
+
+            }
+
+
+            const allowedExtensions = [
+
+                ".pdf",
+                ".png",
+                ".jpg",
+                ".jpeg",
+                ".webp",
+                ".xls",
+                ".xlsx"
+
+            ];
+
+
+            const extension =
+                "." +
+                file.name
+                    .split(".")
+                    .pop()
+                    .toLowerCase();
+
+
+            // -------------------------------------------------
+            // FORMAT CHECK
+            // -------------------------------------------------
+
+            if (
+                !allowedExtensions.includes(
+                    extension
+                )
+            ) {
+
+                showMessage(
+                    "This file format is not supported.",
+                    "error"
+                );
+
+
+                invoiceFileInput.value =
+                    "";
+
+
+                return;
+
+            }
+
+
+            // -------------------------------------------------
+            // SIZE CHECK
+            // -------------------------------------------------
+
+            if (
+                file.size >
+                10 * 1024 * 1024
+            ) {
+
+                showMessage(
+                    "File size must be 10 MB or less.",
+                    "error"
+                );
+
+
+                invoiceFileInput.value =
+                    "";
+
+
+                return;
+
+            }
+
+
+            // -------------------------------------------------
+            // STORE FILE
+            // -------------------------------------------------
+
+            selectedInvoiceFile =
+                file;
+
+
+            fileName.textContent =
+                file.name;
+
+
+            fileSize.textContent =
+                formatFileSize(
+                    file.size
+                );
+
+
+            fileIcon.textContent =
+                extension
+                    .replace(
+                        ".",
+                        ""
+                    )
+                    .toUpperCase();
+
+
+            selectedFile.classList.add(
+                "active"
+            );
+
+
+            uploadButton.disabled =
+                false;
+
+
+            uploadResult.classList.remove(
+                "show"
+            );
+
+
+            clearMessage();
+
+        }
+
+
+        // =====================================================
+        // OPEN FILE PICKER
+        // =====================================================
+
+        dropZone.addEventListener(
+            "click",
+            () => {
+
+                invoiceFileInput.click();
+
+            }
+        );
+
+
+        // =====================================================
+        // FILE PICKED
+        // =====================================================
+
+        invoiceFileInput.addEventListener(
+            "change",
+            () => {
+
+                const file =
+                    invoiceFileInput.files[0];
+
+
+                setSelectedFile(
+                    file
+                );
+
+            }
+        );
+
+
+        // =====================================================
+        // DRAG OVER
+        // =====================================================
+
+        dropZone.addEventListener(
+            "dragover",
+            (event) => {
+
+                event.preventDefault();
+
+
+                dropZone.classList.add(
+                    "dragover"
+                );
+
+            }
+        );
+
+
+        // =====================================================
+        // DRAG LEAVE
+        // =====================================================
+
+        dropZone.addEventListener(
+            "dragleave",
+            () => {
+
+                dropZone.classList.remove(
+                    "dragover"
+                );
+
+            }
+        );
+
+
+        // =====================================================
+        // DROP
+        // =====================================================
+
+        dropZone.addEventListener(
+            "drop",
+            (event) => {
+
+                event.preventDefault();
+
+
+                dropZone.classList.remove(
+                    "dragover"
+                );
+
+
+                const file =
+                    event.dataTransfer.files[0];
+
+
+                setSelectedFile(
+                    file
+                );
+
+            }
+        );
+
+
+        // =====================================================
+        // REMOVE FILE
+        // =====================================================
+
+        removeFile.addEventListener(
+            "click",
+            () => {
+
+                selectedInvoiceFile =
+                    null;
+
+
+                invoiceFileInput.value =
+                    "";
+
+
+                selectedFile.classList.remove(
+                    "active"
+                );
+
+
+                uploadButton.disabled =
+                    true;
+
+
+                uploadResult.classList.remove(
+                    "show"
+                );
+
+
+                clearMessage();
+
+            }
+        );
+
+
+        // =====================================================
+        // UPLOAD INVOICE
+        // =====================================================
+
+        uploadButton.addEventListener(
+            "click",
+            async () => {
+
+                if (
+                    !selectedInvoiceFile
+                ) {
+
+                    showMessage(
+                        "Please select an invoice first.",
+                        "error"
+                    );
+
+
+                    return;
+
+                }
+
+
+                // -------------------------------------------------
+                // AUTH
+                // -------------------------------------------------
+
+                if (
+                    !accessToken
+                ) {
+
+                    window.location.href =
+                        "login.html";
+
+
+                    return;
+
+                }
+
+
+                // -------------------------------------------------
+                // FORM DATA
+                // -------------------------------------------------
+
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+                    "file",
+                    selectedInvoiceFile
+                );
+
+
+                // -------------------------------------------------
+                // DISABLE BUTTON
+                // -------------------------------------------------
+
+                uploadButton.disabled =
+                    true;
+
+
+                uploadButton.textContent =
+                    "Processing Invoice...";
+
+
+                uploadResult.classList.remove(
+                    "show"
+                );
+
+
+                showMessage(
+                    "Uploading, extracting and verifying your invoice...",
+                    "info"
+                );
+
+
+                try {
+
+                    // =============================================
+                    // SEND REQUEST
+                    // =============================================
+
+                    const response =
+                        await fetch(
+                            `${API_BASE_URL}/api/invoices/upload`,
+                            {
+
+                                method:
+                                    "POST",
+
+                                headers: {
+
+                                    "Authorization":
+                                        `Bearer ${accessToken}`
+
+                                },
+
+                                body:
+                                    formData
+
+                            }
+                        );
+
+
+                    // =============================================
+                    // READ RESPONSE
+                    // =============================================
+
+                    let data =
+                        {};
+
+
+                    try {
+
+                        data =
+                            await response.json();
+
+                    } catch {
+
+                        data =
+                            {};
+
+                    }
+
+
+                    console.log(
+                        "Invoice upload status:",
+                        response.status
+                    );
+
+
+                    console.log(
+                        "Invoice upload response:",
+                        data
+                    );
+
+
+                    // =============================================
+                    // ERROR
+                    // =============================================
+
+                    if (
+                        !response.ok
+                    ) {
+
+                        throw new Error(
+                            data.detail
+                            ||
+                            "Invoice upload failed."
+                        );
+
+                    }
+
+
+                    // =============================================
+                    // SUCCESS
+                    // =============================================
+
+                    const invoice =
+                        data.invoice;
+
+
+                    if (
+                        !invoice
+                        ||
+                        !invoice.invoice_id
+                    ) {
+
+                        throw new Error(
+                            "Invoice was uploaded, but the server did not return an invoice ID."
+                        );
+
+                    }
+
+
+                    const newInvoiceId =
+                        invoice.invoice_id;
+
+
+                    // =============================================
+                    // SAVE LAST INVOICE ID
+                    // =============================================
+
+                    localStorage.setItem(
+                        "claimguard_last_invoice_id",
+                        newInvoiceId
+                    );
+
+
+                    // =============================================
+                    // SHOW SUCCESS MESSAGE
+                    // =============================================
+
+                    showMessage(
+                        data.message
+                        ||
+                        "Invoice uploaded successfully. Opening verification result...",
+                        "success"
+                    );
+
+
+                    resultInvoiceId.textContent =
+                        newInvoiceId;
+
+
+                    resultFileName.textContent =
+                        invoice.original_filename
+                        ||
+                        selectedInvoiceFile.name;
+
+
+                    uploadResult.classList.add(
+                        "show"
+                    );
+
+
+                    // =============================================
+                    // REDIRECT TO DETAILS PAGE
+                    // =============================================
+
+                    setTimeout(
+                        () => {
+
+                            window.location.href =
+                                `invoice-details.html?invoice_id=${encodeURIComponent(
+                                    newInvoiceId
+                                )}`;
+
+                        },
+                        800
+                    );
+
+
+                } catch (error) {
+
+                    // =============================================
+                    // ERROR HANDLING
+                    // =============================================
+
+                    console.error(
+                        "Invoice upload error:",
+                        error
+                    );
+
+
+                    showMessage(
+                        error.message
+                        ||
+                        "Unable to upload the invoice.",
+                        "error"
+                    );
+
+
+                } finally {
+
+                    // -------------------------------------------------
+                    // Re-enable button only when staying on page
+                    // -------------------------------------------------
+
+                    uploadButton.disabled =
+                        !selectedInvoiceFile;
+
+
+                    uploadButton.textContent =
+                        "Upload Invoice";
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>

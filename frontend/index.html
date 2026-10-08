@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,465 +8,4259 @@
     <title>ClaimGuard | Intelligent Invoice Verification</title>
 
     <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        :root{
+            --cg-bg:#070313;
+            --cg-bg-2:#0d061a;
+            --cg-panel:rgba(20,11,38,.78);
+            --cg-panel-2:rgba(31,17,54,.78);
+            --cg-line:rgba(211,184,255,.13);
+            --cg-white:#f9f7ff;
+            --cg-muted:#b9afd0;
+            --cg-purple:#8b5cf6;
+            --cg-purple-2:#a855f7;
+            --cg-violet:#6d4aff;
+            --cg-pink:#ec4899;
+            --cg-cyan:#67e8f9;
+            --cg-green:#37e49a;
+            --cg-red:#fb7185;
+            --cg-shadow:0 32px 90px rgba(0,0,0,.42);
+        }
+
+        *{box-sizing:border-box}
+
+        html{scroll-behavior:smooth}
+
+        body{
+            margin:0;
+            color:var(--cg-white);
+            background:
+                radial-gradient(circle at 10% 8%,rgba(139,92,246,.18),transparent 26%),
+                radial-gradient(circle at 86% 10%,rgba(236,72,153,.13),transparent 22%),
+                radial-gradient(circle at 68% 70%,rgba(59,130,246,.08),transparent 26%),
+                linear-gradient(180deg,var(--cg-bg),var(--cg-bg-2) 48%,#090511);
+            font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+            overflow-x:hidden;
+        }
+
+        body::before{
+            content:"";
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            opacity:.24;
+            background-image:
+                linear-gradient(rgba(196,181,253,.06) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(196,181,253,.06) 1px,transparent 1px);
+            background-size:34px 34px;
+            mask-image:linear-gradient(to bottom,black,transparent 80%);
+            z-index:-5;
+        }
+
+        a{text-decoration:none}
+
+        .cg-shell{
+            width:min(1360px,calc(100% - 34px));
+            margin:0 auto;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        .navbar{
+            position:sticky;
+            top:15px;
+            z-index:100;
+            width:min(1250px,100%);
+            margin:15px auto 0;
+            padding:12px 16px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:20px;
+            border:1px solid rgba(255,255,255,.09);
+            border-radius:20px;
+            background:rgba(9,4,20,.70);
+            backdrop-filter:blur(22px);
+            box-shadow:0 18px 45px rgba(0,0,0,.26),inset 0 1px 0 rgba(255,255,255,.05);
+        }
+
+        .brand{
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+
+        .brand-icon{
+            width:44px;
+            height:44px;
+            display:grid;
+            place-items:center;
+            border-radius:13px;
+            color:#fff;
+            font-size:13px;
+            font-weight:950;
+            background:linear-gradient(135deg,#7c3aed,#c026d3);
+            box-shadow:0 0 26px rgba(139,92,246,.34);
+            position:relative;
+            overflow:hidden;
+        }
+
+        .brand-icon::after{
+            content:"";
+            position:absolute;
+            width:25px;
+            height:80px;
+            top:-18px;
+            left:-38px;
+            transform:rotate(28deg);
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);
+            animation:brandSweep 4.8s infinite;
+        }
+
+        .brand-text{
+            display:flex;
+            flex-direction:column;
+            line-height:1;
+        }
+
+        .brand-text h2{
+            margin:0 0 5px;
+            font-size:16px;
+            letter-spacing:-.03em;
+        }
+
+        .brand-text span{
+            font-size:9px;
+            color:#a89fc0;
+            letter-spacing:.12em;
+            text-transform:uppercase;
+            font-weight:800;
+        }
+
+        .nav-links{
+            display:flex;
+            align-items:center;
+            justify-content:flex-end;
+            gap:6px;
+        }
+
+        .nav-links a{
+            position:relative;
+            padding:10px 12px;
+            border-radius:11px;
+            color:#c1b7d1;
+            font-size:12px;
+            font-weight:850;
+            transition:.25s ease;
+        }
+
+        .nav-links a:hover{
+            color:#fff;
+            background:rgba(139,92,246,.10);
+        }
+
+        .nav-login{
+            margin-left:6px;
+            color:#fff !important;
+            padding:10px 16px !important;
+            background:linear-gradient(135deg,#7c3aed,#a855f7);
+            border:1px solid rgba(255,255,255,.08);
+            box-shadow:0 12px 26px rgba(124,58,237,.26);
+        }
+
+        .nav-login:hover{
+            transform:translateY(-2px);
+            box-shadow:0 18px 32px rgba(124,58,237,.34);
+        }
+
+        /* ================= HERO ================= */
+
+        .hero{
+            width:min(1250px,100%);
+            min-height:720px;
+            margin:24px auto 0;
+            position:relative;
+            display:grid;
+            grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+            align-items:center;
+            gap:22px;
+            padding:58px 36px 46px;
+            overflow:hidden;
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:34px;
+            background:
+                radial-gradient(circle at 75% 45%,rgba(139,92,246,.11),transparent 30%),
+                radial-gradient(circle at 94% 15%,rgba(236,72,153,.08),transparent 24%),
+                linear-gradient(135deg,rgba(19,8,37,.93),rgba(7,3,17,.92));
+            box-shadow:var(--cg-shadow);
+        }
+
+        .hero::before{
+            content:"";
+            position:absolute;
+            width:620px;
+            height:620px;
+            right:-220px;
+            top:-160px;
+            border-radius:50%;
+            border:1px solid rgba(167,139,250,.11);
+            box-shadow:0 0 0 70px rgba(139,92,246,.018),0 0 0 145px rgba(139,92,246,.014);
+            animation:slowOrbit 18s linear infinite;
+        }
+
+        .hero::after{
+            content:"";
+            position:absolute;
+            left:-170px;
+            bottom:-190px;
+            width:490px;
+            height:490px;
+            border-radius:50%;
+            background:radial-gradient(circle,rgba(168,85,247,.12),transparent 67%);
+            filter:blur(8px);
+            pointer-events:none;
+        }
+
+        .hero-content{
+            position:relative;
+            z-index:5;
+            padding-left:4px;
+            animation:contentIn .8s ease both;
+        }
+
+        .badge{
+            width:max-content;
+            display:inline-flex;
+            align-items:center;
+            gap:9px;
+            padding:8px 12px;
+            border-radius:999px;
+            border:1px solid rgba(167,139,250,.22);
+            background:rgba(139,92,246,.08);
+            color:#cebfff;
+            font-size:9px;
+            font-weight:950;
+            letter-spacing:.11em;
+            text-transform:uppercase;
+            box-shadow:inset 0 0 24px rgba(139,92,246,.05),0 0 24px rgba(139,92,246,.06);
+        }
+
+        .badge::before{
+            content:"✦";
+            color:#d8b4fe;
+            font-size:11px;
+            animation:twinkle 1.7s ease-in-out infinite;
+        }
+
+        .hero h1{
+            margin:20px 0 18px;
+            max-width:660px;
+            font-size:clamp(47px,5.2vw,80px);
+            line-height:.95;
+            letter-spacing:-.068em;
+            font-weight:950;
+        }
+
+        .hero h1 span{
+            display:block;
+            color:transparent;
+            background:linear-gradient(90deg,#c4b5fd,#a78bfa,#f0abfc);
+            -webkit-background-clip:text;
+            background-clip:text;
+        }
+
+        .hero-content > p{
+            max-width:580px;
+            margin:0;
+            color:#b7abc9;
+            font-size:14px;
+            line-height:1.86;
+        }
+
+        .hero-buttons{
+            margin-top:27px;
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+        }
+
+        .btn-primary,
+        .btn-secondary{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:9px;
+            min-height:46px;
+            padding:0 17px;
+            border-radius:13px;
+            font-size:12px;
+            font-weight:900;
+            transition:.25s ease;
+        }
+
+        .btn-primary{
+            color:#fff;
+            background:linear-gradient(135deg,#7c3aed,#c026d3);
+            box-shadow:0 15px 30px rgba(124,58,237,.25);
+        }
+
+        .btn-primary:hover{
+            transform:translateY(-3px);
+            box-shadow:0 22px 38px rgba(124,58,237,.34);
+        }
+
+        .btn-secondary{
+            color:#ddd6fe;
+            border:1px solid rgba(167,139,250,.25);
+            background:rgba(255,255,255,.03);
+        }
+
+        .btn-secondary:hover{
+            transform:translateY(-3px);
+            background:rgba(139,92,246,.08);
+        }
+
+        .trust-row{
+            display:flex;
+            flex-wrap:wrap;
+            gap:9px;
+            margin-top:27px;
+        }
+
+        .trust-row > div{
+            min-width:104px;
+            padding:10px 11px;
+            border:1px solid rgba(255,255,255,.07);
+            border-radius:13px;
+            background:rgba(255,255,255,.025);
+        }
+
+        .trust-row strong,
+        .trust-row span{
+            display:block;
+        }
+
+        .trust-row strong{
+            margin-bottom:3px;
+            color:#eeeaff;
+            font-size:10px;
+        }
+
+        .trust-row span{
+            color:#8f84a5;
+            font-size:8px;
+            font-weight:800;
+        }
+
+        /* ================= THREE CHARACTER STAGE ================= */
+
+        .dashboard-preview{
+            display:none !important;
+        }
+
+        .character-stage{
+            position:relative;
+            z-index:4;
+            height:620px;
+            min-width:0;
+            animation:stageIn 1s .12s ease both;
+        }
+
+        .stage-glow{
+            position:absolute;
+            left:50%;
+            top:47%;
+            width:540px;
+            height:540px;
+            transform:translate(-50%,-50%);
+            border-radius:50%;
+            background:
+                radial-gradient(circle,rgba(139,92,246,.17),transparent 57%),
+                radial-gradient(circle at 25% 25%,rgba(236,72,153,.08),transparent 32%);
+            filter:blur(14px);
+            animation:breathe 5s ease-in-out infinite;
+        }
+
+        .role-card{
+            position:absolute;
+            z-index:30;
+            display:flex;
+            align-items:center;
+            gap:9px;
+            padding:9px 11px;
+            border-radius:15px;
+            border:1px solid rgba(255,255,255,.10);
+            backdrop-filter:blur(14px);
+            box-shadow:0 14px 35px rgba(0,0,0,.22);
+            font-size:9px;
+            font-weight:900;
+            color:#fff;
+        }
+
+        .role-card b{
+            display:block;
+            font-size:11px;
+            margin-bottom:2px;
+        }
+
+        .role-card span{
+            display:block;
+            color:#c6bbd7;
+            font-size:7px;
+            font-weight:750;
+        }
+
+        .role-dot{
+            width:27px;
+            height:27px;
+            display:grid;
+            place-items:center;
+            border-radius:9px;
+            font-size:10px;
+            background:rgba(255,255,255,.08);
+        }
+
+        .role-admin{
+            top:34px;
+            left:3%;
+            border-color:rgba(251,113,133,.26);
+            background:linear-gradient(135deg,rgba(78,20,40,.78),rgba(26,9,22,.78));
+            animation:cardFloat 4.4s ease-in-out infinite;
+        }
+
+        .role-admin .role-dot{color:#fda4af;box-shadow:0 0 18px rgba(251,113,133,.25)}
+
+        .role-user{
+            top:20px;
+            left:38%;
+            border-color:rgba(96,165,250,.24);
+            background:linear-gradient(135deg,rgba(25,36,72,.8),rgba(10,13,33,.8));
+            animation:cardFloat 4.8s 1s ease-in-out infinite;
+        }
+
+        .role-user .role-dot{color:#93c5fd;box-shadow:0 0 18px rgba(59,130,246,.23)}
+
+        .role-finance{
+            top:38px;
+            right:1%;
+            border-color:rgba(196,181,253,.25);
+            background:linear-gradient(135deg,rgba(53,30,88,.8),rgba(18,8,35,.8));
+            animation:cardFloat 4.9s .4s ease-in-out infinite;
+        }
+
+        .role-finance .role-dot{color:#d8b4fe;box-shadow:0 0 18px rgba(168,85,247,.30)}
+
+        .float-hud{
+            position:absolute;
+            z-index:26;
+            padding:9px 11px;
+            border:1px solid rgba(255,255,255,.09);
+            border-radius:13px;
+            background:rgba(12,6,25,.68);
+            backdrop-filter:blur(12px);
+            box-shadow:0 14px 36px rgba(0,0,0,.24);
+            color:#ddd6fe;
+            font-size:8px;
+            line-height:1.45;
+            font-weight:800;
+        }
+
+        .hud-a{
+            left:1%;
+            top:170px;
+            animation:floatSmall 5.4s ease-in-out infinite;
+        }
+
+        .hud-a b{color:#a7f3d0}
+
+        .hud-b{
+            right:1%;
+            top:190px;
+            animation:floatSmall 5s 1s ease-in-out infinite;
+        }
+
+        .hud-b b{color:#67e8f9}
+
+        .hud-c{
+            left:8%;
+            bottom:130px;
+            animation:floatSmall 5.2s .6s ease-in-out infinite;
+        }
+
+        .hud-c b{color:#f0abfc}
+
+        .hud-d{
+            right:5%;
+            bottom:120px;
+            animation:floatSmall 5.1s .2s ease-in-out infinite;
+        }
+
+        .hud-d b{color:#fbbf24}
+
+        .paper{
+            position:absolute;
+            z-index:7;
+            width:72px;
+            height:88px;
+            padding:9px;
+            border-radius:9px;
+            background:#fbf8ff;
+            box-shadow:0 18px 34px rgba(0,0,0,.24);
+        }
+
+        .paper::before{
+            content:"INVOICE";
+            display:block;
+            margin-bottom:9px;
+            color:#7b6e8e;
+            font-size:6px;
+            font-weight:950;
+            letter-spacing:.14em;
+        }
+
+        .paper .l{
+            height:5px;
+            border-radius:5px;
+            margin-bottom:6px;
+            background:#e9e2f4;
+        }
+
+        .paper .l.short{width:63%}
+
+        .paper .sum{
+            width:69%;
+            height:9px;
+            margin-top:10px;
+            border-radius:5px;
+            background:linear-gradient(90deg,#8b5cf6,#c026d3);
+        }
+
+        .paper.p1{left:20%;top:107px;transform:rotate(-11deg);animation:paperFloat 6s ease-in-out infinite;}
+        .paper.p2{right:20%;top:120px;transform:rotate(8deg);animation:paperFloat 6.3s 1s ease-in-out infinite;}
+        .paper.p3{left:27%;bottom:170px;transform:rotate(7deg);animation:paperFloat 6.1s .35s ease-in-out infinite;}
+        .paper.p4{right:27%;bottom:184px;transform:rotate(-8deg);animation:paperFloat 5.8s .8s ease-in-out infinite;}
+
+        .character{
+            position:absolute;
+            width:148px;
+            height:330px;
+            z-index:15;
+            transform-origin:center bottom;
+        }
+
+        .character.admin{
+            left:5%;
+            top:160px;
+            animation:characterBob 4.2s ease-in-out infinite;
+        }
+
+        .character.user{
+            left:38%;
+            top:192px;
+            animation:characterBob 4.5s .4s ease-in-out infinite;
+        }
+
+        .character.finance{
+            right:5%;
+            top:160px;
+            animation:characterBob 4.3s .8s ease-in-out infinite;
+        }
+
+        .character .shadow{
+            position:absolute;
+            left:50%;
+            bottom:0;
+            width:122px;
+            height:20px;
+            transform:translateX(-50%);
+            border-radius:50%;
+            background:rgba(0,0,0,.37);
+            filter:blur(7px);
+        }
+
+        .head{
+            position:absolute;
+            left:50%;
+            top:0;
+            width:74px;
+            height:80px;
+            transform:translateX(-50%);
+            border-radius:44% 44% 46% 46%;
+            background:#ffd1ad;
+            box-shadow:inset 0 -7px 0 rgba(0,0,0,.03);
+        }
+
+        .hair{
+            position:absolute;
+            left:50%;
+            top:-6px;
+            width:74px;
+            height:42px;
+            transform:translateX(-50%);
+            border-radius:39px 39px 17px 17px;
+            background:#251a35;
+        }
+
+        .glasses{
+            position:absolute;
+            top:34px;
+            left:50%;
+            width:59px;
+            height:23px;
+            transform:translateX(-50%);
+        }
+
+        .glasses::before,
+        .glasses::after{
+            content:"";
+            position:absolute;
+            top:2px;
+            width:25px;
+            height:17px;
+            border:2px solid #433452;
+            border-radius:7px;
+            background:rgba(255,255,255,.06);
+        }
+
+        .glasses::before{left:0}
+        .glasses::after{right:0}
+
+        .glasses i{
+            position:absolute;
+            left:50%;
+            top:9px;
+            width:10px;
+            height:2px;
+            transform:translateX(-50%);
+            background:#433452;
+        }
+
+        .eye{
+            position:absolute;
+            top:39px;
+            width:6px;
+            height:6px;
+            border-radius:50%;
+            background:#2a2034;
+        }
+
+        .eye.l{left:21px}
+        .eye.r{right:21px}
+
+        .smile{
+            position:absolute;
+            left:50%;
+            top:53px;
+            width:18px;
+            height:8px;
+            transform:translateX(-50%);
+            border-bottom:2px solid #ad6959;
+            border-radius:0 0 15px 15px;
+        }
+
+        .body{
+            position:absolute;
+            left:50%;
+            top:71px;
+            width:88px;
+            height:135px;
+            transform:translateX(-50%);
+            border-radius:24px 24px 20px 20px;
+            box-shadow:0 18px 30px rgba(0,0,0,.18);
+        }
+
+        .admin .body{
+            background:linear-gradient(160deg,#7f1d3c,#e11d48);
+        }
+
+        .user .body{
+            background:linear-gradient(160deg,#1d4ed8,#4338ca);
+            border-radius:28px 28px 19px 19px;
+        }
+
+        .finance .body{
+            background:linear-gradient(160deg,#6d28d9,#a855f7);
+        }
+
+        .shirt{
+            position:absolute;
+            left:50%;
+            top:0;
+            width:65px;
+            height:36px;
+            transform:translateX(-50%);
+            border-radius:15px 15px 19px 19px;
+            background:#fff;
+        }
+
+        .tie{
+            position:absolute;
+            left:50%;
+            top:21px;
+            width:15px;
+            height:38px;
+            transform:translateX(-50%);
+            clip-path:polygon(31% 0,69% 0,100% 35%,64% 100%,36% 100%,0 35%);
+            background:#f43f5e;
+        }
+
+        .user .shirt{
+            left:15px;
+            top:17px;
+            width:59px;
+            height:28px;
+            background:rgba(255,255,255,.14);
+            border-radius:15px;
+            z-index:2;
+        }
+
+        .user .cg-mark{
+            position:absolute;
+            left:14px;
+            top:15px;
+            z-index:4;
+            color:#fff;
+            font-size:10px;
+            font-weight:950;
+        }
+
+        .admin .cg-mark,
+        .finance .cg-mark{
+            position:absolute;
+            left:50%;
+            top:48px;
+            transform:translateX(-50%);
+            z-index:3;
+            color:rgba(255,255,255,.86);
+            font-size:8px;
+            font-weight:950;
+        }
+
+        .arm{
+            position:absolute;
+            top:91px;
+            width:20px;
+            height:91px;
+            border-radius:20px;
+            background:#ffc69e;
+            z-index:-1;
+            transform-origin:top center;
+        }
+
+        .arm.l{left:-7px;transform:rotate(11deg)}
+        .arm.r{right:-7px;transform:rotate(-15deg)}
+        .finance .arm.r{animation:signMotion 3.8s ease-in-out infinite}
+
+        .hand{
+            position:absolute;
+            left:50%;
+            bottom:-11px;
+            width:22px;
+            height:22px;
+            transform:translateX(-50%);
+            border-radius:50%;
+            background:#ffc69e;
+        }
+
+        .leg{
+            position:absolute;
+            top:188px;
+            width:27px;
+            height:104px;
+            border-radius:16px;
+            background:#1a1530;
+        }
+
+        .leg.l{left:42px}
+        .leg.r{right:42px}
+
+        .shoe{
+            position:absolute;
+            bottom:-8px;
+            width:39px;
+            height:18px;
+            border-radius:15px 15px 9px 9px;
+            background:#0a0715;
+        }
+
+        .leg.l .shoe{left:-5px}
+        .leg.r .shoe{right:-5px}
+
+        /* ADMIN PROPS */
+        .admin .tablet{
+            position:absolute;
+            top:135px;
+            right:-21px;
+            z-index:12;
+            width:55px;
+            height:67px;
+            border-radius:9px;
+            border:4px solid #171127;
+            background:linear-gradient(180deg,#18132a,#332060);
+            box-shadow:0 15px 25px rgba(0,0,0,.24);
+            transform:rotate(-7deg);
+        }
+
+        .admin .tablet::after{
+            content:"USERS\nROLE";
+            position:absolute;
+            inset:15px 7px;
+            white-space:pre-line;
+            color:#d8b4fe;
+            font-size:5px;
+            line-height:1.8;
+            text-align:center;
+            font-weight:950;
+        }
+
+        /* USER LAPTOP */
+        .user .laptop{
+            position:absolute;
+            left:50%;
+            top:153px;
+            width:124px;
+            height:80px;
+            transform:translateX(-50%);
+            z-index:18;
+        }
+
+        .laptop-screen{
+            position:absolute;
+            left:50%;
+            top:0;
+            width:88px;
+            height:60px;
+            transform:translateX(-50%);
+            border:5px solid #101020;
+            border-radius:8px 8px 4px 4px;
+            background:linear-gradient(160deg,#202044,#0e132e);
+            box-shadow:0 13px 26px rgba(0,0,0,.35);
+        }
+
+        .laptop-screen::after{
+            content:"CG";
+            position:absolute;
+            left:50%;
+            top:50%;
+            transform:translate(-50%,-50%);
+            color:#c4b5fd;
+            font-size:10px;
+            font-weight:950;
+        }
+
+        .laptop-base{
+            position:absolute;
+            left:50%;
+            bottom:0;
+            width:122px;
+            height:22px;
+            transform:translateX(-50%);
+            clip-path:polygon(7% 0,93% 0,100% 65%,0 65%);
+            border-radius:3px 3px 12px 12px;
+            background:linear-gradient(180deg,#3d3560,#171328);
+        }
+
+        /* FINANCE PROPS */
+        .finance .clipboard{
+            position:absolute;
+            top:144px;
+            right:-17px;
+            z-index:18;
+            width:58px;
+            height:82px;
+            padding:17px 8px 8px;
+            border-radius:7px;
+            background:#fbf8ff;
+            box-shadow:0 16px 25px rgba(0,0,0,.24);
+            transform:rotate(8deg);
+        }
+
+        .finance .clipboard::before{
+            content:"";
+            position:absolute;
+            left:18px;
+            top:-7px;
+            width:22px;
+            height:12px;
+            border:3px solid #78628f;
+            border-bottom:0;
+            border-radius:6px 6px 0 0;
+        }
+
+        .check{
+            display:flex;
+            align-items:center;
+            gap:5px;
+            margin-bottom:7px;
+            color:#53456a;
+            font-size:5px;
+            font-weight:900;
+        }
+
+        .check::before{
+            content:"✓";
+            display:grid;
+            place-items:center;
+            width:10px;
+            height:10px;
+            border-radius:50%;
+            color:#fff;
+            background:#22c55e;
+            font-size:6px;
+        }
+
+        /* ================= WORKFLOW HUD ================= */
+
+        .process-hud{
+            position:absolute;
+            left:50%;
+            bottom:28px;
+            z-index:35;
+            width:min(560px,92%);
+            transform:translateX(-50%);
+            padding:12px 13px;
+            border:1px solid rgba(255,255,255,.10);
+            border-radius:16px;
+            background:rgba(10,5,22,.78);
+            backdrop-filter:blur(15px);
+            box-shadow:0 20px 45px rgba(0,0,0,.30);
+        }
+
+        .process-title{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:9px;
+        }
+
+        .process-title span{
+            color:#a89fc0;
+            font-size:8px;
+            font-weight:900;
+            letter-spacing:.1em;
+            text-transform:uppercase;
+        }
+
+        .process-title b{
+            color:#d8b4fe;
+            font-size:8px;
+        }
+
+        .process-row{
+            display:grid;
+            grid-template-columns:repeat(4,1fr);
+            gap:7px;
+        }
+
+        .process-step{
+            min-height:46px;
+            display:flex;
+            align-items:center;
+            gap:7px;
+            padding:7px 8px;
+            border:1px solid rgba(255,255,255,.06);
+            border-radius:11px;
+            background:rgba(255,255,255,.025);
+        }
+
+        .process-step i{
+            width:22px;
+            height:22px;
+            display:grid;
+            place-items:center;
+            border-radius:8px;
+            font-style:normal;
+            font-size:8px;
+            color:#fff;
+            background:linear-gradient(135deg,#7c3aed,#c026d3);
+            box-shadow:0 7px 14px rgba(124,58,237,.22);
+        }
+
+        .process-step span{
+            color:#c8bfd7;
+            font-size:7px;
+            font-weight:850;
+            line-height:1.3;
+        }
+
+        /* ================= FEATURES ================= */
+
+        .section{
+            width:min(1250px,100%);
+            margin:106px auto 0;
+            padding:0 34px;
+        }
+
+        .section-heading > span,
+        .security-content > span{
+            display:inline-block;
+            color:#b9a4ff;
+            font-size:9px;
+            font-weight:950;
+            letter-spacing:.16em;
+            text-transform:uppercase;
+        }
+
+        .section-heading h2,
+        .security-content h2{
+            margin:13px 0 0;
+            font-size:clamp(35px,4vw,55px);
+            line-height:1.04;
+            letter-spacing:-.055em;
+        }
+
+        .feature-grid{
+            display:grid;
+            grid-template-columns:repeat(4,minmax(0,1fr));
+            gap:15px;
+            margin-top:34px;
+        }
+
+        .feature-card{
+            position:relative;
+            min-height:230px;
+            padding:25px 22px;
+            border:1px solid var(--cg-line);
+            border-radius:22px;
+            background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.02));
+            box-shadow:0 18px 45px rgba(0,0,0,.18);
+            overflow:hidden;
+            transition:.3s ease;
+        }
+
+        .feature-card::after{
+            content:"";
+            position:absolute;
+            width:120px;
+            height:120px;
+            right:-55px;
+            top:-55px;
+            border-radius:50%;
+            background:radial-gradient(circle,rgba(168,85,247,.22),transparent 70%);
+            transition:.35s ease;
+        }
+
+        .feature-card:hover{
+            transform:translateY(-7px);
+            border-color:rgba(167,139,250,.24);
+            box-shadow:0 27px 55px rgba(0,0,0,.25);
+        }
+
+        .feature-card:hover::after{
+            transform:scale(1.35);
+        }
+
+        .feature-number{
+            display:grid;
+            place-items:center;
+            width:37px;
+            height:37px;
+            margin-bottom:23px;
+            border-radius:11px;
+            color:#d8b4fe;
+            background:rgba(139,92,246,.10);
+            border:1px solid rgba(167,139,250,.10);
+            font-size:9px;
+            font-weight:950;
+        }
+
+        .feature-card h3{
+            margin:0 0 11px;
+            font-size:17px;
+            letter-spacing:-.03em;
+        }
+
+        .feature-card p{
+            margin:0;
+            color:#9f95b2;
+            font-size:12px;
+            line-height:1.78;
+        }
+
+        /* ================= WORKFLOW ================= */
+
+        .workflow-section{
+            padding-top:8px;
+        }
+
+        .section-heading.center{
+            text-align:center;
+        }
+
+        .section-heading.center p{
+            max-width:610px;
+            margin:14px auto 0;
+            color:#9e94b2;
+            font-size:13px;
+            line-height:1.75;
+        }
+
+        .workflow{
+            display:grid;
+            grid-template-columns:repeat(11,minmax(0,1fr));
+            align-items:center;
+            margin-top:40px;
+        }
+
+        .workflow-step{
+            grid-column:span 1;
+            text-align:center;
+        }
+
+        .workflow-step > span{
+            width:49px;
+            height:49px;
+            margin:0 auto 11px;
+            display:grid;
+            place-items:center;
+            border-radius:16px;
+            color:#fff;
+            background:linear-gradient(135deg,#7c3aed,#c026d3);
+            box-shadow:0 14px 26px rgba(124,58,237,.19);
+            font-size:10px;
+            font-weight:950;
+        }
+
+        .workflow-step h3{
+            margin:0 0 4px;
+            font-size:13px;
+        }
+
+        .workflow-step p{
+            margin:0;
+            color:#8f84a5;
+            font-size:9px;
+            line-height:1.5;
+        }
+
+        .workflow-line{
+            grid-column:span 1;
+            height:2px;
+            background:linear-gradient(90deg,rgba(139,92,246,.12),rgba(236,72,153,.28));
+            position:relative;
+        }
+
+        .workflow-line::after{
+            content:"";
+            position:absolute;
+            top:50%;
+            right:0;
+            width:7px;
+            height:7px;
+            transform:translateY(-50%);
+            border-radius:50%;
+            background:#a855f7;
+            box-shadow:0 0 0 5px rgba(168,85,247,.08);
+        }
+
+        /* ================= SECURITY ================= */
+
+        .security-section{
+            margin-top:105px;
+        }
+
+        .security-content{
+            display:grid;
+            grid-template-columns:1.06fr .94fr;
+            gap:46px;
+            align-items:center;
+            padding:48px;
+            border:1px solid rgba(255,255,255,.09);
+            border-radius:31px;
+            background:
+                radial-gradient(circle at 86% 16%,rgba(168,85,247,.15),transparent 25%),
+                linear-gradient(135deg,#120925,#0b0617);
+            box-shadow:var(--cg-shadow);
+        }
+
+        .security-content h2{color:#fff}
+
+        .security-content > p{
+            max-width:610px;
+            color:#a69bb9;
+            line-height:1.8;
+            font-size:13px;
+        }
+
+        .security-points{
+            display:grid;
+            gap:10px;
+        }
+
+        .security-points > div{
+            display:flex;
+            flex-direction:column;
+            gap:5px;
+            padding:15px 16px;
+            border:1px solid rgba(255,255,255,.07);
+            border-radius:16px;
+            background:rgba(255,255,255,.03);
+            transition:.25s ease;
+        }
+
+        .security-points > div:hover{
+            transform:translateX(5px);
+            border-color:rgba(167,139,250,.18);
+            background:rgba(139,92,246,.055);
+        }
+
+        .security-points strong{
+            font-size:12px;
+        }
+
+        .security-points span{
+            color:#8f84a5;
+            font-size:10px;
+        }
+
+        /* ================= FOUNDERS ================= */
+
+        .founders-section{
+            width:min(1250px,100%);
+            margin:116px auto 0;
+            padding:0 34px;
+        }
+
+        .founders-intro{
+            text-align:center;
+        }
+
+        .founders-kicker{
+            color:#d8b4fe;
+            font-size:9px;
+            font-weight:950;
+            letter-spacing:.18em;
+            text-transform:uppercase;
+        }
+
+        .founders-intro h2{
+            margin:12px 0 8px;
+            font-size:clamp(35px,4vw,52px);
+            letter-spacing:-.06em;
+        }
+
+        .founders-intro p{
+            max-width:640px;
+            margin:0 auto;
+            color:#9388a7;
+            font-size:12px;
+            line-height:1.75;
+        }
+
+        .founder-room{
+            position:relative;
+            min-height:440px;
+            margin-top:35px;
+            overflow:hidden;
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:31px;
+            background:
+                radial-gradient(circle at 50% 18%,rgba(168,85,247,.15),transparent 24%),
+                linear-gradient(180deg,#10061f,#0a0512 76%);
+            box-shadow:var(--cg-shadow);
+        }
+
+        .room-glow{
+            position:absolute;
+            left:50%;
+            top:45%;
+            width:430px;
+            height:260px;
+            transform:translate(-50%,-50%);
+            border-radius:50%;
+            background:radial-gradient(circle,rgba(168,85,247,.11),transparent 67%);
+            filter:blur(12px);
+        }
+
+        .neon-word{
+            position:absolute;
+            left:50%;
+            top:28px;
+            transform:translateX(-50%);
+            color:#e9d5ff;
+            font-size:13px;
+            font-weight:950;
+            letter-spacing:.28em;
+            text-shadow:0 0 16px rgba(192,132,252,.65),0 0 34px rgba(168,85,247,.25);
+            animation:neonFlicker 4.5s infinite;
+        }
+
+        .founder-desk{
+            position:absolute;
+            left:50%;
+            bottom:36px;
+            width:min(820px,87%);
+            height:128px;
+            transform:translateX(-50%);
+            border-radius:50%;
+            background:
+                radial-gradient(ellipse at center,rgba(102,66,137,.26),transparent 63%),
+                linear-gradient(180deg,#29173c,#170d24);
+            border:1px solid rgba(218,190,255,.11);
+            box-shadow:
+                0 28px 45px rgba(0,0,0,.38),
+                inset 0 9px 18px rgba(255,255,255,.03);
+        }
+
+        .founder-desk::before{
+            content:"";
+            position:absolute;
+            left:50%;
+            top:13px;
+            width:58%;
+            height:60px;
+            transform:translateX(-50%);
+            border-radius:50%;
+            border:1px solid rgba(255,255,255,.05);
+            background:rgba(255,255,255,.02);
+        }
+
+        .laptop{
+            position:absolute;
+            z-index:15;
+            bottom:89px;
+            width:118px;
+            height:74px;
+            animation:laptopBob 4.2s ease-in-out infinite;
+        }
+
+        .laptop.f1{left:27%}
+        .laptop.f2{right:27%;animation-delay:1s}
+
+        .laptop-screen{
+            position:absolute;
+            left:50%;
+            top:0;
+            width:80px;
+            height:53px;
+            transform:translateX(-50%);
+            border:5px solid #0a0812;
+            border-radius:7px 7px 3px 3px;
+            background:linear-gradient(160deg,#2d1d51,#100b20);
+            box-shadow:0 12px 25px rgba(0,0,0,.38);
+        }
+
+        .laptop-screen::before{
+            content:"CLAIMGUARD";
+            position:absolute;
+            left:9px;
+            top:10px;
+            color:#c4b5fd;
+            font-size:5px;
+            font-weight:950;
+        }
+
+        .laptop-screen::after{
+            content:"ANALYZING • REVIEW • SHIP";
+            position:absolute;
+            left:9px;
+            bottom:9px;
+            color:#7dd3fc;
+            font-size:4px;
+            font-weight:800;
+        }
+
+        .laptop-base{
+            position:absolute;
+            left:50%;
+            bottom:0;
+            width:112px;
+            height:22px;
+            transform:translateX(-50%);
+            clip-path:polygon(7% 0,93% 0,100% 64%,0 64%);
+            background:linear-gradient(180deg,#4a3760,#1b1028);
+            border-radius:3px 3px 10px 10px;
+        }
+
+        .founder{
+            position:absolute;
+            z-index:14;
+            bottom:70px;
+            width:175px;
+            height:260px;
+            animation:founderBob 4s ease-in-out infinite;
+        }
+
+        .founder.ishan{left:17%}
+        .founder.tazim{right:17%;animation-delay:.8s}
+
+        .founder .f-head{
+            position:absolute;
+            left:50%;
+            top:0;
+            width:66px;
+            height:73px;
+            transform:translateX(-50%);
+            border-radius:45%;
+            background:#f6c49e;
+        }
+
+        .founder .f-hair{
+            position:absolute;
+            left:50%;
+            top:-6px;
+            width:70px;
+            height:41px;
+            transform:translateX(-50%);
+            border-radius:40px 40px 15px 15px;
+            background:#16101f;
+        }
+
+        .founder .f-body{
+            position:absolute;
+            left:50%;
+            top:65px;
+            width:102px;
+            height:130px;
+            transform:translateX(-50%);
+            border-radius:27px 27px 18px 18px;
+            background:linear-gradient(160deg,#241433,#3b2154);
+            box-shadow:0 17px 26px rgba(0,0,0,.3);
+        }
+
+        .founder.tazim .f-body{
+            background:linear-gradient(160deg,#251538,#53225d);
+        }
+
+        .founder .f-arm{
+            position:absolute;
+            top:91px;
+            width:21px;
+            height:90px;
+            border-radius:20px;
+            background:#f1bc95;
+            transform-origin:top center;
+        }
+
+        .founder .f-arm.l{left:19px;transform:rotate(62deg)}
+        .founder .f-arm.r{right:19px;transform:rotate(-62deg)}
+
+        .founder .f-leg{
+            position:absolute;
+            top:182px;
+            width:29px;
+            height:78px;
+            border-radius:17px;
+            background:#15101d;
+        }
+
+        .founder .f-leg.l{left:59px}
+        .founder .f-leg.r{right:59px}
+
+        .founder-tag{
+            position:absolute;
+            z-index:30;
+            top:107px;
+            padding:9px 13px;
+            border-radius:11px;
+            border:1px solid rgba(255,255,255,.08);
+            background:rgba(9,5,16,.73);
+            box-shadow:0 10px 25px rgba(0,0,0,.27);
+        }
+
+        .founder-tag b{
+            display:block;
+            font-size:11px;
+            color:#fff;
+        }
+
+        .founder-tag span{
+            display:block;
+            margin-top:2px;
+            color:#9e94ae;
+            font-size:7px;
+            font-weight:800;
+            letter-spacing:.09em;
+            text-transform:uppercase;
+        }
+
+        .tag-ishan{left:12%}
+        .tag-tazim{right:12%}
+
+        .coffee{
+            position:absolute;
+            z-index:25;
+            width:25px;
+            height:19px;
+            bottom:99px;
+            border:2px solid #c7a47d;
+            border-top:0;
+            border-radius:0 0 9px 9px;
+            background:#38221b;
+        }
+
+        .coffee::after{
+            content:"";
+            position:absolute;
+            right:-7px;
+            top:2px;
+            width:8px;
+            height:9px;
+            border:2px solid #c7a47d;
+            border-left:0;
+            border-radius:0 8px 8px 0;
+        }
+
+        .coffee.one{left:31%}
+        .coffee.two{right:31%}
+
+        .smoke{
+            position:absolute;
+            z-index:26;
+            bottom:117px;
+            width:13px;
+            height:60px;
+            opacity:.55;
+        }
+
+        .smoke.one{left:30.8%}
+        .smoke.two{right:30.8%}
+
+        .smoke::before,
+        .smoke::after{
+            content:"";
+            position:absolute;
+            width:14px;
+            height:14px;
+            border-radius:50%;
+            border:2px solid rgba(235,225,241,.5);
+            filter:blur(.2px);
+            animation:smokeRise 3s ease-out infinite;
+        }
+
+        .smoke::before{left:0;bottom:2px}
+        .smoke::after{left:6px;bottom:20px;animation-delay:1.1s}
+
+        .founder-note{
+            position:absolute;
+            bottom:21px;
+            left:50%;
+            transform:translateX(-50%);
+            color:#786b86;
+            font-size:8px;
+            letter-spacing:.08em;
+            text-transform:uppercase;
+            font-weight:850;
+            white-space:nowrap;
+        }
+
+        /* ================= FOOTER ================= */
+
+        footer{
+            width:min(1250px,100%);
+            margin:72px auto 0;
+            padding:27px 34px 40px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:18px;
+            border-top:1px solid rgba(255,255,255,.07);
+        }
+
+        .footer-brand{
+            font-size:14px;
+            font-weight:950;
+        }
+
+        footer p,
+        footer > span{
+            margin:0;
+            color:#776d83;
+            font-size:9px;
+        }
+
+        /* ================= ANIMATIONS ================= */
+
+        @keyframes contentIn{
+            from{opacity:0;transform:translateY(24px)}
+            to{opacity:1;transform:none}
+        }
+
+        @keyframes stageIn{
+            from{opacity:0;transform:scale(.97) translateY(18px)}
+            to{opacity:1;transform:none}
+        }
+
+        @keyframes characterBob{
+            0%,100%{transform:translateY(0) rotate(0deg)}
+            50%{transform:translateY(-8px) rotate(-1deg)}
+        }
+
+        @keyframes founderBob{
+            0%,100%{transform:translateY(0)}
+            50%{transform:translateY(-4px)}
+        }
+
+        @keyframes paperFloat{
+            0%,100%{margin-top:0}
+            50%{margin-top:-13px}
+        }
+
+        @keyframes floatSmall{
+            0%,100%{transform:translateY(0)}
+            50%{transform:translateY(-8px)}
+        }
+
+        @keyframes cardFloat{
+            0%,100%{transform:translateY(0)}
+            50%{transform:translateY(-7px)}
+        }
+
+        @keyframes breathe{
+            0%,100%{transform:translate(-50%,-50%) scale(.96);opacity:.76}
+            50%{transform:translate(-50%,-50%) scale(1.05);opacity:1}
+        }
+
+        @keyframes slowOrbit{
+            from{transform:rotate(0deg)}
+            to{transform:rotate(360deg)}
+        }
+
+        @keyframes twinkle{
+            0%,100%{opacity:.65;transform:scale(.9) rotate(0)}
+            50%{opacity:1;transform:scale(1.1) rotate(12deg)}
+        }
+
+        @keyframes brandSweep{
+            0%{left:-40px}
+            42%,100%{left:70px}
+        }
+
+        @keyframes neonFlicker{
+            0%,100%{opacity:1}
+            48%{opacity:.82}
+            50%{opacity:1}
+            62%{opacity:.66}
+            64%{opacity:1}
+        }
+
+        @keyframes laptopBob{
+            0%,100%{transform:translateY(0)}
+            50%{transform:translateY(-3px)}
+        }
+
+        @keyframes signMotion{
+            0%,100%{transform:rotate(-15deg)}
+            50%{transform:rotate(-7deg)}
+        }
+
+        @keyframes smokeRise{
+            0%{opacity:0;transform:translate(0,16px) scale(.55)}
+            30%{opacity:.7}
+            100%{opacity:0;transform:translate(10px,-42px) scale(1.25)}
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width:1120px){
+            .hero{
+                grid-template-columns:1fr;
+                padding-top:48px;
+            }
+
+            .hero-content{
+                text-align:center;
+            }
+
+            .badge{
+                margin-inline:auto;
+            }
+
+            .hero-content > p{
+                margin-inline:auto;
+            }
+
+            .hero-buttons,
+            .trust-row{
+                justify-content:center;
+            }
+
+            .character-stage{
+                min-height:635px;
+            }
+
+            .feature-grid{
+                grid-template-columns:repeat(2,minmax(0,1fr));
+            }
+
+            .security-content{
+                grid-template-columns:1fr;
+            }
+        }
+
+        @media (max-width:900px){
+            .navbar{
+                position:relative;
+                top:0;
+                flex-direction:column;
+                align-items:stretch;
+            }
+
+            .nav-links{
+                justify-content:flex-start;
+                flex-wrap:wrap;
+            }
+
+            .workflow{
+                grid-template-columns:1fr;
+                gap:16px;
+            }
+
+            .workflow-step{
+                grid-column:auto;
+            }
+
+            .workflow-line{
+                grid-column:auto;
+                width:2px;
+                height:22px;
+                margin:0 auto;
+                background:linear-gradient(180deg,rgba(139,92,246,.12),rgba(236,72,153,.28));
+            }
+
+            .workflow-line::after{
+                top:auto;
+                right:auto;
+                left:50%;
+                bottom:0;
+                transform:translateX(-50%);
+            }
+
+            footer{
+                flex-direction:column;
+                align-items:flex-start;
+            }
+        }
+
+        @media (max-width:700px){
+            .hero{
+                padding:36px 17px 28px;
+                border-radius:26px;
+            }
+
+            .hero h1{
+                font-size:46px;
+            }
+
+            .character-stage{
+                height:710px;
+                transform:scale(.88);
+                transform-origin:top center;
+                margin-bottom:-72px;
+            }
+
+            .role-admin{left:-1%}
+            .role-finance{right:-1%}
+            .role-user{left:31%}
+
+            .founders-section{
+                padding:0 10px;
+            }
+
+            .founder-room{
+                min-height:520px;
+            }
+
+            .founder.ishan{left:7%}
+            .founder.tazim{right:7%}
+            .tag-ishan{left:4%}
+            .tag-tazim{right:4%}
+
+            .laptop.f1{left:21%}
+            .laptop.f2{right:21%}
+        }
+
+        @media (max-width:560px){
+            .feature-grid{
+                grid-template-columns:1fr;
+            }
+
+            .section,
+            .founders-section{
+                padding:0 12px;
+            }
+
+            .character-stage{
+                transform:scale(.72);
+                height:690px;
+                margin-bottom:-160px;
+            }
+
+            .role-user{
+                left:30%;
+            }
+
+            .role-admin{
+                top:25px;
+                left:-6%;
+            }
+
+            .role-finance{
+                top:25px;
+                right:-6%;
+            }
+
+            .float-hud{
+                display:none;
+            }
+
+            .process-row{
+                grid-template-columns:repeat(2,1fr);
+            }
+
+            .founder-room{
+                min-height:610px;
+            }
+
+            .founder.ishan{
+                left:50%;
+                transform:translateX(-88%) scale(.83);
+                bottom:145px;
+            }
+
+            .founder.tazim{
+                right:auto;
+                left:50%;
+                transform:translateX(-8%) scale(.83);
+                bottom:145px;
+            }
+
+            .laptop.f1{
+                left:23%;
+                bottom:96px;
+            }
+
+            .laptop.f2{
+                right:23%;
+                bottom:96px;
+            }
+
+            .coffee.one{left:27%}
+            .coffee.two{right:27%}
+            .smoke.one{left:26.6%}
+            .smoke.two{right:26.6%}
+
+            .tag-ishan{left:6%;top:90px}
+            .tag-tazim{right:6%;top:90px}
+        }
+
+        @media (prefers-reduced-motion:reduce){
+            *,*::before,*::after{
+                animation-duration:.01ms !important;
+                animation-iteration-count:1 !important;
+                scroll-behavior:auto !important;
+            }
+        }
+    </style>
+
+<style>
+/* ===== refined index visual layer: intentionally scoped to new artwork ===== */
+
+.refined-stage{
+    height:560px;
+    min-height:560px;
+    margin-top:6px;
+}
+
+.refined-stage .stage-glow{
+    width:500px;
+    height:500px;
+    top:48%;
+    opacity:.72;
+}
+
+.stage-grid{
+    position:absolute;
+    inset:70px 6% 92px;
+    border-radius:30px;
+    border:1px solid rgba(196,181,253,.05);
+    background:
+        linear-gradient(rgba(167,139,250,.028) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(167,139,250,.028) 1px,transparent 1px);
+    background-size:24px 24px;
+    mask-image:linear-gradient(to bottom,transparent 0,#000 15%,#000 82%,transparent 100%);
+}
+
+.refined-role{
+    z-index:40;
+    padding:8px 10px;
+    min-width:145px;
+    gap:8px;
+    border-radius:13px;
+}
+
+.refined-role b{font-size:10px}
+.refined-role span{font-size:6.8px}
+
+.refined-role .role-dot{
+    width:24px;
+    height:24px;
+    border-radius:8px;
+    font-size:9px;
+}
+
+.refined-stage .role-admin{left:1%;top:48px}
+.refined-stage .role-user{left:50%;top:22px;transform:translateX(-50%)}
+.refined-stage .role-finance{right:1%;top:48px}
+
+.signal-chip{
+    position:absolute;
+    z-index:35;
+    padding:6px 8px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.08);
+    background:rgba(11,6,22,.72);
+    color:#8f84a5;
+    font-size:7px;
+    font-weight:850;
+    letter-spacing:.06em;
+    box-shadow:0 10px 22px rgba(0,0,0,.18);
+    backdrop-filter:blur(10px);
+    animation:floatSmall 5s ease-in-out infinite;
+}
+
+.signal-chip b{
+    color:#d8b4fe;
+    margin-left:4px;
+}
+
+.chip-a{left:11%;top:142px}
+.chip-b{right:12%;top:145px;animation-delay:.7s}
+.chip-c{right:16%;bottom:180px;animation-delay:1.2s}
+
+.refined-paper{
+    width:52px;
+    height:66px;
+    padding:8px;
+    border-radius:7px;
+    opacity:.9;
+}
+
+.refined-paper::before{font-size:5px;margin-bottom:7px}
+.refined-paper .l{height:4px;margin-bottom:5px}
+.refined-paper .sum{height:7px;margin-top:8px}
+
+.refined-stage .p1{left:20%;top:126px}
+.refined-stage .p2{right:20%;top:122px}
+
+.refined-character{
+    position:absolute;
+    z-index:20;
+    width:118px;
+    height:235px;
+    filter:drop-shadow(0 22px 25px rgba(0,0,0,.24));
+}
+
+.character-svg{
+    width:100%;
+    height:100%;
+    overflow:visible;
+}
+
+.refined-admin{
+    left:8%;
+    top:198px;
+    animation:refinedBob 4.5s ease-in-out infinite;
+}
+
+.refined-user{
+    left:50%;
+    top:210px;
+    transform:translateX(-50%);
+    animation:refinedBobCenter 4.7s .3s ease-in-out infinite;
+}
+
+.refined-finance{
+    right:8%;
+    top:198px;
+    animation:refinedBob 4.6s .8s ease-in-out infinite;
+}
+
+.refined-process{
+    bottom:13px;
+    width:min(560px,92%);
+    padding:9px 11px;
+    border-radius:14px;
+}
+
+.refined-process .process-step{
+    min-height:39px;
+    padding:6px 7px;
+}
+
+.refined-process .process-step i{
+    width:19px;
+    height:19px;
+    border-radius:6px;
+    font-size:7px;
+}
+
+.refined-process .process-step span{font-size:6.5px}
+
+/* ===== founders refinement ===== */
+
+.refined-founders{margin-top:118px}
+
+.refined-room{
+    min-height:500px;
+    margin-top:34px;
+    border-radius:31px;
+    position:relative;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 50% 25%,rgba(168,85,247,.13),transparent 26%),
+        linear-gradient(180deg,#11071e 0%,#08040e 76%);
+}
+
+.room-backlight{
+    position:absolute;
+    left:50%;
+    top:60px;
+    width:680px;
+    height:290px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(168,85,247,.12),transparent 67%);
+    filter:blur(12px);
+}
+
+.founder-spark{
+    position:absolute;
+    width:3px;
+    height:3px;
+    border-radius:50%;
+    background:#d8b4fe;
+    box-shadow:0 0 12px rgba(216,180,254,.7);
+    animation:sparkFloat 4s ease-in-out infinite;
+}
+.spark-1{left:18%;top:85px}
+.spark-2{right:20%;top:142px;animation-delay:1.1s}
+.spark-3{left:62%;top:67px;animation-delay:2s}
+
+.refined-room .neon-word{
+    top:25px;
+    font-size:12px;
+    letter-spacing:.30em;
+}
+
+.refined-room .founder-tag{
+    top:95px;
+    border-color:rgba(255,255,255,.09);
+    background:rgba(9,5,16,.76);
+}
+
+.founder-person{
+    position:absolute;
+    z-index:15;
+    width:175px;
+    height:255px;
+    filter:drop-shadow(0 22px 28px rgba(0,0,0,.30));
+    animation:founderIdle 4.8s ease-in-out infinite;
+}
+
+.founder-person svg{
+    width:100%;
+    height:100%;
+    overflow:visible;
+}
+
+.founder-esshan{left:17%;bottom:116px}
+.founder-tszim{right:17%;bottom:116px;animation-delay:1s}
+
+.refined-room .founder-laptop{
+    position:absolute;
+    z-index:28;
+    bottom:118px;
+    width:120px;
+    height:78px;
+    animation:founderLaptop 4.2s ease-in-out infinite;
+}
+
+.founder-laptop-left{left:29%}
+.founder-laptop-right{right:29%;animation-delay:1s}
+
+.founder-screen{
+    position:absolute;
+    left:50%;
+    top:0;
+    width:82px;
+    height:55px;
+    transform:translateX(-50%);
+    border:5px solid #08060e;
+    border-radius:8px 8px 4px 4px;
+    background:linear-gradient(160deg,#31214d,#101024);
+    box-shadow:0 16px 26px rgba(0,0,0,.35);
+    overflow:hidden;
+}
+
+.founder-screen::after{
+    content:"";
+    position:absolute;
+    left:8px;
+    right:8px;
+    bottom:7px;
+    height:5px;
+    border-radius:5px;
+    background:linear-gradient(90deg,#8b5cf6,#ec4899);
+}
+
+.founder-screen span{
+    position:absolute;
+    left:8px;
+    top:8px;
+    color:#ddd6fe;
+    font-size:7px;
+    font-weight:950;
+}
+
+.founder-screen i{
+    display:block;
+    width:34px;
+    height:3px;
+    margin-left:8px;
+    margin-top:21px;
+    border-radius:4px;
+    background:#55466d;
+}
+.founder-screen i + i{margin-top:4px;width:47px}
+
+.founder-base{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    width:116px;
+    height:24px;
+    transform:translateX(-50%);
+    clip-path:polygon(6% 0,94% 0,100% 65%,0 65%);
+    background:linear-gradient(180deg,#4a3760,#1b1028);
+    border-radius:3px 3px 11px 11px;
+}
+
+.round-table{
+    position:absolute;
+    z-index:23;
+    left:50%;
+    bottom:31px;
+    width:min(820px,88%);
+    height:150px;
+    transform:translateX(-50%);
+}
+
+.table-top{
+    position:absolute;
+    left:50%;
+    top:0;
+    width:100%;
+    height:108px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    border:1px solid rgba(230,215,255,.12);
+    background:
+        radial-gradient(ellipse at 50% 37%,rgba(124,58,237,.18),transparent 35%),
+        linear-gradient(180deg,#2c183f,#160c24);
+    box-shadow:
+        0 30px 44px rgba(0,0,0,.4),
+        inset 0 11px 15px rgba(255,255,255,.035);
+}
+
+.table-light{
+    position:absolute;
+    left:50%;
+    top:10px;
+    width:65%;
+    height:58px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.045);
+}
+
+.table-leg{
+    position:absolute;
+    left:50%;
+    top:66px;
+    width:96px;
+    height:80px;
+    transform:translateX(-50%);
+    clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);
+    background:linear-gradient(90deg,#150b20,#3b2050,#150b20);
+}
+
+.table-item{
+    position:absolute;
+    z-index:5;
+}
+
+.item-mug{
+    width:28px;
+    height:20px;
+    bottom:30px;
+    border:2px solid #c6a57d;
+    border-top:0;
+    border-radius:0 0 9px 9px;
+    background:#321d19;
+}
+
+.item-mug::after{
+    content:"";
+    position:absolute;
+    right:-8px;
+    top:2px;
+    width:8px;
+    height:9px;
+    border:2px solid #c6a57d;
+    border-left:0;
+    border-radius:0 8px 8px 0;
+}
+
+.mug-left{left:24%}
+.mug-right{right:24%}
+
+.item-paper{
+    left:50%;
+    top:34px;
+    width:65px;
+    height:42px;
+    transform:translateX(-50%) rotate(-4deg);
+    border-radius:5px;
+    background:#efe9f6;
+    box-shadow:0 8px 14px rgba(0,0,0,.18);
+}
+
+.item-paper::before{
+    content:"CLAIMGUARD";
+    position:absolute;
+    left:9px;
+    top:7px;
+    color:#765e89;
+    font-size:5px;
+    font-weight:950;
+}
+
+.item-paper::after{
+    content:"BUILD • TEST • SHIP";
+    position:absolute;
+    left:9px;
+    bottom:8px;
+    color:#9b7db1;
+    font-size:4px;
+    font-weight:850;
+}
+
+.item-phone{
+    right:34%;
+    top:20px;
+    width:28px;
+    height:48px;
+    border:3px solid #11101b;
+    border-radius:7px;
+    background:#15132b;
+    transform:rotate(9deg);
+}
+
+.smoke-wisp{
+    position:absolute;
+    z-index:35;
+    bottom:153px;
+    width:35px;
+    height:105px;
+    pointer-events:none;
+}
+
+.smoke-left{left:28.8%}
+.smoke-right{right:28.8%}
+
+.smoke-wisp span{
+    position:absolute;
+    bottom:0;
+    width:13px;
+    height:13px;
+    border:2px solid rgba(235,225,241,.36);
+    border-radius:50%;
+    opacity:0;
+    animation:smokeUp 4.2s ease-out infinite;
+}
+
+.smoke-wisp span:nth-child(1){left:9px}
+.smoke-wisp span:nth-child(2){left:15px;animation-delay:1.1s}
+.smoke-wisp span:nth-child(3){left:4px;animation-delay:2.3s}
+
+.founder-caption{
+    position:absolute;
+    left:50%;
+    bottom:11px;
+    transform:translateX(-50%);
+    display:flex;
+    gap:14px;
+    align-items:center;
+    color:#766b84;
+    font-size:7px;
+    letter-spacing:.14em;
+    font-weight:900;
+    text-transform:uppercase;
+    white-space:nowrap;
+}
+
+.founder-caption b{
+    color:#cdb9e2;
+}
+
+/* animation */
+@keyframes refinedBob{
+    0%,100%{transform:translateY(0) rotate(0deg)}
+    50%{transform:translateY(-7px) rotate(-.8deg)}
+}
+@keyframes refinedBobCenter{
+    0%,100%{transform:translateX(-50%) translateY(0)}
+    50%{transform:translateX(-50%) translateY(-8px)}
+}
+@keyframes sparkFloat{
+    0%,100%{transform:translateY(0);opacity:.5}
+    50%{transform:translateY(-12px);opacity:1}
+}
+@keyframes founderIdle{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-4px)}
+}
+@keyframes founderLaptop{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-3px)}
+}
+@keyframes smokeUp{
+    0%{opacity:0;transform:translate(0,16px) scale(.5)}
+    25%{opacity:.45}
+    100%{opacity:0;transform:translate(11px,-88px) scale(1.35)}
+}
+
+/* mobile */
+@media (max-width:1120px){
+    .refined-stage{height:575px;min-height:575px}
+    .refined-admin{left:5%;top:205px}
+    .refined-finance{right:5%;top:205px}
+    .refined-user{top:217px}
+}
+
+@media (max-width:700px){
+    .refined-stage{
+        height:610px;
+        min-height:610px;
+        transform:scale(.91);
+        transform-origin:top center;
+        margin-bottom:-48px;
+    }
+
+    .refined-stage .role-admin{left:0;top:42px}
+    .refined-stage .role-user{top:20px}
+    .refined-stage .role-finance{right:0;top:42px}
+
+    .refined-admin{left:1%;top:220px}
+    .refined-user{top:228px}
+    .refined-finance{right:1%;top:220px}
+
+    .chip-a,.chip-b,.chip-c{display:none}
+
+    .founder-room{
+        min-height:590px !important;
+    }
+
+    .founder-esshan{
+        left:50%;
+        bottom:158px;
+        transform:translateX(-93%) scale(.78);
+    }
+
+    .founder-tszim{
+        right:auto;
+        left:50%;
+        bottom:158px;
+        transform:translateX(-7%) scale(.78);
+    }
+
+    .founder-laptop-left{left:17%;bottom:117px}
+    .founder-laptop-right{right:17%;bottom:117px}
+
+    .round-table{width:92%;bottom:38px}
+    .smoke-left{left:18%}
+    .smoke-right{right:18%}
+    .mug-left{left:18%}
+    .mug-right{right:18%}
+}
+
+@media (prefers-reduced-motion:reduce){
+    .refined-stage *,
+    .refined-room *{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+    }
+}
+</style>
+
+
+<style>
+/* ===== V4 refined visual layer ===== */
+.premium-stage{height:590px!important;min-height:590px!important;position:relative}
+.premium-stage .stage-glow{width:500px!important;height:500px!important}
+.premium-stage .stage-grid{position:absolute;inset:70px 5% 80px;border-radius:28px;border:1px solid rgba(196,181,253,.05);background:linear-gradient(rgba(167,139,250,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(167,139,250,.025) 1px,transparent 1px);background-size:24px 24px;mask-image:linear-gradient(to bottom,transparent 0,#000 18%,#000 82%,transparent)}
+.premium-role{min-width:150px!important;padding:8px 10px!important;border-radius:13px!important}
+.premium-role .role-dot{width:24px!important;height:24px!important;border-radius:8px!important}
+.premium-role b{font-size:9.5px!important}
+.premium-role span{font-size:6.6px!important}
+.premium-stage .role-admin{left:1%!important;top:38px!important}
+.premium-stage .role-user{left:50%!important;top:20px!important;transform:translateX(-50%)!important}
+.premium-stage .role-finance{right:1%!important;top:38px!important}
+.premium-chip{padding:6px 8px!important;font-size:6.8px!important}
+.premium-stage .chip-a{left:10%!important;top:144px!important}
+.premium-stage .chip-b{right:11%!important;top:143px!important}
+.premium-stage .chip-c{right:17%!important;bottom:168px!important}
+.premium-paper{width:49px!important;height:62px!important;opacity:.82!important}
+.premium-stage .pp1{left:20%!important;top:118px!important}
+.premium-stage .pp2{right:20%!important;top:118px!important}
+
+/* detailed work pods */
+.role-pod{position:absolute;z-index:18;width:235px;height:310px;border-radius:24px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));box-shadow:0 22px 44px rgba(0,0,0,.20);overflow:visible}
+.role-pod:after{content:"";position:absolute;left:50%;bottom:7px;width:82%;height:74px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(139,92,246,.09),transparent 70%);filter:blur(5px);z-index:-1}
+.pod-admin{left:0;top:178px;border-color:rgba(251,113,133,.13);animation:podFloat 5s ease-in-out infinite}
+.pod-user{left:50%;top:189px;transform:translateX(-50%);border-color:rgba(96,165,250,.13);animation:podFloatCenter 5.4s .35s ease-in-out infinite}
+.pod-finance{right:0;top:178px;border-color:rgba(196,181,253,.13);animation:podFloat 5.2s .8s ease-in-out infinite}
+.pod-label{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 8px;border-radius:999px;background:rgba(8,4,17,.78);border:1px solid rgba(255,255,255,.08);color:#a89bb7;font-size:6.5px;font-weight:900;letter-spacing:.12em;white-space:nowrap}
+.work-character{position:absolute;left:50%;bottom:6px;width:218px;height:277px;transform:translateX(-50%);overflow:visible}
+.typing-left,.typing-right{transform-box:fill-box;transform-origin:center top;animation:typingMotion .75s ease-in-out infinite alternate}
+.typing-right{animation-delay:.19s}
+.premium-process{bottom:7px!important;width:min(560px,92%)!important;padding:9px 10px!important}
+.premium-process .process-step{min-height:39px!important}
+.premium-process .process-step i{width:19px!important;height:19px!important}
+.premium-process .process-step span{font-size:6.4px!important}
+
+/* founders */
+.refined-founders-v4{margin-top:116px!important}
+.founder-room-v4{min-height:560px!important;margin-top:34px!important;overflow:hidden;border-radius:32px;position:relative;background:radial-gradient(circle at 50% 22%,rgba(168,85,247,.13),transparent 27%),radial-gradient(circle at 50% 75%,rgba(99,102,241,.07),transparent 34%),linear-gradient(180deg,#120720,#07030d);border:1px solid rgba(255,255,255,.08);box-shadow:0 35px 85px rgba(0,0,0,.44)}
+.founder-wall-light{position:absolute;left:50%;top:56px;width:700px;height:275px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.12),transparent 67%);filter:blur(15px)}
+.founder-ceiling-light{position:absolute;left:50%;top:42px;width:220px;height:4px;transform:translateX(-50%);border-radius:999px;background:linear-gradient(90deg,transparent,#c4b5fd,transparent);box-shadow:0 0 22px rgba(196,181,253,.45);opacity:.8}
+.founder-neon{position:absolute;top:26px;left:50%;transform:translateX(-50%);color:#eadcff;font-size:13px;font-weight:950;letter-spacing:.32em;text-shadow:0 0 14px rgba(216,180,254,.70),0 0 34px rgba(168,85,247,.25);animation:neonPulse 3.8s ease-in-out infinite}
+.founder-tag-v4{position:absolute;z-index:40;top:74px;padding:9px 13px;border-radius:12px;background:rgba(10,5,17,.78);border:1px solid rgba(255,255,255,.09);box-shadow:0 12px 26px rgba(0,0,0,.24)}
+.founder-tag-left{left:11%}.founder-tag-right{right:11%}
+.founder-tag-v4 b{display:block;font-size:11px;color:#fff}
+.founder-tag-v4 span{display:block;margin-top:2px;color:#978ba2;font-size:6.5px;font-weight:850;letter-spacing:.11em;text-transform:uppercase}
+.founder-v4{position:absolute;z-index:22;width:245px;height:332px;bottom:110px;filter:drop-shadow(0 26px 28px rgba(0,0,0,.34));animation:founderBreath 4.8s ease-in-out infinite}
+.founder-v4-left{left:13%}.founder-v4-right{right:13%;animation-delay:.9s}
+.founder-v4 svg{width:100%;height:100%;overflow:visible}
+.founder-round-table{position:absolute;z-index:28;left:50%;bottom:28px;width:min(820px,90%);height:174px;transform:translateX(-50%)}
+.table-surface{position:absolute;left:50%;top:0;width:100%;height:122px;transform:translateX(-50%);border-radius:50%;border:1px solid rgba(245,233,255,.12);background:radial-gradient(ellipse at 50% 38%,rgba(168,85,247,.14),transparent 34%),linear-gradient(180deg,#341c45,#160b23);box-shadow:0 34px 52px rgba(0,0,0,.42),inset 0 9px 15px rgba(255,255,255,.035)}
+.desk-lamp{position:absolute;top:16px;left:50%;width:54px;height:7px;transform:translateX(-50%);border-radius:999px;background:#d8b4fe;box-shadow:0 0 24px rgba(216,180,254,.36);opacity:.8}
+.table-paper{position:absolute;left:50%;top:31px;width:84px;height:50px;transform:translateX(-50%) rotate(-3deg);border-radius:5px;background:#f0ebf4;box-shadow:0 9px 15px rgba(0,0,0,.16);padding:8px}
+.table-paper span{display:block;color:#5f4a6c;font-size:5px;font-weight:950;letter-spacing:.08em}
+.table-paper b{display:block;margin-top:10px;color:#8a73a0;font-size:4.5px;font-weight:900}
+.table-mug{position:absolute;bottom:30px;width:29px;height:21px;border:2px solid #c7a77d;border-top:0;border-radius:0 0 9px 9px;background:#2d1917}
+.table-mug:after{content:"";position:absolute;right:-8px;top:2px;width:8px;height:10px;border:2px solid #c7a77d;border-left:0;border-radius:0 8px 8px 0}
+.mug-a{left:24%}.mug-b{right:24%}
+.table-phone{position:absolute;top:28px;right:34%;width:31px;height:53px;border:3px solid #0e0917;border-radius:7px;background:#16112b;transform:rotate(8deg)}
+.table-column{position:absolute;left:50%;top:75px;width:102px;height:80px;transform:translateX(-50%);clip-path:polygon(34% 0,66% 0,100% 100%,0 100%);background:linear-gradient(90deg,#140a20,#432553,#140a20)}
+.table-base{position:absolute;left:50%;bottom:0;width:180px;height:25px;transform:translateX(-50%);border-radius:50%;background:linear-gradient(180deg,#241232,#0d0715)}
+.founder-room-caption{position:absolute;left:50%;bottom:11px;z-index:45;transform:translateX(-50%);display:flex;gap:14px;align-items:center;color:#766a82;font-size:6.5px;font-weight:900;letter-spacing:.16em;white-space:nowrap}
+.founder-room-caption b{color:#cdb9e2}
+
+@keyframes podFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes podFloatCenter{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-7px)}}
+@keyframes typingMotion{from{transform:translateY(0) rotate(-1deg)}to{transform:translateY(2px) rotate(1deg)}}
+@keyframes neonPulse{0%,100%{opacity:1}45%{opacity:.82}50%{opacity:1}}
+@keyframes founderBreath{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+@media(max-width:1120px){
+    .premium-stage{height:625px!important;min-height:625px!important}
+    .role-pod{width:215px;height:294px}
+    .pod-admin{left:-3%;top:190px}.pod-finance{right:-3%;top:190px}.pod-user{top:202px}
+    .work-character{width:207px;height:263px}
+    .founder-v4-left{left:6%}.founder-v4-right{right:6%}
+}
+@media(max-width:700px){
+    .premium-stage{height:660px!important;min-height:660px!important;transform:scale(.86);transform-origin:top center;margin-bottom:-92px}
+    .role-pod{width:185px;height:276px}
+    .pod-admin{left:-7%;top:210px}.pod-user{top:223px}.pod-finance{right:-7%;top:210px}
+    .work-character{width:190px;height:247px}
+    .premium-stage .chip-a,.premium-stage .chip-b,.premium-stage .chip-c{display:none}
+    .refined-founders-v4{margin-top:108px!important}
+    .founder-room-v4{min-height:640px!important}
+    .founder-v4{width:215px;height:292px;bottom:162px;transform:scale(.80)}
+    .founder-v4-left{left:-1%}.founder-v4-right{right:-1%}
+    .founder-tag-left{left:4%}.founder-tag-right{right:4%}
+    .founder-round-table{width:95%;bottom:40px}
+}
+@media(max-width:560px){
+    .premium-stage{transform:scale(.70);height:710px!important;margin-bottom:-190px}
+    .role-pod{width:182px;height:273px}
+    .pod-admin{left:-15%;top:230px}.pod-user{top:241px}.pod-finance{right:-15%;top:230px}
+    .premium-process{bottom:12px!important}
+    .founder-room-v4{min-height:720px!important}
+    .founder-v4{width:205px;height:283px;bottom:190px;transform:scale(.73)}
+    .founder-v4-left{left:0}.founder-v4-right{right:0}
+    .founder-tag-left{left:4%}.founder-tag-right{right:4%}
+    .founder-round-table{bottom:54px}
+}
+@media(prefers-reduced-motion:reduce){
+    .premium-stage *, .founder-room-v4 *{animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
+</style>
+
+
+<style>
+/* =========================================================
+   V5 PREMIUM SCENE DESIGN
+   Visual-only layer. Existing navigation/app.js untouched.
+   ========================================================= */
+
+.pro-stage{
+    height:610px!important;
+    min-height:610px!important;
+    position:relative;
+    display:block!important;
+    overflow:visible;
+}
+
+.pro-stage .studio-glow{
+    position:absolute;
+    left:50%;
+    top:46%;
+    width:560px;
+    height:560px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:
+        radial-gradient(circle at 50% 45%,rgba(139,92,246,.19),transparent 53%),
+        radial-gradient(circle at 72% 22%,rgba(236,72,153,.10),transparent 24%);
+    filter:blur(10px);
+    animation:v5Glow 6s ease-in-out infinite;
+}
+
+.studio-floor{
+    position:absolute;
+    left:50%;
+    bottom:63px;
+    width:89%;
+    height:96px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:radial-gradient(ellipse,rgba(139,92,246,.12),transparent 70%);
+    filter:blur(4px);
+}
+
+.work-scene{
+    position:absolute;
+    width:230px;
+    height:300px;
+    padding:11px 12px;
+    border-radius:22px;
+    border:1px solid rgba(255,255,255,.09);
+    background:
+        linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+    box-shadow:0 25px 55px rgba(0,0,0,.28);
+    overflow:hidden;
+    backdrop-filter:blur(13px);
+}
+
+.scene-admin{left:0;top:164px;border-color:rgba(251,113,133,.15);animation:sceneHover 5.2s ease-in-out infinite}
+.scene-user{left:50%;top:181px;transform:translateX(-50%);border-color:rgba(96,165,250,.15);animation:sceneHoverCenter 5.6s .4s ease-in-out infinite}
+.scene-finance{right:0;top:164px;border-color:rgba(196,181,253,.15);animation:sceneHover 5.4s .8s ease-in-out infinite}
+
+.scene-topline{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+}
+
+.scene-role{
+    padding:5px 7px;
+    border-radius:999px;
+    font-size:6px;
+    font-weight:950;
+    letter-spacing:.12em;
+}
+
+.admin-role{color:#fda4af;background:rgba(225,29,72,.10);border:1px solid rgba(251,113,133,.12)}
+.user-role{color:#93c5fd;background:rgba(59,130,246,.10);border:1px solid rgba(96,165,250,.12)}
+.finance-role{color:#d8b4fe;background:rgba(168,85,247,.10);border:1px solid rgba(196,181,253,.12)}
+
+.scene-status{
+    color:#756982;
+    font-size:5.7px;
+    font-weight:850;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.scene-copy{
+    margin-top:8px;
+}
+
+.scene-copy strong,
+.scene-copy span{
+    display:block;
+}
+
+.scene-copy strong{
+    color:#f0ecf8;
+    font-size:11px;
+    letter-spacing:-.02em;
+}
+
+.scene-copy span{
+    margin-top:3px;
+    color:#897d99;
+    font-size:6.7px;
+    line-height:1.4;
+}
+
+.office-scene{
+    position:absolute;
+    left:9px;
+    right:9px;
+    bottom:9px;
+    height:218px;
+    border-radius:17px;
+    border:1px solid rgba(255,255,255,.05);
+    background:
+        radial-gradient(circle at 50% 35%,rgba(139,92,246,.09),transparent 42%),
+        linear-gradient(180deg,rgba(255,255,255,.025),rgba(0,0,0,.12));
+    overflow:hidden;
+}
+
+.office-scene:before{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    height:1px;
+    background:linear-gradient(90deg,transparent,rgba(216,180,254,.17),transparent);
+}
+
+.monitor{
+    position:absolute;
+    left:50%;
+    top:14px;
+    width:130px;
+    height:80px;
+    transform:translateX(-50%);
+    border-radius:9px;
+    border:3px solid #100a19;
+    background:#0c0914;
+    box-shadow:0 16px 25px rgba(0,0,0,.28);
+    z-index:5;
+}
+
+.monitor:after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-14px;
+    width:45px;
+    height:10px;
+    transform:translateX(-50%);
+    background:#282038;
+    border-radius:0 0 8px 8px;
+}
+
+.monitor-head{
+    display:flex;
+    justify-content:space-between;
+    padding:7px 8px 5px;
+    color:#a99db4;
+    font-size:5px;
+    font-weight:850;
+}
+
+.monitor-head b{color:#4ade80}
+
+.admin-metrics{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:5px;
+    padding:3px 8px;
+}
+
+.admin-metrics div{
+    padding:6px 5px;
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:5px;
+    background:rgba(255,255,255,.03);
+}
+
+.admin-metrics small,
+.admin-metrics b{
+    display:block;
+}
+
+.admin-metrics small{color:#766b82;font-size:4.5px}
+.admin-metrics b{margin-top:2px;color:#efe9f8;font-size:8px}
+
+.admin-control-line{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:4px 8px;
+    color:#8e829c;
+    font-size:5.5px;
+}
+
+.toggle{
+    width:19px;
+    height:9px;
+    border-radius:999px;
+    background:#3f2a4e;
+    position:relative;
+}
+
+.toggle:after{
+    content:"";
+    position:absolute;
+    top:1.5px;
+    left:1.5px;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#e9d5ff;
+    box-shadow:0 0 9px rgba(216,180,254,.5);
+}
+
+.toggle.on{background:rgba(34,197,94,.28)}
+.toggle.on:after{left:11.5px;background:#4ade80}
+
+.desk-surface{
+    position:absolute;
+    left:14px;
+    right:14px;
+    bottom:38px;
+    height:19px;
+    border-radius:9px 9px 5px 5px;
+    background:linear-gradient(180deg,#382349,#180d26);
+    border:1px solid rgba(255,255,255,.07);
+    box-shadow:0 9px 15px rgba(0,0,0,.25);
+    z-index:9;
+}
+
+.desk-surface:after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-29px;
+    width:56px;
+    height:35px;
+    transform:translateX(-50%);
+    background:linear-gradient(90deg,#160b22,#4a285a,#160b22);
+    clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);
+}
+
+.seated-person{
+    position:absolute;
+    left:50%;
+    bottom:48px;
+    width:120px;
+    height:153px;
+    transform:translateX(-50%);
+    z-index:7;
+}
+
+.person-back{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    width:92px;
+    height:92px;
+    transform:translateX(-50%);
+    border-radius:26px 26px 13px 13px;
+    background:linear-gradient(145deg,#171021,#3b2550);
+    box-shadow:0 16px 22px rgba(0,0,0,.24);
+}
+
+.person-head{
+    position:absolute;
+    left:50%;
+    top:6px;
+    width:48px;
+    height:56px;
+    transform:translateX(-50%);
+    border-radius:45% 45% 48% 48%;
+    background:linear-gradient(145deg,#ffdcb7,#e8ad87);
+    z-index:4;
+}
+
+.person-hair{
+    position:absolute;
+    left:50%;
+    top:2px;
+    width:50px;
+    height:29px;
+    transform:translateX(-50%);
+    border-radius:28px 28px 12px 12px;
+    background:#1a1221;
+    z-index:6;
+}
+
+.person-neck{
+    position:absolute;
+    left:50%;
+    top:49px;
+    width:17px;
+    height:22px;
+    transform:translateX(-50%);
+    border-radius:0 0 8px 8px;
+    background:#efb48d;
+    z-index:2;
+}
+
+.person-torso{
+    position:absolute;
+    left:50%;
+    bottom:1px;
+    width:72px;
+    height:93px;
+    transform:translateX(-50%);
+    border-radius:21px 21px 12px 12px;
+    background:linear-gradient(160deg,#2a1740,#5a2d67);
+    z-index:2;
+}
+
+.admin-person .person-torso{
+    background:linear-gradient(160deg,#24121e,#79224d);
+}
+
+.finance-person .person-torso{
+    background:linear-gradient(160deg,#32194e,#6e2bd0);
+}
+
+.person-arm{
+    position:absolute;
+    top:77px;
+    width:58px;
+    height:15px;
+    border-radius:15px;
+    background:#efb48d;
+    z-index:11;
+    transform-origin:8px center;
+}
+
+.arm-left{left:0;transform:rotate(29deg)}
+.arm-right{right:0;transform:rotate(151deg)}
+
+.typing-arm{
+    animation:typingArm 1s ease-in-out infinite alternate;
+}
+
+.person-hand{
+    position:absolute;
+    top:89px;
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    background:#efb48d;
+    z-index:12;
+}
+
+.hand-left{left:15px}
+.hand-right{right:15px}
+
+.keyboard{
+    position:absolute;
+    z-index:12;
+    left:50%;
+    bottom:48px;
+    width:71px;
+    height:13px;
+    transform:translateX(-50%);
+    border-radius:4px;
+    background:#241735;
+    border:1px solid rgba(255,255,255,.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+}
+
+.keyboard i{
+    display:block;
+    width:7px;
+    height:4px;
+    border-radius:1px;
+    background:#8b74a3;
+    opacity:.7;
+}
+
+.admin-side-panel{
+    position:absolute;
+    left:10px;
+    bottom:69px;
+    z-index:14;
+    width:66px;
+    padding:7px;
+    border-radius:8px;
+    background:rgba(10,6,17,.86);
+    border:1px solid rgba(255,255,255,.06);
+    box-shadow:0 9px 17px rgba(0,0,0,.22);
+}
+
+.admin-side-panel span,
+.admin-side-panel strong,
+.admin-side-panel em{
+    display:block;
+}
+
+.admin-side-panel span{color:#7f708e;font-size:4.5px;font-weight:850}
+.admin-side-panel strong{margin-top:4px;color:#eee8f4;font-size:6.2px}
+.admin-side-panel em{margin-top:3px;color:#4ade80;font-size:4.6px;font-style:normal}
+
+.upload-screen{
+    padding:13px 11px;
+    text-align:center;
+    color:#dbeafe;
+}
+
+.upload-icon{
+    display:grid;
+    place-items:center;
+    width:24px;
+    height:24px;
+    margin:0 auto 7px;
+    border-radius:8px;
+    color:#fff;
+    background:linear-gradient(135deg,#3b82f6,#6366f1);
+    font-size:13px;
+    font-weight:950;
+    box-shadow:0 10px 20px rgba(59,130,246,.20);
+}
+
+.upload-screen span,
+.upload-screen b,
+.upload-screen small{
+    display:block;
+}
+
+.upload-screen span{font-size:7px;color:#dbeafe;font-weight:850}
+.upload-screen b{margin-top:4px;color:#8da4cc;font-size:5.5px}
+.upload-progress{
+    height:5px;
+    margin:8px 11px 4px;
+    border-radius:999px;
+    background:#263152;
+    overflow:hidden;
+}
+.upload-progress i{
+    display:block;
+    width:72%;
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg,#60a5fa,#a78bfa);
+    animation:progressPulse 2s ease-in-out infinite;
+}
+.upload-screen small{color:#7dd3fc;font-size:5px}
+
+.paper-in-hand{
+    position:absolute;
+    right:11px;
+    top:104px;
+    z-index:15;
+    width:52px;
+    height:66px;
+    padding:8px;
+    border-radius:6px;
+    background:#f8f4fb;
+    box-shadow:0 13px 21px rgba(0,0,0,.24);
+    transform:rotate(7deg);
+}
+
+.paper-in-hand span{
+    display:block;
+    margin-bottom:7px;
+    color:#7c6a88;
+    font-size:4.5px;
+    font-weight:950;
+}
+
+.paper-in-hand b{
+    display:block;
+    margin-bottom:7px;
+    color:#48344f;
+    font-size:8px;
+}
+
+.paper-in-hand i{
+    display:block;
+    height:3px;
+    margin-bottom:4px;
+    border-radius:3px;
+    background:#e6ddec;
+}
+
+.review-header{
+    display:flex;
+    justify-content:space-between;
+    padding:9px 9px 7px;
+    color:#a99db6;
+    font-size:5px;
+    font-weight:850;
+}
+
+.review-header b{
+    color:#fb7185;
+    font-size:5px;
+}
+
+.review-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:4px;
+    padding:2px 8px 7px;
+}
+
+.review-grid div{
+    padding:6px 4px;
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:5px;
+    background:rgba(255,255,255,.03);
+}
+
+.review-grid small,
+.review-grid b{
+    display:block;
+}
+
+.review-grid small{color:#736980;font-size:4.2px}
+.review-grid b{margin-top:3px;color:#eee8f4;font-size:6px}
+
+.review-bars{
+    display:flex;
+    align-items:flex-end;
+    gap:5px;
+    height:34px;
+    padding:0 11px;
+}
+
+.review-bars i{
+    display:block;
+    width:13px;
+    height:15px;
+    border-radius:3px 3px 0 0;
+    background:#7c3aed;
+    opacity:.72;
+    animation:barPulse 1.8s ease-in-out infinite alternate;
+}
+
+.review-bars i:nth-child(2){height:23px;animation-delay:.2s}
+.review-bars i:nth-child(3){height:31px}
+.review-bars i.alert{background:#fb7185}
+
+.review-sheet{
+    position:absolute;
+    left:9px;
+    top:106px;
+    z-index:14;
+    width:68px;
+    padding:7px;
+    border-radius:8px;
+    background:#fbf8ff;
+    box-shadow:0 14px 22px rgba(0,0,0,.24);
+    transform:rotate(-5deg);
+}
+
+.review-sheet span,
+.review-sheet label{
+    display:block;
+}
+
+.review-sheet span{
+    margin-bottom:6px;
+    color:#6d5779;
+    font-size:4.5px;
+    font-weight:950;
+}
+
+.review-sheet label{
+    margin-bottom:5px;
+    color:#66546e;
+    font-size:4.4px;
+    font-weight:850;
+}
+
+.review-sheet i{
+    display:inline-grid;
+    place-items:center;
+    width:9px;
+    height:9px;
+    margin-right:3px;
+    border-radius:50%;
+    color:#fff;
+    background:#22c55e;
+    font-style:normal;
+    font-size:5px;
+}
+
+.decision-chip{
+    position:absolute;
+    right:9px;
+    bottom:68px;
+    z-index:15;
+    padding:5px 7px;
+    border-radius:999px;
+    color:#86efac;
+    border:1px solid rgba(34,197,94,.18);
+    background:rgba(22,101,52,.18);
+    font-size:5px;
+    font-weight:950;
+    letter-spacing:.08em;
+}
+
+.studio-caption{
+    position:absolute;
+    left:50%;
+    bottom:5px;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:6px 10px;
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:999px;
+    background:rgba(10,5,17,.64);
+    color:#766981;
+    font-size:6px;
+    font-weight:900;
+    letter-spacing:.13em;
+    white-space:nowrap;
+}
+
+.studio-caption i{color:#a78bfa;font-style:normal}
+.studio-caption strong{color:#d8b4fe}
+
+/* founders V5 */
+.founders-v5{margin-top:118px!important}
+
+.founder-lounge{
+    position:relative;
+    min-height:610px;
+    margin-top:36px;
+    overflow:hidden;
+    border-radius:34px;
+    border:1px solid rgba(255,255,255,.08);
+    background:
+        radial-gradient(circle at 50% 20%,rgba(168,85,247,.15),transparent 25%),
+        radial-gradient(circle at 50% 72%,rgba(99,102,241,.06),transparent 32%),
+        linear-gradient(180deg,#10061b,#06030b);
+    box-shadow:0 36px 86px rgba(0,0,0,.45);
+}
+
+.lounge-light{
+    position:absolute;
+    width:360px;
+    height:270px;
+    top:54px;
+    border-radius:50%;
+    filter:blur(18px);
+    opacity:.75;
+}
+
+.lounge-light-left{left:8%;background:radial-gradient(circle,rgba(124,58,237,.10),transparent 68%)}
+.lounge-light-right{right:8%;background:radial-gradient(circle,rgba(236,72,153,.08),transparent 68%)}
+
+.founder-sign{
+    position:absolute;
+    left:50%;
+    top:27px;
+    transform:translateX(-50%);
+    color:#eee4fb;
+    font-size:14px;
+    font-weight:950;
+    letter-spacing:.34em;
+    text-shadow:0 0 16px rgba(216,180,254,.60),0 0 38px rgba(168,85,247,.24);
+    animation:signPulse 4.2s ease-in-out infinite;
+}
+
+.sign-line{
+    position:absolute;
+    left:50%;
+    top:55px;
+    width:170px;
+    height:2px;
+    transform:translateX(-50%);
+    border-radius:999px;
+    background:linear-gradient(90deg,transparent,#a78bfa,transparent);
+    box-shadow:0 0 15px rgba(167,139,250,.32);
+}
+
+.founder-name-card{
+    position:absolute;
+    z-index:34;
+    top:83px;
+    padding:10px 13px;
+    border-radius:12px;
+    background:rgba(9,5,16,.78);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 14px 28px rgba(0,0,0,.24);
+}
+
+.founder-name-card b{
+    display:block;
+    color:#fff;
+    font-size:12px;
+}
+
+.founder-name-card span{
+    display:block;
+    margin-top:3px;
+    color:#8d8198;
+    font-size:5.8px;
+    font-weight:900;
+    letter-spacing:.12em;
+}
+
+.name-esshan{left:13%}
+.name-tazim{right:13%}
+
+.chair{
+    position:absolute;
+    z-index:8;
+    bottom:126px;
+    width:160px;
+    height:210px;
+    border-radius:55px 55px 25px 25px;
+    background:linear-gradient(160deg,#120c18,#30203b);
+    border:1px solid rgba(255,255,255,.05);
+    box-shadow:0 28px 45px rgba(0,0,0,.32);
+}
+
+.chair:after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:-42px;
+    width:60px;
+    height:48px;
+    transform:translateX(-50%);
+    clip-path:polygon(40% 0,60% 0,100% 100%,0 100%);
+    background:#1c1028;
+}
+
+.chair-left{left:9%;transform:rotate(-4deg)}
+.chair-right{right:9%;transform:rotate(4deg)}
+
+.founder-body{
+    position:absolute;
+    z-index:22;
+    bottom:137px;
+    width:220px;
+    height:270px;
+    filter:drop-shadow(0 25px 30px rgba(0,0,0,.32));
+    animation:founderBreathV5 5s ease-in-out infinite;
+}
+
+.founder-esshan-v5{left:15%}
+.founder-tazim-v5{right:15%;animation-delay:1s}
+
+.founder-head{
+    position:absolute;
+    left:50%;
+    top:0;
+    width:75px;
+    height:83px;
+    transform:translateX(-50%);
+    border-radius:45%;
+    background:linear-gradient(145deg,#ffe2bd,#e8ad85);
+}
+
+.founder-hair{
+    position:absolute;
+    left:50%;
+    top:-6px;
+    width:80px;
+    height:47px;
+    transform:translateX(-50%);
+    border-radius:44px 44px 17px 17px;
+    background:#17101f;
+}
+
+.founder-face{
+    position:absolute;
+    inset:0;
+    border-radius:45%;
+}
+
+/* refined face treatment: minimal marks, no exaggerated cartoon features */
+.eye-line{
+    position:absolute;
+    left:50%;
+    top:53px;
+    width:24px;
+    height:2px;
+    transform:translateX(-50%);
+    border-radius:999px;
+    background:rgba(74,50,75,.40);
+}
+
+.founder-neck{
+    position:absolute;
+    left:50%;
+    top:72px;
+    width:20px;
+    height:28px;
+    transform:translateX(-50%);
+    border-radius:0 0 9px 9px;
+    background:#e9ae88;
+}
+
+.founder-jacket{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    width:148px;
+    height:177px;
+    transform:translateX(-50%);
+    border-radius:35px 35px 19px 19px;
+    background:linear-gradient(160deg,#17101f,#45325a);
+}
+
+.jacket-violet{background:linear-gradient(160deg,#20102e,#652d67)}
+
+.founder-arm{
+    position:absolute;
+    bottom:68px;
+    width:88px;
+    height:18px;
+    border-radius:18px;
+    background:#ebb089;
+    z-index:28;
+    transform-origin:13px center;
+}
+
+.founder-arm-left{left:26px;transform:rotate(21deg)}
+.founder-arm-right{right:25px;transform:rotate(157deg)}
+
+.founder-hand{
+    position:absolute;
+    z-index:29;
+    bottom:55px;
+    width:17px;
+    height:17px;
+    border-radius:50%;
+    background:#ebb089;
+}
+
+.founder-hand-left{left:35px}
+.founder-hand-right{right:34px}
+
+.founder-workstation{
+    position:absolute;
+    z-index:38;
+    bottom:133px;
+    width:170px;
+    height:105px;
+}
+
+.workstation-left{left:29%}
+.workstation-right{right:29%}
+
+.laptop-display{
+    position:absolute;
+    left:50%;
+    top:0;
+    width:120px;
+    height:78px;
+    transform:translateX(-50%);
+    border:5px solid #09070d;
+    border-radius:9px 9px 4px 4px;
+    background:#120d20;
+    box-shadow:0 17px 30px rgba(0,0,0,.34);
+}
+
+.laptop-topbar{
+    display:flex;
+    justify-content:space-between;
+    padding:8px 8px 3px;
+    color:#a99db5;
+    font-size:5px;
+    font-weight:900;
+}
+
+.laptop-topbar b{color:#4ade80}
+
+.laptop-chart{
+    display:flex;
+    align-items:flex-end;
+    gap:4px;
+    height:28px;
+    padding:1px 9px;
+}
+
+.laptop-chart i{
+    width:12px;
+    height:10px;
+    border-radius:3px 3px 0 0;
+    background:linear-gradient(180deg,#a78bfa,#6d28d9);
+    animation:founderChart 2.3s ease-in-out infinite alternate;
+}
+
+.laptop-chart i:nth-child(2){height:19px;animation-delay:.15s}
+.laptop-chart i:nth-child(3){height:14px;animation-delay:.3s}
+.laptop-chart i:nth-child(4){height:25px;animation-delay:.45s}
+.laptop-chart i:nth-child(5){height:18px;animation-delay:.6s}
+
+.violet-chart i{background:linear-gradient(180deg,#f0abfc,#a855f7)}
+
+.laptop-display small{
+    display:block;
+    padding:5px 8px;
+    color:#766b83;
+    font-size:5px;
+}
+
+.laptop-keyboard{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    width:166px;
+    height:25px;
+    transform:translateX(-50%);
+    clip-path:polygon(6% 0,94% 0,100% 62%,0 62%);
+    border-radius:4px 4px 11px 11px;
+    background:linear-gradient(180deg,#433158,#1a0f26);
+}
+
+.real-round-table{
+    position:absolute;
+    z-index:42;
+    left:50%;
+    bottom:22px;
+    width:min(880px,92%);
+    height:205px;
+    transform:translateX(-50%);
+}
+
+.table-top-v5{
+    position:absolute;
+    left:50%;
+    top:0;
+    width:100%;
+    height:134px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    border:1px solid rgba(244,234,255,.13);
+    background:
+        radial-gradient(ellipse at 50% 32%,rgba(168,85,247,.13),transparent 36%),
+        linear-gradient(180deg,#382048,#160b23);
+    box-shadow:
+        0 32px 58px rgba(0,0,0,.46),
+        inset 0 9px 15px rgba(255,255,255,.035);
+}
+
+.table-gloss{
+    position:absolute;
+    left:50%;
+    top:14px;
+    width:68%;
+    height:64px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.045);
+}
+
+.tea-cup{
+    position:absolute;
+    bottom:31px;
+    width:33px;
+    height:23px;
+    border:2px solid #d0af83;
+    border-top:0;
+    border-radius:0 0 10px 10px;
+    background:#3c211d;
+    box-shadow:0 8px 13px rgba(0,0,0,.17);
+}
+
+.tea-cup:after{
+    content:"";
+    position:absolute;
+    right:-9px;
+    top:2px;
+    width:10px;
+    height:10px;
+    border:2px solid #d0af83;
+    border-left:0;
+    border-radius:0 8px 8px 0;
+}
+
+.cup-left{left:21%}
+.cup-right{right:21%}
+
+.tea-steam{
+    position:absolute;
+    bottom:53px;
+    width:32px;
+    height:68px;
+    z-index:8;
+    pointer-events:none;
+}
+
+.steam-left{left:20.7%}
+.steam-right{right:20.7%}
+
+.tea-steam i{
+    position:absolute;
+    bottom:0;
+    width:9px;
+    height:9px;
+    border:2px solid rgba(235,225,241,.38);
+    border-radius:50%;
+    opacity:0;
+    animation:teaSteam 4.2s ease-out infinite;
+}
+
+.tea-steam i:nth-child(1){left:8px}
+.tea-steam i:nth-child(2){left:15px;animation-delay:1.1s}
+.tea-steam i:nth-child(3){left:4px;animation-delay:2.1s}
+
+.founder-document{
+    position:absolute;
+    left:50%;
+    top:31px;
+    width:120px;
+    height:57px;
+    transform:translateX(-50%) rotate(-2deg);
+    border-radius:6px;
+    background:#f0eaf5;
+    box-shadow:0 10px 17px rgba(0,0,0,.17);
+    padding:10px;
+}
+
+.founder-document b,
+.founder-document span{
+    display:block;
+}
+
+.founder-document b{
+    color:#624d70;
+    font-size:6px;
+    letter-spacing:.08em;
+}
+
+.founder-document span{
+    margin-top:13px;
+    color:#9a82ab;
+    font-size:5px;
+    font-weight:900;
+}
+
+.phone-item{
+    position:absolute;
+    right:32%;
+    top:38px;
+    width:31px;
+    height:54px;
+    border:3px solid #0e0916;
+    border-radius:8px;
+    background:#17112b;
+    transform:rotate(8deg);
+}
+
+.table-pillar{
+    position:absolute;
+    left:50%;
+    top:79px;
+    width:110px;
+    height:99px;
+    transform:translateX(-50%);
+    clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);
+    background:linear-gradient(90deg,#13091f,#472958,#13091f);
+}
+
+.table-foot{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    width:190px;
+    height:26px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:linear-gradient(180deg,#281433,#0d0614);
+}
+
+.founder-story-line{
+    position:absolute;
+    left:50%;
+    bottom:9px;
+    z-index:50;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:#71677b;
+    font-size:6.5px;
+    font-weight:900;
+    letter-spacing:.17em;
+    white-space:nowrap;
+}
+
+.founder-story-line b{color:#d0bce2}
+.founder-story-line i{font-style:normal;color:#8d6baa}
+
+/* animations */
+@keyframes sceneHover{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes sceneHoverCenter{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-7px)}}
+@keyframes typingArm{from{transform:rotate(29deg)}to{transform:rotate(35deg)}}
+@keyframes progressPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
+@keyframes barPulse{from{opacity:.45;transform:scaleY(.85)}to{opacity:.95;transform:scaleY(1)}}
+@keyframes v5Glow{0%,100%{transform:translate(-50%,-50%) scale(.97);opacity:.78}50%{transform:translate(-50%,-50%) scale(1.04);opacity:1}}
+@keyframes signPulse{0%,100%{opacity:1}50%{opacity:.8}}
+@keyframes founderBreathV5{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes founderChart{from{transform:scaleY(.82);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
+@keyframes teaSteam{0%{opacity:0;transform:translate(0,14px) scale(.55)}25%{opacity:.42}100%{opacity:0;transform:translate(10px,-50px) scale(1.25)}}
+
+@media(max-width:1120px){
+    .pro-stage{height:625px!important;min-height:625px!important}
+    .work-scene{width:215px}
+    .scene-admin{left:-2%}.scene-finance{right:-2%}
+    .scene-user{top:192px}
+    .founder-body{bottom:142px}
+    .founder-esshan-v5{left:7%}.founder-tazim-v5{right:7%}
+}
+
+@media(max-width:700px){
+    .pro-stage{
+        height:650px!important;
+        min-height:650px!important;
+        transform:scale(.84);
+        transform-origin:top center;
+        margin-bottom:-96px;
+    }
+    .work-scene{width:188px;height:292px}
+    .scene-admin{left:-8%;top:192px}
+    .scene-user{top:203px}
+    .scene-finance{right:-8%;top:192px}
+    .office-scene{left:7px;right:7px}
+    .studio-caption{bottom:2px}
+    .founder-lounge{min-height:650px!important}
+    .founder-body{width:195px;height:245px;bottom:160px}
+    .founder-esshan-v5{left:-1%}.founder-tazim-v5{right:-1%}
+    .founder-workstation{bottom:151px;transform:scale(.86)}
+    .workstation-left{left:18%}.workstation-right{right:18%}
+    .chair-left{left:-1%}.chair-right{right:-1%}
+    .founder-name-card{top:80px}
+}
+
+@media(max-width:560px){
+    .pro-stage{
+        transform:scale(.69);
+        height:705px!important;
+        margin-bottom:-185px;
+    }
+    .work-scene{width:182px;height:285px}
+    .scene-admin{left:-16%;top:225px}
+    .scene-user{top:236px}
+    .scene-finance{right:-16%;top:225px}
+    .studio-caption{font-size:5.5px}
+    .founder-lounge{min-height:750px!important}
+    .founder-body{
+        width:185px;
+        height:235px;
+        bottom:194px;
+    }
+    .founder-esshan-v5{left:0}.founder-tazim-v5{right:0}
+    .founder-workstation{bottom:178px;transform:scale(.72)}
+    .workstation-left{left:8%}.workstation-right{right:8%}
+    .real-round-table{bottom:53px}
+    .founder-name-card{top:92px}
+    .chair-left,.chair-right{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+    .pro-stage *,
+    .founder-lounge *{
+        animation-duration:.01ms!important;
+        animation-iteration-count:1!important;
+    }
+}
+</style>
+
 </head>
 
 <body>
 
-    <header class="navbar">
+    <div class="cg-shell">
 
-        <div class="brand">
-            <div class="brand-icon">CG</div>
+        <header class="navbar">
 
-            <div class="brand-text">
-                <h2>ClaimGuard</h2>
-                <span>Invoice Intelligence</span>
+            <div class="brand">
+                <div class="brand-icon">CG</div>
+
+                <div class="brand-text">
+                    <h2>ClaimGuard</h2>
+                    <span>Invoice Intelligence</span>
+                </div>
             </div>
+
+            <nav class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#security">Security</a>
+                <a href="#founders">Our Story</a>
+                <a href="login.html" class="nav-login">Login&nbsp; →</a>
+            </nav>
+
+        </header>
+
+        <main>
+
+            <section class="hero">
+
+                <div class="hero-content">
+
+                    <div class="badge">
+                        AI-Powered Invoice Verification
+                    </div>
+
+                    <h1>
+                        Understand Every Invoice
+                        <span>Before You Pay.</span>
+                    </h1>
+
+                    <p>
+                        ClaimGuard analyzes invoices, verifies critical details,
+                        compares prices across trusted market sources, detects
+                        anomalies, and gives finance teams clear explanations
+                        before payment decisions are made.
+                    </p>
+
+                    <div class="hero-buttons">
+                        <a href="login.html" class="btn-primary">
+                            Get Started <span>→</span>
+                        </a>
+
+                        <a href="#how-it-works" class="btn-secondary">
+                            See How It Works <span>▶</span>
+                        </a>
+                    </div>
+
+                    <div class="trust-row">
+                        <div>
+                            <strong>AI-Assisted</strong>
+                            <span>Analysis</span>
+                        </div>
+
+                        <div>
+                            <strong>Market</strong>
+                            <span>Comparison</span>
+                        </div>
+
+                        <div>
+                            <strong>Human</strong>
+                            <span>Review</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- THREE ROLE CHARACTERS -->
+                <div class="character-stage pro-stage" aria-hidden="true">
+
+    <div class="studio-glow"></div>
+    <div class="studio-floor"></div>
+
+    <!-- Scene 1: Admin controls the system -->
+    <article class="work-scene scene-admin">
+        <div class="scene-topline">
+            <span class="scene-role admin-role">ADMIN</span>
+            <span class="scene-status">SYSTEM CONTROL</span>
         </div>
 
-        <nav class="nav-links">
-            <a href="#features">Features</a>
-            <a href="#how-it-works">How It Works</a>
-            <a href="#security">Security</a>
-            <a href="login.html" class="nav-login">Login</a>
-        </nav>
-
-    </header>
-
-
-    <main>
-
-        <section class="hero">
-
-            <div class="hero-content">
-
-                <div class="badge">
-                    Intelligent Invoice Verification
-                </div>
-
-                <h1>
-                    Understand Every Invoice
-                    <span>Before You Pay.</span>
-                </h1>
-
-                <p>
-                    ClaimGuard analyzes invoices, verifies critical details,
-                    compares prices across trusted market sources, detects
-                    anomalies, and gives finance teams clear explanations
-                    before payment decisions are made.
-                </p>
-
-                <div class="hero-buttons">
-
-                    <a href="login.html" class="btn-primary">
-                        Get Started
-                    </a>
-
-                    <a href="#how-it-works" class="btn-secondary">
-                        See How It Works
-                    </a>
-
-                </div>
-
-                <div class="trust-row">
-
-                    <div>
-                        <strong>AI-Assisted</strong>
-                        <span>Analysis</span>
-                    </div>
-
-                    <div>
-                        <strong>Market</strong>
-                        <span>Comparison</span>
-                    </div>
-
-                    <div>
-                        <strong>Human</strong>
-                        <span>Review</span>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="dashboard-preview">
-
-                <div class="preview-header">
-
-                    <div>
-                        <span class="small-label">
-                            Invoice Analysis
-                        </span>
-
-                        <h3>INV-10045</h3>
-                    </div>
-
-                    <span class="status-badge">
-                        Review Required
-                    </span>
-
-                </div>
-
-
-                <div class="price-card">
-
-                    <div>
-                        <span>Invoice Price</span>
-                        <strong>৳95,000</strong>
-                    </div>
-
-                    <div>
-                        <span>Vendor Website</span>
-                        <strong>৳88,000</strong>
-                    </div>
-
-                    <div>
-                        <span>Market Average</span>
-                        <strong>৳87,800</strong>
-                    </div>
-
-                </div>
-
-
-                <div class="variance-box">
-
-                    <div>
-                        <span>Vendor Website Difference</span>
-                        <strong>+7.95%</strong>
-                    </div>
-
-                    <div>
-                        <span>Marketplace Difference</span>
-                        <strong>+8.20%</strong>
-                    </div>
-
-                </div>
-
-
-                <div class="risk-box">
-
-                    <div class="risk-score">
-
-                        <span>Risk Score</span>
-
-                        <strong>82</strong>
-
-                        <small>/ 100</small>
-
-                    </div>
-
-
-                    <div class="risk-details">
-
-                        <span>Price Anomaly</span>
-                        <span>Quantity Mismatch</span>
-                        <span>Vendor Variation</span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <section id="features" class="section">
-
-            <div class="section-heading">
-
-                <span>CORE CAPABILITIES</span>
-
-                <h2>
-                    One invoice.
-                    <br>
-                    Complete visibility.
-                </h2>
-
-            </div>
-
-
-            <div class="feature-grid">
-
-                <article class="feature-card">
-
-                    <div class="feature-number">
-                        01
-                    </div>
-
-                    <h3>
-                        Invoice Verification
-                    </h3>
-
-                    <p>
-                        Validate invoice information, verification codes,
-                        totals, identifiers, and potential duplicates.
-                    </p>
-
-                </article>
-
-
-                <article class="feature-card">
-
-                    <div class="feature-number">
-                        02
-                    </div>
-
-                    <h3>
-                        Market Price Intelligence
-                    </h3>
-
-                    <p>
-                        Compare invoice prices with vendor website prices
-                        and observed prices across comparable marketplaces.
-                    </p>
-
-                </article>
-
-
-                <article class="feature-card">
-
-                    <div class="feature-number">
-                        03
-                    </div>
-
-                    <h3>
-                        Anomaly Detection
-                    </h3>
-
-                    <p>
-                        Detect unusual prices, quantity mismatches,
-                        identity variations, and duplicate-payment signals.
-                    </p>
-
-                </article>
-
-
-                <article class="feature-card">
-
-                    <div class="feature-number">
-                        04
-                    </div>
-
-                    <h3>
-                        Explainable Analysis
-                    </h3>
-
-                    <p>
-                        Show exactly why an invoice was flagged,
-                        including amount differences and supporting evidence.
-                    </p>
-
-                </article>
-
-            </div>
-
-        </section>
-
-
-        <section id="how-it-works" class="section workflow-section">
-
-            <div class="section-heading center">
-
-                <span>
-                    HOW CLAIMGUARD WORKS
-                </span>
-
-                <h2>
-                    From upload to decision
-                </h2>
-
-                <p>
-                    Every invoice follows a structured verification
-                    and review process.
-                </p>
-
-            </div>
-
-
-            <div class="workflow">
-
-                <div class="workflow-step">
-
-                    <span>01</span>
-
-                    <h3>Upload</h3>
-
-                    <p>
-                        Submit the invoice document.
-                    </p>
-
-                </div>
-
-
-                <div class="workflow-line"></div>
-
-
-                <div class="workflow-step">
-
-                    <span>02</span>
-
-                    <h3>Extract</h3>
-
-                    <p>
-                        Read invoice information.
-                    </p>
-
-                </div>
-
-
-                <div class="workflow-line"></div>
-
-
-                <div class="workflow-step">
-
-                    <span>03</span>
-
-                    <h3>Compare</h3>
-
-                    <p>
-                        Check internal and market prices.
-                    </p>
-
-                </div>
-
-
-                <div class="workflow-line"></div>
-
-
-                <div class="workflow-step">
-
-                    <span>04</span>
-
-                    <h3>Detect</h3>
-
-                    <p>
-                        Identify anomalies and risk.
-                    </p>
-
-                </div>
-
-
-                <div class="workflow-line"></div>
-
-
-                <div class="workflow-step">
-
-                    <span>05</span>
-
-                    <h3>Explain</h3>
-
-                    <p>
-                        Generate understandable findings.
-                    </p>
-
-                </div>
-
-
-                <div class="workflow-line"></div>
-
-
-                <div class="workflow-step">
-
-                    <span>06</span>
-
-                    <h3>Review</h3>
-
-                    <p>
-                        Finance makes the final decision.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <section id="security" class="section security-section">
-
-            <div class="security-content">
-
-                <span>
-                    SECURITY & CONTROL
-                </span>
-
-                <h2>
-                    Designed around
-                    human decisions.
-                </h2>
-
-                <p>
-                    ClaimGuard provides evidence and analysis to support
-                    reviewers. It does not replace the final business decision.
-                </p>
-
-
-                <div class="security-points">
-
-                    <div>
-
-                        <strong>
-                            Role-Based Access
-                        </strong>
-
-                        <span>
-                            User, Finance Reviewer, and Admin
-                        </span>
-
-                    </div>
-
-
-                    <div>
-
-                        <strong>
-                            Explainable Results
-                        </strong>
-
-                        <span>
-                            Every alert includes supporting reasons
-                        </span>
-
-                    </div>
-
-
-                    <div>
-
-                        <strong>
-                            Evidence-Based Comparison
-                        </strong>
-
-                        <span>
-                            Price sources and comparison details
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <footer>
-
-        <div class="footer-brand">
-            ClaimGuard
+        <div class="scene-copy">
+            <strong>Manage users &amp; access</strong>
+            <span>Roles, activity and approval controls</span>
         </div>
 
+        <div class="office-scene">
+            <div class="monitor monitor-admin">
+                <div class="monitor-head">
+                    <span>CLAIMGUARD ADMIN</span>
+                    <b>● LIVE</b>
+                </div>
+                <div class="admin-metrics">
+                    <div><small>USERS</small><b>128</b></div>
+                    <div><small>REVIEWERS</small><b>08</b></div>
+                    <div><small>RISK</small><b>17</b></div>
+                </div>
+                <div class="admin-control-line">
+                    <span>User access</span>
+                    <i class="toggle on"></i>
+                </div>
+                <div class="admin-control-line">
+                    <span>Reviewer approval</span>
+                    <i class="toggle on"></i>
+                </div>
+            </div>
+
+            <div class="desk-surface"></div>
+
+            <div class="seated-person admin-person">
+                <div class="person-back"></div>
+                <div class="person-head"></div>
+                <div class="person-hair"></div>
+                <div class="person-neck"></div>
+                <div class="person-torso"></div>
+                <div class="person-arm arm-left"></div>
+                <div class="person-arm arm-right typing-arm"></div>
+                <div class="person-hand hand-left"></div>
+                <div class="person-hand hand-right"></div>
+            </div>
+
+            <div class="keyboard keyboard-admin">
+                <i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+
+            <div class="admin-side-panel">
+                <span>USER PROFILE</span>
+                <strong>Normal User</strong>
+                <em>Upload access: ON</em>
+            </div>
+        </div>
+    </article>
+
+    <!-- Scene 2: User uploads an invoice -->
+    <article class="work-scene scene-user">
+        <div class="scene-topline">
+            <span class="scene-role user-role">USER</span>
+            <span class="scene-status">INVOICE UPLOAD</span>
+        </div>
+
+        <div class="scene-copy">
+            <strong>Upload &amp; analyze</strong>
+            <span>Invoice goes from document to intelligence</span>
+        </div>
+
+        <div class="office-scene">
+            <div class="monitor monitor-user">
+                <div class="upload-screen">
+                    <div class="upload-icon">↑</div>
+                    <span>invoice_2026.pdf</span>
+                    <b>Uploading...</b>
+                    <div class="upload-progress"><i></i></div>
+                    <small>72%</small>
+                </div>
+            </div>
+
+            <div class="paper-in-hand">
+                <span>INVOICE</span>
+                <b>৳ 95,000</b>
+                <i></i><i></i><i></i>
+            </div>
+
+            <div class="desk-surface"></div>
+
+            <div class="seated-person user-person">
+                <div class="person-back"></div>
+                <div class="person-head"></div>
+                <div class="person-hair"></div>
+                <div class="person-neck"></div>
+                <div class="person-torso"></div>
+                <div class="person-arm arm-left"></div>
+                <div class="person-arm arm-right typing-arm"></div>
+                <div class="person-hand hand-left"></div>
+                <div class="person-hand hand-right"></div>
+            </div>
+
+            <div class="keyboard keyboard-user">
+                <i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+        </div>
+    </article>
+
+    <!-- Scene 3: Finance reviews the invoice -->
+    <article class="work-scene scene-finance">
+        <div class="scene-topline">
+            <span class="scene-role finance-role">FINANCE / REVIEWER</span>
+            <span class="scene-status">HUMAN REVIEW</span>
+        </div>
+
+        <div class="scene-copy">
+            <strong>Review evidence &amp; decide</strong>
+            <span>Verify signals before the final decision</span>
+        </div>
+
+        <div class="office-scene">
+            <div class="monitor monitor-finance">
+                <div class="review-header">
+                    <span>INV-2026-1008</span>
+                    <b>HIGH RISK</b>
+                </div>
+                <div class="review-grid">
+                    <div><small>PRICE</small><b>+8.2%</b></div>
+                    <div><small>DUPLICATE</small><b>FLAGGED</b></div>
+                    <div><small>VENDOR</small><b>CHECK</b></div>
+                </div>
+                <div class="review-bars">
+                    <i></i><i></i><i class="alert"></i>
+                </div>
+            </div>
+
+            <div class="review-sheet">
+                <span>REVIEW CHECKLIST</span>
+                <label><i>✓</i> Verify items</label>
+                <label><i>✓</i> Check prices</label>
+                <label><i>✓</i> Detect anomalies</label>
+            </div>
+
+            <div class="desk-surface"></div>
+
+            <div class="seated-person finance-person">
+                <div class="person-back"></div>
+                <div class="person-head"></div>
+                <div class="person-hair"></div>
+                <div class="person-neck"></div>
+                <div class="person-torso"></div>
+                <div class="person-arm arm-left"></div>
+                <div class="person-arm arm-right typing-arm"></div>
+                <div class="person-hand hand-left"></div>
+                <div class="person-hand hand-right"></div>
+            </div>
+
+            <div class="keyboard keyboard-finance">
+                <i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+
+            <div class="decision-chip">● DECISION READY</div>
+        </div>
+    </article>
+
+    <div class="studio-caption">
+        <span>UPLOAD</span><i>→</i><span>ANALYZE</span><i>→</i><span>REVIEW</span><i>→</i><strong>DECIDE</strong>
+    </div>
+</div></section>
+
+            <section id="features" class="section">
+
+                <div class="section-heading">
+                    <span>Core Capabilities</span>
+
+                    <h2>
+                        One invoice.
+                        <br>
+                        Complete visibility.
+                    </h2>
+                </div>
+
+                <div class="feature-grid">
+
+                    <article class="feature-card">
+                        <div class="feature-number">01</div>
+
+                        <h3>Invoice Verification</h3>
+
+                        <p>
+                            Validate invoice information, verification codes,
+                            totals, identifiers, and potential duplicates.
+                        </p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-number">02</div>
+
+                        <h3>Market Price Intelligence</h3>
+
+                        <p>
+                            Compare invoice prices with vendor website prices
+                            and observed prices across comparable marketplaces.
+                        </p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-number">03</div>
+
+                        <h3>Anomaly Detection</h3>
+
+                        <p>
+                            Detect unusual prices, quantity mismatches,
+                            identity variations, and duplicate-payment signals.
+                        </p>
+                    </article>
+
+                    <article class="feature-card">
+                        <div class="feature-number">04</div>
+
+                        <h3>Explainable Analysis</h3>
+
+                        <p>
+                            Show exactly why an invoice was flagged,
+                            including amount differences and supporting evidence.
+                        </p>
+                    </article>
+
+                </div>
+
+            </section>
+
+            <section id="how-it-works" class="section workflow-section">
+
+                <div class="section-heading center">
+
+                    <span>How ClaimGuard Works</span>
+
+                    <h2>From upload to decision</h2>
+
+                    <p>
+                        Every invoice follows a structured verification
+                        and review process.
+                    </p>
+
+                </div>
+
+                <div class="workflow">
+
+                    <div class="workflow-step">
+                        <span>01</span>
+                        <h3>Upload</h3>
+                        <p>Submit the invoice document.</p>
+                    </div>
+
+                    <div class="workflow-line"></div>
+
+                    <div class="workflow-step">
+                        <span>02</span>
+                        <h3>Extract</h3>
+                        <p>Read invoice information.</p>
+                    </div>
+
+                    <div class="workflow-line"></div>
+
+                    <div class="workflow-step">
+                        <span>03</span>
+                        <h3>Compare</h3>
+                        <p>Check internal and market prices.</p>
+                    </div>
+
+                    <div class="workflow-line"></div>
+
+                    <div class="workflow-step">
+                        <span>04</span>
+                        <h3>Detect</h3>
+                        <p>Identify anomalies and risk.</p>
+                    </div>
+
+                    <div class="workflow-line"></div>
+
+                    <div class="workflow-step">
+                        <span>05</span>
+                        <h3>Explain</h3>
+                        <p>Generate understandable findings.</p>
+                    </div>
+
+                    <div class="workflow-line"></div>
+
+                    <div class="workflow-step">
+                        <span>06</span>
+                        <h3>Review</h3>
+                        <p>Finance makes the final decision.</p>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section id="security" class="section security-section">
+
+                <div class="security-content">
+
+                    <div>
+
+                        <span>Security &amp; Control</span>
+
+                        <h2>
+                            Designed around
+                            <br>
+                            human decisions.
+                        </h2>
+
+                        <p>
+                            ClaimGuard provides evidence and analysis to support
+                            reviewers. It does not replace the final business decision.
+                        </p>
+
+                    </div>
+
+                    <div class="security-points">
+
+                        <div>
+                            <strong>Role-Based Access</strong>
+                            <span>User, Finance Reviewer, and Admin</span>
+                        </div>
+
+                        <div>
+                            <strong>Explainable Results</strong>
+                            <span>Every alert includes supporting reasons</span>
+                        </div>
+
+                        <div>
+                            <strong>Evidence-Based Comparison</strong>
+                            <span>Price sources and comparison details</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            
+<!-- FOUNDERS / STORY -->
+<section id="founders" class="founders-section founders-v5">
+
+    <div class="founders-intro">
+        <div class="founders-kicker">OUR STORY</div>
+        <h2>Meet the Founders</h2>
         <p>
-            Intelligent Invoice Verification & Anomaly Detection
+            Built around a simple idea: make invoice decisions smarter,
+            clearer and easier for the people who actually have to make them.
         </p>
+    </div>
 
-        <span>
-            © 2026 ClaimGuard. All rights reserved.
-        </span>
+    <div class="founder-lounge">
 
-    </footer>
+        <div class="lounge-light lounge-light-left"></div>
+        <div class="lounge-light lounge-light-right"></div>
 
+        <div class="founder-sign">FOUNDERS</div>
+        <div class="sign-line"></div>
+
+        <div class="founder-name-card name-esshan">
+            <b>Esshan</b>
+            <span>E S S H A N · CO-FOUNDER</span>
+        </div>
+
+        <div class="founder-name-card name-tazim">
+            <b>Tazim</b>
+            <span>T A Z I M · CO-FOUNDER</span>
+        </div>
+
+        <!-- Chairs -->
+        <div class="chair chair-left"></div>
+        <div class="chair chair-right"></div>
+
+        <!-- ESSHAN seated at the round table -->
+        <div class="founder-body founder-esshan-v5">
+            <div class="founder-head">
+                <div class="founder-hair"></div>
+                <div class="founder-face">
+                    <span class="eye-line"></span>
+                </div>
+            </div>
+
+            <div class="founder-neck"></div>
+            <div class="founder-jacket jacket-dark"></div>
+
+            <div class="founder-arm founder-arm-left"></div>
+            <div class="founder-arm founder-arm-right"></div>
+
+            <div class="founder-hand founder-hand-left"></div>
+            <div class="founder-hand founder-hand-right"></div>
+        </div>
+
+        <!-- TAZIM seated at the round table -->
+        <div class="founder-body founder-tazim-v5">
+            <div class="founder-head">
+                <div class="founder-hair"></div>
+                <div class="founder-face">
+                    <span class="eye-line"></span>
+                </div>
+            </div>
+
+            <div class="founder-neck"></div>
+            <div class="founder-jacket jacket-violet"></div>
+
+            <div class="founder-arm founder-arm-left"></div>
+            <div class="founder-arm founder-arm-right"></div>
+
+            <div class="founder-hand founder-hand-left"></div>
+            <div class="founder-hand founder-hand-right"></div>
+        </div>
+
+        <!-- Founder laptops -->
+        <div class="founder-workstation workstation-left">
+            <div class="laptop-display">
+                <div class="laptop-topbar">CLAIMGUARD <b>●</b></div>
+                <div class="laptop-chart"><i></i><i></i><i></i><i></i><i></i></div>
+                <small>Invoice intelligence</small>
+            </div>
+            <div class="laptop-keyboard"></div>
+        </div>
+
+        <div class="founder-workstation workstation-right">
+            <div class="laptop-display">
+                <div class="laptop-topbar">RISK ENGINE <b>●</b></div>
+                <div class="laptop-chart violet-chart"><i></i><i></i><i></i><i></i><i></i></div>
+                <small>Explainable review</small>
+            </div>
+            <div class="laptop-keyboard"></div>
+        </div>
+
+        <!-- Round table, clearly in foreground -->
+        <div class="real-round-table">
+            <div class="table-top-v5">
+                <div class="table-gloss"></div>
+
+                <div class="tea-cup cup-left">
+                    <span></span>
+                </div>
+
+                <div class="tea-cup cup-right">
+                    <span></span>
+                </div>
+
+                <div class="tea-steam steam-left">
+                    <i></i><i></i><i></i>
+                </div>
+
+                <div class="tea-steam steam-right">
+                    <i></i><i></i><i></i>
+                </div>
+
+                <div class="founder-document">
+                    <b>CLAIMGUARD</b>
+                    <span>IDEA → BUILD → VERIFY</span>
+                </div>
+
+                <div class="phone-item"></div>
+            </div>
+
+            <div class="table-pillar"></div>
+            <div class="table-foot"></div>
+        </div>
+
+        <div class="founder-story-line">
+            <span>IDEATE</span>
+            <i>·</i>
+            <b>BUILD</b>
+            <i>·</i>
+            <span>VERIFY</span>
+            <i>·</i>
+            <b>SHIP</b>
+        </div>
+
+    </div>
+</section>
+
+
+        </main>
+
+        <footer>
+
+            <div class="footer-brand">
+                ClaimGuard
+            </div>
+
+            <p>
+                Intelligent Invoice Verification &amp; Anomaly Detection
+            </p>
+
+            <span>
+                © 2026 ClaimGuard. All rights reserved.
+            </span>
+
+        </footer>
+
+    </div>
 
     <script src="js/app.js"></script>
 

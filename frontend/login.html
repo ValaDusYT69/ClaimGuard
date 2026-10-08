@@ -8,6 +8,3517 @@
     <title>Login | ClaimGuard</title>
 
     <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        :root{
+            --cg-bg:#07030f;
+            --cg-panel:rgba(17,9,31,.82);
+            --cg-white:#fbf9ff;
+            --cg-muted:#aea3c1;
+            --cg-purple:#8b5cf6;
+            --cg-purple-2:#a855f7;
+            --cg-pink:#ec4899;
+            --cg-blue:#4f8cff;
+            --cg-red:#fb7185;
+            --cg-green:#42e6a0;
+        }
+
+        *{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+
+        body.auth-page{
+            min-height:100vh;
+            margin:0;
+            color:var(--cg-white);
+            background:
+                radial-gradient(circle at 10% 10%,rgba(139,92,246,.18),transparent 25%),
+                radial-gradient(circle at 88% 10%,rgba(236,72,153,.10),transparent 22%),
+                linear-gradient(145deg,#06020c 0%,#0b0415 50%,#08030f 100%);
+            overflow-x:hidden;
+            font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+        }
+
+        body.auth-page::before{
+            content:"";
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            opacity:.25;
+            background-image:
+                linear-gradient(rgba(196,181,253,.05) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(196,181,253,.05) 1px,transparent 1px);
+            background-size:34px 34px;
+            mask-image:linear-gradient(to bottom,black,transparent 85%);
+            z-index:-3;
+        }
+
+        body.auth-page::after{
+            content:"";
+            position:fixed;
+            width:600px;
+            height:600px;
+            left:50%;
+            top:45%;
+            transform:translate(-50%,-50%);
+            border:1px solid rgba(167,139,250,.05);
+            border-radius:50%;
+            box-shadow:0 0 0 80px rgba(139,92,246,.012),0 0 0 160px rgba(139,92,246,.008);
+            animation:authOrbit 20s linear infinite;
+            pointer-events:none;
+            z-index:-2;
+        }
+
+        a{text-decoration:none}
+
+        .auth-shell{
+            width:min(1280px,calc(100% - 34px));
+            margin:0 auto;
+            position:relative;
+            z-index:20;
+        }
+
+        .auth-topbar{
+            margin-top:17px;
+            min-height:58px;
+            padding:8px 10px 8px 13px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:14px;
+            border:1px solid rgba(255,255,255,.085);
+            border-radius:18px;
+            background:rgba(8,4,16,.69);
+            backdrop-filter:blur(20px);
+            box-shadow:0 15px 38px rgba(0,0,0,.24);
+        }
+
+        .auth-back-link,
+        .auth-topbar-links a{
+            display:inline-flex;
+            align-items:center;
+            min-height:36px;
+            padding:0 12px;
+            color:#bcb1ce;
+            font-size:11px;
+            font-weight:850;
+            border-radius:11px;
+            transition:.25s ease;
+        }
+
+        .auth-back-link:hover,
+        .auth-topbar-links a:hover{
+            color:#fff;
+            background:rgba(139,92,246,.09);
+        }
+
+        .auth-topbar-links{
+            display:flex;
+            align-items:center;
+            gap:4px;
+        }
+
+        .auth-container{
+            width:min(1280px,calc(100% - 34px));
+            min-height:calc(100vh - 108px);
+            margin:20px auto 24px;
+            display:grid;
+            grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:34px;
+            overflow:hidden;
+            background:rgba(255,255,255,.012);
+            box-shadow:0 34px 95px rgba(0,0,0,.43);
+        }
+
+        /* LEFT */
+        .auth-brand-panel--blue{
+            position:relative;
+            min-height:720px;
+            padding:42px 44px;
+            display:flex;
+            flex-direction:column;
+            overflow:hidden;
+            background:
+                radial-gradient(circle at 52% 46%,rgba(139,92,246,.16),transparent 30%),
+                radial-gradient(circle at 15% 20%,rgba(79,140,255,.08),transparent 22%),
+                linear-gradient(160deg,#120722,#090411 74%);
+            border-right:1px solid rgba(255,255,255,.07);
+        }
+
+        .auth-brand-panel--blue::before{
+            content:"";
+            position:absolute;
+            inset:0;
+            background:
+                linear-gradient(90deg,transparent 0 49.5%,rgba(167,139,250,.03) 49.5% 50%,transparent 50%),
+                linear-gradient(0deg,transparent 0 49.5%,rgba(167,139,250,.03) 49.5% 50%,transparent 50%);
+            background-size:34px 34px;
+            mask-image:linear-gradient(to bottom,black,transparent 96%);
+            pointer-events:none;
+        }
+
+        .auth-brand{
+            position:relative;
+            z-index:4;
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+
+        .auth-brand .brand-icon,
+        .mobile-brand .brand-icon{
+            width:46px;
+            height:46px;
+            display:grid;
+            place-items:center;
+            border-radius:14px;
+            color:#fff;
+            font-size:13px;
+            font-weight:950;
+            background:linear-gradient(135deg,#7c3aed,#c026d3);
+            box-shadow:0 0 30px rgba(139,92,246,.30);
+            position:relative;
+            overflow:hidden;
+        }
+
+        .auth-brand .brand-icon::after,
+        .mobile-brand .brand-icon::after{
+            content:"";
+            position:absolute;
+            width:24px;
+            height:80px;
+            left:-34px;
+            top:-18px;
+            transform:rotate(29deg);
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,.23),transparent);
+            animation:brandSweep 5s infinite;
+        }
+
+        .auth-brand h2,
+        .mobile-brand h2{
+            margin:0 0 4px;
+            font-size:16px;
+            letter-spacing:-.03em;
+        }
+
+        .auth-brand span,
+        .mobile-brand span{
+            color:#9488a2;
+            font-size:8px;
+            letter-spacing:.12em;
+            text-transform:uppercase;
+            font-weight:900;
+        }
+
+        .auth-hero-badge{
+            position:relative;
+            z-index:3;
+            width:max-content;
+            margin-top:44px;
+            padding:8px 11px;
+            border:1px solid rgba(167,139,250,.18);
+            border-radius:999px;
+            background:rgba(139,92,246,.07);
+            color:#cbbcff;
+            font-size:8px;
+            font-weight:950;
+            letter-spacing:.12em;
+            text-transform:uppercase;
+        }
+
+        .auth-hero-badge::before{
+            content:"";
+            display:inline-block;
+            width:7px;
+            height:7px;
+            margin-right:8px;
+            vertical-align:-1px;
+            border-radius:50%;
+            background:var(--cg-green);
+            box-shadow:0 0 0 5px rgba(66,230,160,.09);
+            animation:statusBlink 1.8s ease-in-out infinite;
+        }
+
+        .auth-message{
+            position:relative;
+            z-index:5;
+            margin-top:18px;
+            max-width:610px;
+        }
+
+        .auth-label{
+            display:block;
+            color:#a99bc0;
+            font-size:9px;
+            font-weight:950;
+            letter-spacing:.18em;
+        }
+
+        .auth-message h1{
+            margin:15px 0 16px;
+            max-width:600px;
+            font-size:clamp(42px,4.3vw,65px);
+            line-height:.98;
+            letter-spacing:-.065em;
+        }
+
+        .auth-message h1::after{
+            content:"";
+            display:block;
+            width:85px;
+            height:3px;
+            margin-top:17px;
+            border-radius:999px;
+            background:linear-gradient(90deg,#8b5cf6,#ec4899,transparent);
+            box-shadow:0 0 18px rgba(168,85,247,.35);
+        }
+
+        .auth-message p{
+            margin:0;
+            max-width:545px;
+            color:#a79bb7;
+            font-size:12px;
+            line-height:1.8;
+        }
+
+        .auth-features{
+            display:grid;
+            grid-template-columns:repeat(3,minmax(0,1fr));
+            gap:9px;
+            margin-top:26px;
+            max-width:575px;
+        }
+
+        .auth-features > div{
+            position:relative;
+            min-height:84px;
+            padding:14px 13px;
+            border:1px solid rgba(255,255,255,.07);
+            border-radius:15px;
+            background:rgba(255,255,255,.025);
+            box-shadow:0 13px 28px rgba(0,0,0,.16);
+            transition:.25s ease;
+            overflow:hidden;
+        }
+
+        .auth-features > div:hover{
+            transform:translateY(-4px);
+            border-color:rgba(167,139,250,.17);
+            background:rgba(139,92,246,.04);
+        }
+
+        .auth-features strong,
+        .auth-features span{
+            display:block;
+        }
+
+        .auth-features strong{
+            margin-bottom:9px;
+            color:#d8b4fe;
+            font-size:9px;
+            font-weight:950;
+        }
+
+        .auth-features span{
+            color:#aaa0b7;
+            font-size:9px;
+            line-height:1.45;
+            font-weight:750;
+        }
+
+        /* Product illustration */
+        .auth-visual-scene{
+            position:absolute;
+            right:14px;
+            bottom:37px;
+            width:560px;
+            height:350px;
+            z-index:2;
+            pointer-events:none;
+        }
+
+        .visual-halo{
+            position:absolute;
+            left:50%;
+            top:48%;
+            width:310px;
+            height:310px;
+            transform:translate(-50%,-50%);
+            border-radius:50%;
+            background:radial-gradient(circle,rgba(139,92,246,.16),transparent 66%);
+            filter:blur(11px);
+            animation:haloBreath 5s ease-in-out infinite;
+        }
+
+        .scene-ring{
+            position:absolute;
+            left:50%;
+            top:50%;
+            width:300px;
+            height:300px;
+            transform:translate(-50%,-50%);
+            border:1px dashed rgba(196,181,253,.11);
+            border-radius:50%;
+            animation:authRing 18s linear infinite;
+        }
+
+        .scene-ring::after{
+            content:"";
+            position:absolute;
+            inset:22px;
+            border:1px solid rgba(168,85,247,.08);
+            border-radius:50%;
+        }
+
+        .analyst{
+            position:absolute;
+            left:50%;
+            bottom:37px;
+            width:195px;
+            height:282px;
+            transform:translateX(-50%);
+            filter:drop-shadow(0 25px 25px rgba(0,0,0,.34));
+            animation:analystFloat 4.6s ease-in-out infinite;
+        }
+
+        .analyst-head{
+            position:absolute;
+            left:50%;
+            top:0;
+            width:65px;
+            height:72px;
+            transform:translateX(-50%);
+            border-radius:46%;
+            background:linear-gradient(145deg,#ffe2be,#e7aa84);
+        }
+
+        .analyst-hair{
+            position:absolute;
+            left:50%;
+            top:-5px;
+            width:68px;
+            height:39px;
+            transform:translateX(-50%);
+            border-radius:38px 38px 16px 16px;
+            background:#1a1122;
+        }
+
+        .analyst-neck{
+            position:absolute;
+            left:50%;
+            top:60px;
+            width:19px;
+            height:25px;
+            transform:translateX(-50%);
+            border-radius:0 0 9px 9px;
+            background:#eab18a;
+        }
+
+        .analyst-body{
+            position:absolute;
+            left:50%;
+            top:75px;
+            width:110px;
+            height:145px;
+            transform:translateX(-50%);
+            border-radius:30px 30px 18px 18px;
+            background:linear-gradient(155deg,#241331,#652c68);
+            box-shadow:0 22px 30px rgba(0,0,0,.28);
+        }
+
+        .analyst-collar{
+            position:absolute;
+            left:50%;
+            top:0;
+            width:66px;
+            height:34px;
+            transform:translateX(-50%);
+            border-radius:16px;
+            background:#f4eff9;
+        }
+
+        .analyst-tie{
+            position:absolute;
+            left:50%;
+            top:22px;
+            width:15px;
+            height:45px;
+            transform:translateX(-50%);
+            clip-path:polygon(30% 0,70% 0,100% 33%,64% 100%,36% 100%,0 33%);
+            background:#a855f7;
+        }
+
+        .analyst-arm{
+            position:absolute;
+            top:110px;
+            width:74px;
+            height:18px;
+            border-radius:18px;
+            background:#ecb087;
+            transform-origin:12px center;
+        }
+
+        .analyst-arm.left{
+            left:-8px;
+            transform:rotate(27deg);
+        }
+
+        .analyst-arm.right{
+            right:-7px;
+            transform:rotate(153deg);
+            animation:typeHand 1s ease-in-out infinite alternate;
+        }
+
+        .analyst-hand{
+            position:absolute;
+            width:17px;
+            height:17px;
+            border-radius:50%;
+            background:#ecb087;
+        }
+
+        .analyst-hand.left{left:0;bottom:-7px}
+        .analyst-hand.right{right:0;bottom:-7px}
+
+        .visual-laptop{
+            position:absolute;
+            left:50%;
+            bottom:40px;
+            width:205px;
+            height:126px;
+            transform:translateX(-50%);
+            z-index:7;
+        }
+
+        .visual-laptop-screen{
+            position:absolute;
+            left:50%;
+            top:0;
+            width:145px;
+            height:91px;
+            transform:translateX(-50%);
+            border:6px solid #08060d;
+            border-radius:10px 10px 4px 4px;
+            background:#121021;
+            box-shadow:0 22px 32px rgba(0,0,0,.38);
+            overflow:hidden;
+        }
+
+        .visual-laptop-screen::before{
+            content:"CLAIMGUARD";
+            position:absolute;
+            top:10px;
+            left:11px;
+            color:#d8b4fe;
+            font-size:6px;
+            font-weight:950;
+            letter-spacing:.10em;
+        }
+
+        .visual-laptop-screen::after{
+            content:"INVOICE  •  REVIEW  •  RISK";
+            position:absolute;
+            bottom:10px;
+            left:11px;
+            color:#7dd3fc;
+            font-size:5px;
+            font-weight:850;
+        }
+
+        .screen-lines{
+            position:absolute;
+            left:11px;
+            right:11px;
+            top:31px;
+            display:grid;
+            gap:6px;
+        }
+
+        .screen-lines span{
+            height:5px;
+            border-radius:5px;
+            background:#332b49;
+        }
+
+        .screen-lines span:nth-child(2){width:72%}
+        .screen-lines span:nth-child(3){width:88%}
+
+        .visual-laptop-base{
+            position:absolute;
+            left:50%;
+            bottom:0;
+            width:205px;
+            height:31px;
+            transform:translateX(-50%);
+            clip-path:polygon(6% 0,94% 0,100% 60%,0 60%);
+            border-radius:4px 4px 14px 14px;
+            background:linear-gradient(180deg,#443158,#191025);
+        }
+
+        .floating-invoice{
+            position:absolute;
+            z-index:10;
+            width:67px;
+            height:87px;
+            padding:9px;
+            border-radius:8px;
+            background:#f8f4fb;
+            box-shadow:0 17px 26px rgba(0,0,0,.28);
+        }
+
+        .floating-invoice::before{
+            content:"INVOICE";
+            display:block;
+            margin-bottom:8px;
+            color:#705d78;
+            font-size:5px;
+            font-weight:950;
+            letter-spacing:.12em;
+        }
+
+        .floating-invoice i{
+            display:block;
+            height:4px;
+            margin-bottom:5px;
+            border-radius:4px;
+            background:#e8deef;
+        }
+
+        .floating-invoice i.short{width:62%}
+
+        .floating-invoice b{
+            display:block;
+            width:70%;
+            height:8px;
+            margin-top:9px;
+            border-radius:5px;
+            background:linear-gradient(90deg,#8b5cf6,#ec4899);
+        }
+
+        .invoice-left{
+            left:51px;
+            top:115px;
+            transform:rotate(-10deg);
+            animation:invoiceFloatLogin 5.8s ease-in-out infinite;
+        }
+
+        .invoice-right{
+            right:55px;
+            top:84px;
+            transform:rotate(10deg);
+            animation:invoiceFloatLogin 6.2s 1.1s ease-in-out infinite;
+        }
+
+        .mini-hud{
+            position:absolute;
+            z-index:12;
+            padding:8px 10px;
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:11px;
+            background:rgba(9,5,17,.70);
+            backdrop-filter:blur(13px);
+            box-shadow:0 12px 24px rgba(0,0,0,.23);
+            color:#9f94ad;
+            font-size:6px;
+            font-weight:800;
+            line-height:1.5;
+        }
+
+        .mini-hud b{color:#d8b4fe}
+
+        .hud-review{
+            left:7px;
+            bottom:88px;
+            animation:miniFloat 5.2s ease-in-out infinite;
+        }
+
+        .hud-upload{
+            right:2px;
+            bottom:105px;
+            animation:miniFloat 5.5s .8s ease-in-out infinite;
+        }
+
+        .role-legend{
+            position:absolute;
+            left:2px;
+            bottom:8px;
+            width:100%;
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:7px;
+        }
+
+        .role-legend div{
+            padding:8px 9px;
+            border:1px solid rgba(255,255,255,.07);
+            border-radius:11px;
+            background:rgba(8,4,15,.63);
+            backdrop-filter:blur(10px);
+        }
+
+        .role-legend strong,
+        .role-legend span{
+            display:block;
+        }
+
+        .role-legend strong{
+            font-size:7px;
+            color:#ece7f4;
+        }
+
+        .role-legend span{
+            margin-top:2px;
+            font-size:5.5px;
+            color:#776c83;
+        }
+
+        .role-legend .r-admin{box-shadow:inset 0 2px 0 #fb7185}
+        .role-legend .r-user{box-shadow:inset 0 2px 0 #4f8cff}
+        .role-legend .r-finance{box-shadow:inset 0 2px 0 #a855f7}
+
+        .auth-footer{
+            position:relative;
+            z-index:4;
+            margin-top:auto;
+            color:#675c73;
+            font-size:9px;
+        }
+
+        /* RIGHT FORM */
+        .auth-form-panel{
+            position:relative;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:44px;
+            background:
+                radial-gradient(circle at 50% 16%,rgba(168,85,247,.08),transparent 30%),
+                rgba(10,5,18,.77);
+        }
+
+        .auth-form-box{
+            width:min(440px,100%);
+            position:relative;
+            padding:31px;
+            border:1px solid rgba(255,255,255,.085);
+            border-radius:25px;
+            background:linear-gradient(180deg,rgba(255,255,255,.036),rgba(255,255,255,.018));
+            box-shadow:0 28px 62px rgba(0,0,0,.27);
+            backdrop-filter:blur(18px);
+            animation:formIn .75s .12s ease both;
+        }
+
+        .auth-form-box::before{
+            content:"";
+            position:absolute;
+            left:28px;
+            right:28px;
+            top:0;
+            height:2px;
+            border-radius:999px;
+            background:linear-gradient(90deg,transparent,#a78bfa,#ec4899,transparent);
+            box-shadow:0 0 19px rgba(168,85,247,.30);
+        }
+
+        .mobile-brand{display:none}
+
+        .form-heading > span{
+            display:block;
+            color:#ae9bc7;
+            font-size:8px;
+            font-weight:950;
+            letter-spacing:.16em;
+        }
+
+        .form-heading h2{
+            margin:10px 0 7px;
+            color:#f7f3ff;
+            font-size:29px;
+            line-height:1.08;
+            letter-spacing:-.045em;
+        }
+
+        .form-heading p{
+            margin:0 0 22px;
+            color:#8e829d;
+            font-size:11px;
+        }
+
+        .google-btn{
+            width:100%;
+            min-height:46px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+            border:1px solid rgba(255,255,255,.09);
+            border-radius:13px;
+            background:rgba(255,255,255,.035);
+            color:#ece7f3;
+            font:inherit;
+            font-size:11px;
+            font-weight:900;
+            cursor:pointer;
+            transition:.25s ease;
+        }
+
+        .google-btn:hover{
+            transform:translateY(-2px);
+            border-color:rgba(167,139,250,.20);
+            background:rgba(255,255,255,.055);
+            box-shadow:0 14px 28px rgba(0,0,0,.20);
+        }
+
+        .google-icon{
+            width:25px;
+            height:25px;
+            display:grid;
+            place-items:center;
+            border-radius:8px;
+            background:#fff;
+            color:#4285f4;
+            font-size:12px;
+            font-weight:950;
+            box-shadow:0 8px 16px rgba(0,0,0,.14);
+        }
+
+        .divider{
+            position:relative;
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin:19px 0;
+            color:#665c71;
+            font-size:8px;
+            font-weight:900;
+            letter-spacing:.1em;
+        }
+
+        .divider::before,
+        .divider::after{
+            content:"";
+            height:1px;
+            flex:1;
+            background:rgba(255,255,255,.07);
+        }
+
+        .input-group{margin-bottom:15px}
+
+        .input-group label,
+        .password-label label{
+            color:#c8bfd4;
+            font-size:10px;
+            font-weight:850;
+        }
+
+        .input-group input{
+            width:100%;
+            margin-top:7px;
+            height:45px;
+            padding:0 13px;
+            border:1px solid rgba(255,255,255,.075);
+            border-radius:12px;
+            outline:none;
+            background:rgba(255,255,255,.028);
+            color:#f6f1ff;
+            font:inherit;
+            font-size:11px;
+            transition:.25s ease;
+        }
+
+        .input-group input::placeholder{color:#665d73}
+
+        .input-group input:focus{
+            border-color:rgba(168,85,247,.42);
+            box-shadow:0 0 0 4px rgba(168,85,247,.08),0 10px 24px rgba(0,0,0,.12);
+            background:rgba(168,85,247,.035);
+        }
+
+        .password-label{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:9px;
+        }
+
+        .password-label a{
+            color:#a78bfa;
+            font-size:9px;
+            font-weight:850;
+        }
+
+        .password-wrapper{position:relative}
+
+        .password-wrapper input{padding-right:64px}
+
+        .password-toggle{
+            position:absolute;
+            top:50%;
+            right:8px;
+            transform:translateY(-50%);
+            min-height:30px;
+            padding:0 8px;
+            border:1px solid rgba(255,255,255,.06);
+            border-radius:8px;
+            color:#a99bb5;
+            background:rgba(255,255,255,.025);
+            font-size:8px;
+            font-weight:900;
+            cursor:pointer;
+        }
+
+        .password-toggle:hover{
+            color:#e8def2;
+            background:rgba(139,92,246,.07);
+        }
+
+        .remember-row{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin:1px 0 17px;
+        }
+
+        .remember-check{
+            display:inline-flex;
+            align-items:center;
+            gap:7px;
+            color:#8f839d;
+            font-size:9px;
+            cursor:pointer;
+        }
+
+        .remember-check input{accent-color:#8b5cf6}
+
+        .login-submit{
+            width:100%;
+            min-height:47px;
+            border:0;
+            border-radius:13px;
+            color:#fff;
+            background:linear-gradient(135deg,#7c3aed,#a855f7 58%,#c026d3);
+            box-shadow:0 16px 31px rgba(124,58,237,.25);
+            font:inherit;
+            font-size:11px;
+            font-weight:950;
+            cursor:pointer;
+            transition:.25s ease;
+            position:relative;
+            overflow:hidden;
+        }
+
+        .login-submit::after{
+            content:"";
+            position:absolute;
+            top:0;
+            bottom:0;
+            left:-46%;
+            width:24%;
+            transform:skewX(-25deg);
+            background:rgba(255,255,255,.22);
+            animation:submitSweep 4.8s 1.4s infinite;
+        }
+
+        .login-submit:hover{
+            transform:translateY(-2px);
+            box-shadow:0 22px 38px rgba(124,58,237,.32);
+        }
+
+        .login-message{
+            min-height:20px;
+            margin-top:9px;
+            color:#fb7185;
+            font-size:9px;
+            line-height:1.5;
+        }
+
+        .signup-link{
+            margin:14px 0 18px;
+            color:#7f748c;
+            text-align:center;
+            font-size:9px;
+        }
+
+        .signup-link a{
+            color:#b79cff;
+            font-weight:900;
+        }
+
+        .security-note{
+            display:flex;
+            align-items:flex-start;
+            gap:8px;
+            padding:11px 12px;
+            border:1px solid rgba(255,255,255,.06);
+            border-radius:12px;
+            background:rgba(255,255,255,.024);
+        }
+
+        .security-note > span{font-size:10px}
+
+        .security-note p{
+            margin:0;
+            color:#746a7d;
+            font-size:8px;
+            line-height:1.55;
+        }
+
+        /* animation */
+        @keyframes authOrbit{
+            from{transform:translate(-50%,-50%) rotate(0)}
+            to{transform:translate(-50%,-50%) rotate(360deg)}
+        }
+
+        @keyframes brandSweep{
+            0%,55%{left:-38px}
+            70%,100%{left:66px}
+        }
+
+        @keyframes statusBlink{
+            0%,100%{opacity:.65}
+            50%{opacity:1}
+        }
+
+        @keyframes haloBreath{
+            0%,100%{transform:translate(-50%,-50%) scale(.96);opacity:.72}
+            50%{transform:translate(-50%,-50%) scale(1.06);opacity:1}
+        }
+
+        @keyframes authRing{
+            from{transform:translate(-50%,-50%) rotate(0)}
+            to{transform:translate(-50%,-50%) rotate(360deg)}
+        }
+
+        @keyframes analystFloat{
+            0%,100%{transform:translateX(-50%) translateY(0)}
+            50%{transform:translateX(-50%) translateY(-7px)}
+        }
+
+        @keyframes typeHand{
+            from{transform:rotate(153deg)}
+            to{transform:rotate(160deg)}
+        }
+
+        @keyframes invoiceFloatLogin{
+            0%,100%{margin-top:0}
+            50%{margin-top:-13px}
+        }
+
+        @keyframes miniFloat{
+            0%,100%{transform:translateY(0)}
+            50%{transform:translateY(-7px)}
+        }
+
+        @keyframes formIn{
+            from{opacity:0;transform:translateY(18px)}
+            to{opacity:1;transform:none}
+        }
+
+        @keyframes submitSweep{
+            0%{left:-46%}
+            30%,100%{left:122%}
+        }
+
+        @media(max-width:1060px){
+            .auth-container{grid-template-columns:1fr}
+            .auth-brand-panel--blue{min-height:660px}
+            .auth-visual-scene{
+                right:50%;
+                transform:translateX(50%);
+                bottom:20px;
+            }
+            .auth-form-panel{padding:32px}
+        }
+
+        @media(max-width:720px){
+            .auth-shell,
+            .auth-container{
+                width:min(100% - 20px,1280px);
+            }
+
+            .auth-topbar{
+                flex-direction:column;
+                align-items:stretch;
+                gap:3px;
+                padding:8px;
+            }
+
+            .auth-topbar-links{justify-content:flex-start}
+
+            .auth-brand-panel--blue{
+                padding:30px 24px;
+                min-height:690px;
+            }
+
+            .auth-message h1{font-size:45px}
+
+            .auth-features{
+                grid-template-columns:1fr;
+                max-width:290px;
+            }
+
+            .auth-features > div{min-height:64px}
+
+            .auth-visual-scene{
+                bottom:22px;
+                width:500px;
+                transform:translateX(50%) scale(.88);
+                transform-origin:center bottom;
+                margin-right:-250px;
+            }
+
+            .auth-form-panel{padding:20px}
+
+            .auth-form-box{padding:24px 19px}
+        }
+
+        @media(max-width:530px){
+            .auth-brand-panel--blue{
+                min-height:635px;
+                padding:24px 20px;
+            }
+
+            .auth-hero-badge{margin-top:29px}
+
+            .auth-message h1{font-size:38px}
+
+            .auth-message p{font-size:10px}
+
+            .auth-visual-scene{
+                width:450px;
+                transform:translateX(50%) scale(.71);
+                margin-right:-225px;
+                bottom:9px;
+            }
+
+            .role-legend{
+                width:96%;
+                left:2%;
+            }
+
+            .role-legend div{padding:7px 6px}
+            .role-legend strong{font-size:6px}
+            .role-legend span{font-size:4.7px}
+
+            .form-heading h2{font-size:25px}
+        }
+
+        @media(prefers-reduced-motion:reduce){
+            body.auth-page::after,
+            .auth-page *{
+                animation-duration:.01ms !important;
+                animation-iteration-count:1 !important;
+            }
+        }
+    </style>
+
+<style>
+/* =========================================================
+   CLAIMGUARD LOGIN — V2 FANCY / SMOOTH VISUAL LAYER
+   Functionality intentionally preserved.
+   ========================================================= */
+
+/* --- make the left side feel richer --- */
+.auth-brand-panel--blue{
+    background:
+        radial-gradient(circle at 52% 41%,rgba(139,92,246,.19),transparent 25%),
+        radial-gradient(circle at 18% 24%,rgba(79,140,255,.10),transparent 22%),
+        radial-gradient(circle at 86% 72%,rgba(236,72,153,.08),transparent 22%),
+        linear-gradient(160deg,#130722 0%,#0a0412 72%,#08030e 100%) !important;
+}
+
+.auth-brand-panel--blue::after{
+    content:"";
+    position:absolute;
+    inset:auto -15% -18% -15%;
+    height:42%;
+    background:
+        radial-gradient(ellipse at center,rgba(139,92,246,.11),transparent 58%);
+    filter:blur(14px);
+    pointer-events:none;
+}
+
+/* --- subtle ambient particles --- */
+.auth-visual-scene::before,
+.auth-visual-scene::after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+}
+
+.auth-visual-scene::before{
+    width:6px;
+    height:6px;
+    left:17%;
+    top:25%;
+    background:#c4b5fd;
+    box-shadow:
+        56px 62px 0 rgba(125,211,252,.75),
+        282px 14px 0 rgba(244,114,182,.72),
+        401px 164px 0 rgba(196,181,253,.7),
+        327px 230px 0 rgba(125,211,252,.65),
+        92px 221px 0 rgba(196,181,253,.65);
+    filter:blur(.1px);
+    opacity:.82;
+    animation:particleDrift 6s ease-in-out infinite;
+}
+
+.auth-visual-scene::after{
+    width:3px;
+    height:3px;
+    right:14%;
+    top:35%;
+    background:#f0abfc;
+    box-shadow:
+        -80px 58px 0 rgba(167,139,250,.8),
+        -214px 24px 0 rgba(96,165,250,.7),
+        -151px 177px 0 rgba(244,114,182,.7);
+    animation:particleDrift 5.2s 1s ease-in-out infinite;
+}
+
+/* --- role badge/status accents --- */
+.hud-review,
+.hud-upload{
+    border-color:rgba(167,139,250,.13);
+}
+
+.hud-review::before,
+.hud-upload::before{
+    content:"";
+    display:inline-block;
+    width:5px;
+    height:5px;
+    margin-right:5px;
+    border-radius:50%;
+    background:#42e6a0;
+    box-shadow:0 0 10px rgba(66,230,160,.55);
+    animation:statusBlink 1.8s ease-in-out infinite;
+}
+
+/* --- more polished animation for the analyst --- */
+.analyst{
+    will-change:transform;
+    animation:
+        analystFloatSmooth 5.2s cubic-bezier(.45,.05,.55,.95) infinite;
+}
+
+.analyst-arm.right{
+    will-change:transform;
+    animation:
+        typeHandSmooth 1.55s cubic-bezier(.45,.05,.55,.95) infinite alternate;
+}
+
+.visual-laptop{
+    will-change:transform;
+    animation:laptopHover 5.2s cubic-bezier(.45,.05,.55,.95) infinite;
+}
+
+.visual-laptop-screen{
+    box-shadow:
+        0 22px 32px rgba(0,0,0,.38),
+        0 0 24px rgba(139,92,246,.07);
+}
+
+.screen-lines span{
+    animation:screenPulse 2.8s ease-in-out infinite;
+}
+
+.screen-lines span:nth-child(2){animation-delay:.3s}
+.screen-lines span:nth-child(3){animation-delay:.6s}
+
+/* --- floating invoices should move gently, not jump --- */
+.floating-invoice{
+    will-change:transform;
+    animation-timing-function:cubic-bezier(.45,.05,.55,.95) !important;
+}
+
+.invoice-left{
+    animation:
+        invoiceOrbitLeft 7.4s cubic-bezier(.45,.05,.55,.95) infinite !important;
+}
+
+.invoice-right{
+    animation:
+        invoiceOrbitRight 7.8s 1s cubic-bezier(.45,.05,.55,.95) infinite !important;
+}
+
+/* --- role legend becomes a premium 3-segment status rail --- */
+.role-legend{
+    gap:8px !important;
+}
+
+.role-legend div{
+    min-height:47px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:8px 10px !important;
+    border-radius:12px !important;
+    background:linear-gradient(180deg,rgba(255,255,255,.038),rgba(255,255,255,.018)) !important;
+    backdrop-filter:blur(12px);
+    transition:
+        transform .32s cubic-bezier(.2,.8,.2,1),
+        border-color .32s ease,
+        background .32s ease,
+        box-shadow .32s ease;
+}
+
+.role-legend div:hover{
+    transform:translateY(-3px);
+    background:rgba(255,255,255,.052) !important;
+    border-color:rgba(167,139,250,.16);
+}
+
+/* --- form card richer / larger text --- */
+.auth-form-box{
+    width:min(462px,100%) !important;
+    padding:34px !important;
+    border-radius:27px !important;
+    box-shadow:
+        0 30px 70px rgba(0,0,0,.30),
+        0 0 0 1px rgba(167,139,250,.025) inset !important;
+}
+
+.form-heading h2{
+    font-size:32px !important;
+}
+
+.form-heading p{
+    margin-bottom:24px !important;
+    font-size:12px !important;
+    color:#9c90ab !important;
+}
+
+.google-btn{
+    min-height:49px !important;
+    font-size:12px !important;
+}
+
+.input-group{
+    margin-bottom:17px !important;
+}
+
+.input-group label,
+.password-label label{
+    font-size:10.5px !important;
+}
+
+.input-group input{
+    height:48px !important;
+    font-size:12px !important;
+}
+
+.password-label a{
+    font-size:9.5px !important;
+}
+
+.remember-check{
+    font-size:10px !important;
+}
+
+.login-submit{
+    min-height:50px !important;
+    font-size:12px !important;
+}
+
+.login-message{
+    min-height:24px !important;
+    font-size:10px !important;
+}
+
+.signup-link{
+    margin:17px 0 20px !important;
+    font-size:11px !important;
+    color:#9d91aa !important;
+}
+
+.signup-link a{
+    color:#c5aeff !important;
+    font-size:11px !important;
+}
+
+.security-note{
+    padding:13px 14px !important;
+    border-radius:13px !important;
+    background:
+        linear-gradient(135deg,rgba(139,92,246,.045),rgba(255,255,255,.022)) !important;
+}
+
+.security-note > span{
+    font-size:12px !important;
+}
+
+.security-note p{
+    font-size:9.5px !important;
+    line-height:1.6 !important;
+    color:#8c8198 !important;
+}
+
+/* --- make topbar readable without overemphasis --- */
+.auth-back-link,
+.auth-topbar-links a{
+    font-size:11.5px !important;
+}
+
+/* --- soft animated glow around submit button --- */
+.login-submit{
+    box-shadow:
+        0 17px 33px rgba(124,58,237,.27),
+        0 0 0 1px rgba(255,255,255,.055) inset !important;
+    animation:buttonBreath 3.8s ease-in-out infinite;
+}
+
+/* --- animations --- */
+@keyframes analystFloatSmooth{
+    0%,100%{transform:translateX(-50%) translateY(0)}
+    50%{transform:translateX(-50%) translateY(-9px)}
+}
+
+@keyframes typeHandSmooth{
+    from{transform:rotate(153deg) translateY(0)}
+    to{transform:rotate(159deg) translateY(2px)}
+}
+
+@keyframes laptopHover{
+    0%,100%{transform:translateX(-50%) translateY(0)}
+    50%{transform:translateX(-50%) translateY(-4px)}
+}
+
+@keyframes screenPulse{
+    0%,100%{opacity:.52}
+    50%{opacity:.88}
+}
+
+@keyframes invoiceOrbitLeft{
+    0%,100%{transform:translate3d(0,0,0) rotate(-10deg)}
+    50%{transform:translate3d(0,-12px,0) rotate(-6deg)}
+}
+
+@keyframes invoiceOrbitRight{
+    0%,100%{transform:translate3d(0,0,0) rotate(10deg)}
+    50%{transform:translate3d(0,-11px,0) rotate(6deg)}
+}
+
+@keyframes particleDrift{
+    0%,100%{transform:translate3d(0,0,0);opacity:.58}
+    50%{transform:translate3d(6px,-10px,0);opacity:1}
+}
+
+@keyframes buttonBreath{
+    0%,100%{filter:brightness(1)}
+    50%{filter:brightness(1.06)}
+}
+
+/* desktop: more breathing room around the whole auth layout */
+@media(min-width:1061px){
+    .auth-container{
+        min-height:760px !important;
+    }
+
+    .auth-brand-panel--blue{
+        min-height:760px !important;
+    }
+
+    .auth-form-panel{
+        padding:48px !important;
+    }
+}
+
+@media(max-width:720px){
+    .auth-form-box{
+        padding:27px 21px !important;
+    }
+
+    .form-heading h2{
+        font-size:28px !important;
+    }
+
+    .signup-link,
+    .signup-link a{
+        font-size:10.5px !important;
+    }
+
+    .security-note p{
+        font-size:9px !important;
+    }
+}
+
+@media(prefers-reduced-motion:reduce){
+    .auth-page *,
+    body.auth-page::after{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+    }
+}
+</style>
+
+
+<style>
+/* =========================================================
+   LOGIN V3 — SEPARATED INFO / ARTWORK + SMOOTH HOVER UX
+   ========================================================= */
+
+/* The text feature cards are now a clearly separate information row. */
+.auth-message{
+    position:relative;
+    z-index:60 !important;
+}
+
+.auth-features{
+    position:relative;
+    z-index:65 !important;
+    margin-top:24px !important;
+}
+
+.auth-features > div{
+    position:relative;
+    cursor:default;
+    transform:translateZ(0);
+}
+
+.auth-features > div::before{
+    content:"";
+    position:absolute;
+    inset:1px;
+    border-radius:14px;
+    opacity:0;
+    background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.06) 50%,transparent 100%);
+    transform:translateX(-120%);
+    transition:opacity .25s ease;
+    pointer-events:none;
+}
+
+.auth-features > div:hover{
+    transform:translateY(-5px) scale(1.012) !important;
+    border-color:rgba(167,139,250,.25) !important;
+    box-shadow:
+        0 16px 32px rgba(0,0,0,.20),
+        0 0 22px rgba(139,92,246,.08);
+}
+
+.auth-features > div:hover::before{
+    opacity:1;
+    animation:featureSweep 1.1s ease both;
+}
+
+/* Give the artwork its own lower "stage" with guaranteed separation. */
+.auth-visual-scene{
+    top:auto !important;
+    bottom:12px !important;
+    height:235px !important;
+    right:12px !important;
+    width:560px !important;
+    z-index:18 !important;
+    pointer-events:none !important;
+}
+
+/* Scale the character illustration down and keep it visually centered. */
+.auth-visual-scene .analyst{
+    bottom:18px !important;
+    transform:translateX(-50%) scale(.72) !important;
+    transform-origin:50% 100%;
+    transition:
+        transform .45s cubic-bezier(.2,.8,.2,1),
+        filter .35s ease;
+}
+
+.auth-visual-scene .visual-laptop{
+    bottom:18px !important;
+    transform:translateX(-50%) scale(.72) !important;
+    transform-origin:50% 100%;
+    transition:
+        transform .45s cubic-bezier(.2,.8,.2,1),
+        filter .35s ease;
+}
+
+.auth-visual-scene .analyst:hover{
+    transform:translateX(-50%) translateY(-5px) scale(.75) !important;
+    filter:drop-shadow(0 25px 31px rgba(139,92,246,.22)) brightness(1.05);
+}
+
+.auth-visual-scene .visual-laptop:hover{
+    transform:translateX(-50%) translateY(-5px) scale(.75) !important;
+    filter:drop-shadow(0 18px 28px rgba(139,92,246,.20));
+}
+
+.auth-visual-scene .floating-invoice{
+    pointer-events:auto;
+    cursor:pointer;
+    transition:
+        transform .38s cubic-bezier(.2,.8,.2,1),
+        box-shadow .38s ease,
+        filter .38s ease;
+}
+
+.auth-visual-scene .invoice-left:hover{
+    transform:translate3d(-3px,-7px,0) rotate(-5deg) scale(1.08) !important;
+    box-shadow:0 23px 36px rgba(0,0,0,.32);
+    filter:brightness(1.04);
+}
+
+.auth-visual-scene .invoice-right:hover{
+    transform:translate3d(3px,-7px,0) rotate(5deg) scale(1.08) !important;
+    box-shadow:0 23px 36px rgba(0,0,0,.32);
+    filter:brightness(1.04);
+}
+
+.auth-visual-scene .mini-hud{
+    pointer-events:auto;
+    cursor:pointer;
+    transition:
+        transform .35s cubic-bezier(.2,.8,.2,1),
+        border-color .35s ease,
+        box-shadow .35s ease;
+}
+
+.auth-visual-scene .mini-hud:hover{
+    transform:translateY(-5px) scale(1.035);
+    border-color:rgba(196,181,253,.25);
+    box-shadow:
+        0 16px 29px rgba(0,0,0,.25),
+        0 0 19px rgba(139,92,246,.10);
+}
+
+.auth-visual-scene .scene-ring{
+    transition:border-color .35s ease,filter .35s ease;
+}
+
+.auth-visual-scene:hover .scene-ring{
+    border-color:rgba(196,181,253,.20);
+    filter:drop-shadow(0 0 10px rgba(139,92,246,.12));
+}
+
+/* Separate role strip: never overlays the animation. */
+.role-legend{
+    position:absolute !important;
+    left:auto !important;
+    right:44px !important;
+    bottom:18px !important;
+    width:560px !important;
+    z-index:72 !important;
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:9px !important;
+    pointer-events:auto !important;
+}
+
+.role-legend div{
+    min-height:50px;
+    display:flex !important;
+    flex-direction:column;
+    justify-content:center;
+    padding:9px 11px !important;
+    border:1px solid rgba(255,255,255,.07) !important;
+    border-radius:12px !important;
+    background:rgba(8,4,15,.90) !important;
+    backdrop-filter:blur(13px);
+    box-shadow:0 12px 22px rgba(0,0,0,.20);
+    transition:
+        transform .34s cubic-bezier(.2,.8,.2,1),
+        box-shadow .34s ease,
+        border-color .34s ease,
+        background .34s ease;
+    cursor:pointer;
+}
+
+.role-legend div:hover{
+    transform:translateY(-5px) scale(1.015);
+    background:rgba(21,11,36,.96) !important;
+    border-color:rgba(167,139,250,.24) !important;
+    box-shadow:
+        0 18px 30px rgba(0,0,0,.25),
+        0 0 20px rgba(139,92,246,.08);
+}
+
+.role-legend strong{font-size:7.5px !important}
+.role-legend span{font-size:5.8px !important}
+
+/* Make the visual scene end clearly above the role strip. */
+.auth-visual-scene .role-legend{
+    display:none !important;
+}
+
+/* Additional polished hover treatment across the page. */
+.auth-brand,
+.auth-hero-badge,
+.auth-footer{
+    transition:transform .28s ease,filter .28s ease;
+}
+
+.auth-brand:hover{
+    transform:translateY(-2px);
+}
+
+.auth-brand:hover .brand-icon{
+    box-shadow:
+        0 0 34px rgba(139,92,246,.40),
+        0 10px 22px rgba(0,0,0,.20);
+}
+
+.auth-hero-badge:hover{
+    transform:translateY(-2px) scale(1.015);
+    border-color:rgba(167,139,250,.28);
+    box-shadow:0 12px 26px rgba(139,92,246,.10);
+}
+
+.auth-topbar-links a,
+.auth-back-link{
+    transition:
+        transform .25s cubic-bezier(.2,.8,.2,1),
+        background .25s ease,
+        color .25s ease;
+}
+
+.auth-topbar-links a:hover,
+.auth-back-link:hover{
+    transform:translateY(-2px);
+}
+
+.google-btn,
+.login-submit,
+.password-toggle{
+    will-change:transform;
+}
+
+.google-btn:active,
+.login-submit:active,
+.password-toggle:active{
+    transform:translateY(1px) scale(.992);
+}
+
+.input-group input:hover{
+    border-color:rgba(167,139,250,.16);
+}
+
+.security-note{
+    transition:transform .3s ease,border-color .3s ease,background .3s ease;
+}
+
+.security-note:hover{
+    transform:translateY(-2px);
+    border-color:rgba(167,139,250,.15);
+    background:linear-gradient(135deg,rgba(139,92,246,.055),rgba(255,255,255,.026)) !important;
+}
+
+/* Smoother continuous motion. */
+@keyframes featureSweep{
+    from{transform:translateX(-120%)}
+    to{transform:translateX(120%)}
+}
+
+@keyframes authSceneBreathe{
+    0%,100%{opacity:.94}
+    50%{opacity:1}
+}
+
+/* prevent animation collisions at normal desktop width */
+@media(min-width:1061px){
+    .auth-brand-panel--blue{
+        min-height:780px !important;
+    }
+
+    .auth-container{
+        min-height:780px !important;
+    }
+
+    .auth-message{
+        max-width:600px;
+    }
+
+    .auth-visual-scene{
+        height:225px !important;
+    }
+
+    .auth-visual-scene .analyst{
+        transform:translateX(-50%) scale(.66) !important;
+    }
+
+    .auth-visual-scene .visual-laptop{
+        transform:translateX(-50%) scale(.66) !important;
+    }
+
+    .auth-visual-scene .analyst:hover{
+        transform:translateX(-50%) translateY(-5px) scale(.69) !important;
+    }
+
+    .auth-visual-scene .visual-laptop:hover{
+        transform:translateX(-50%) translateY(-5px) scale(.69) !important;
+    }
+}
+
+@media(max-width:1060px){
+    .auth-brand-panel--blue{
+        min-height:690px !important;
+    }
+
+    .auth-visual-scene{
+        height:220px !important;
+        bottom:12px !important;
+    }
+
+    .role-legend{
+        right:50% !important;
+        transform:translateX(50%);
+        width:min(560px,90%) !important;
+        bottom:8px !important;
+    }
+}
+
+@media(max-width:720px){
+    .auth-brand-panel--blue{
+        min-height:770px !important;
+    }
+
+    .auth-visual-scene{
+        width:500px !important;
+        height:205px !important;
+        right:50% !important;
+        transform:translateX(50%) !important;
+        bottom:12px !important;
+    }
+
+    .auth-visual-scene .analyst{
+        transform:translateX(-50%) scale(.58) !important;
+    }
+
+    .auth-visual-scene .visual-laptop{
+        transform:translateX(-50%) scale(.58) !important;
+    }
+
+    .auth-visual-scene .analyst:hover{
+        transform:translateX(-50%) translateY(-4px) scale(.61) !important;
+    }
+
+    .auth-visual-scene .visual-laptop:hover{
+        transform:translateX(-50%) translateY(-4px) scale(.61) !important;
+    }
+
+    .role-legend{
+        width:calc(100% - 32px) !important;
+        right:16px !important;
+        transform:none !important;
+        bottom:8px !important;
+    }
+
+    .role-legend div{
+        min-height:47px;
+    }
+}
+
+@media(max-width:530px){
+    .auth-brand-panel--blue{
+        min-height:760px !important;
+    }
+
+    .auth-visual-scene{
+        width:450px !important;
+        height:190px !important;
+        right:50% !important;
+        transform:translateX(50%) !important;
+        bottom:10px !important;
+    }
+
+    .auth-visual-scene .analyst{
+        transform:translateX(-50%) scale(.50) !important;
+    }
+
+    .auth-visual-scene .visual-laptop{
+        transform:translateX(-50%) scale(.50) !important;
+    }
+
+    .role-legend{
+        width:calc(100% - 20px) !important;
+        right:10px !important;
+        gap:6px !important;
+    }
+
+    .role-legend div{
+        padding:7px 7px !important;
+        min-height:45px;
+    }
+
+    .role-legend strong{font-size:6.2px !important}
+    .role-legend span{font-size:4.8px !important}
+}
+
+@media(prefers-reduced-motion:reduce){
+    .auth-page *,
+    body.auth-page::after{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        scroll-behavior:auto !important;
+    }
+}
+</style>
+
+
+<style>
+/* =========================================================
+   LOGIN V4 — INTERACTIVE CHARACTER / SALUTE / GREETING
+   ========================================================= */
+
+/* Character is now the only interactive part of the artwork. */
+.auth-visual-scene .analyst{
+    pointer-events:auto !important;
+    cursor:pointer;
+    transition:
+        transform .52s cubic-bezier(.22,.8,.28,1),
+        filter .42s ease;
+}
+
+.auth-visual-scene .analyst:hover{
+    transform:translateX(-50%) translateY(-10px) scale(.74) !important;
+    filter:
+        drop-shadow(0 26px 34px rgba(139,92,246,.24))
+        brightness(1.04);
+}
+
+/* Relaxed typing posture by default, salute only on hover. */
+.auth-visual-scene .analyst-arm.right{
+    transform-origin:12px center;
+    transition:
+        transform .55s cubic-bezier(.22,.8,.28,1),
+        right .45s ease;
+    animation:none !important;
+}
+
+/* Raise the arm into a clear salute near the forehead. */
+.auth-visual-scene .analyst:hover .analyst-arm.right{
+    transform:rotate(222deg) translateY(-2px) !important;
+}
+
+.auth-visual-scene .analyst-hand.right{
+    transition:
+        transform .55s cubic-bezier(.22,.8,.28,1),
+        top .55s cubic-bezier(.22,.8,.28,1),
+        right .55s cubic-bezier(.22,.8,.28,1);
+}
+
+.auth-visual-scene .analyst:hover .analyst-hand.right{
+    transform:translate(-1px,-1px) scale(1.04);
+}
+
+/* Small confirmation pulse around the character while saluting. */
+.auth-visual-scene .analyst::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:26%;
+    width:130px;
+    height:130px;
+    transform:translate(-50%,-50%) scale(.82);
+    border-radius:50%;
+    border:1px solid rgba(196,181,253,.0);
+    pointer-events:none;
+    transition:
+        transform .55s cubic-bezier(.22,.8,.28,1),
+        border-color .45s ease,
+        opacity .45s ease;
+    opacity:0;
+}
+
+.auth-visual-scene .analyst:hover::after{
+    transform:translate(-50%,-50%) scale(1);
+    border-color:rgba(196,181,253,.18);
+    opacity:1;
+}
+
+/* Greeting speech bubble appears above the character, not over the labels. */
+.welcome-popup{
+    position:absolute;
+    left:50%;
+    top:10px;
+    z-index:40;
+    min-width:230px;
+    max-width:280px;
+    padding:12px 14px 12px 12px;
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    border:1px solid rgba(196,181,253,.18);
+    border-radius:15px;
+    background:
+        linear-gradient(145deg,rgba(32,17,52,.93),rgba(12,6,22,.94));
+    box-shadow:
+        0 18px 35px rgba(0,0,0,.30),
+        0 0 28px rgba(139,92,246,.10);
+    backdrop-filter:blur(17px);
+    opacity:0;
+    pointer-events:none;
+    transform:translate(-50%,10px) scale(.94);
+    transform-origin:50% 100%;
+    transition:
+        opacity .38s cubic-bezier(.22,.8,.28,1),
+        transform .46s cubic-bezier(.22,.8,.28,1);
+}
+
+.welcome-popup-dot{
+    width:25px;
+    height:25px;
+    flex:0 0 25px;
+    display:grid;
+    place-items:center;
+    border-radius:8px;
+    color:#fff;
+    background:linear-gradient(135deg,#7c3aed,#c026d3);
+    box-shadow:0 8px 18px rgba(124,58,237,.25);
+}
+
+.welcome-popup-dot::before{
+    content:"✓";
+    font-size:10px;
+    font-weight:950;
+}
+
+.welcome-popup strong,
+.welcome-popup span{
+    display:block;
+}
+
+.welcome-popup strong{
+    color:#f6f1ff;
+    font-size:10px;
+    line-height:1.3;
+    letter-spacing:-.01em;
+}
+
+.welcome-popup > div > span{
+    margin-top:3px;
+    color:#9e91ad;
+    font-size:7px;
+    line-height:1.4;
+}
+
+.welcome-popup-tail{
+    position:absolute;
+    left:50%;
+    bottom:-7px;
+    width:13px;
+    height:13px;
+    transform:translateX(-50%) rotate(45deg);
+    background:#130a21;
+    border-right:1px solid rgba(196,181,253,.16);
+    border-bottom:1px solid rgba(196,181,253,.16);
+}
+
+/* Analyst hover controls the popup; labels underneath remain separate. */
+.auth-visual-scene .analyst:hover ~ .welcome-popup{
+    opacity:1;
+    transform:translate(-50%,0) scale(1);
+}
+
+/* If JS explicitly marks the popup active, keep it visible briefly on devices
+   that expose hover-like interaction. */
+.welcome-popup.is-active{
+    opacity:1;
+    transform:translate(-50%,0) scale(1);
+}
+
+@media (min-width:1061px){
+    .welcome-popup{
+        top:0;
+    }
+}
+
+@media (max-width:720px){
+    .welcome-popup{
+        min-width:205px;
+        max-width:235px;
+        top:2px;
+        padding:10px 11px;
+    }
+
+    .welcome-popup strong{font-size:9px}
+    .welcome-popup > div > span{font-size:6.5px}
+}
+
+@media (max-width:530px){
+    .welcome-popup{
+        min-width:190px;
+        max-width:215px;
+        transform:translate(-50%,8px) scale(.92);
+    }
+
+    .welcome-popup strong{font-size:8.5px}
+}
+
+/* Smooth interaction cue on the artwork without making it feel busy. */
+.auth-visual-scene .analyst-head,
+.auth-visual-scene .analyst-body,
+.auth-visual-scene .visual-laptop{
+    transition:filter .35s ease;
+}
+
+.auth-visual-scene .analyst:hover ~ .visual-laptop{
+    filter:drop-shadow(0 18px 28px rgba(139,92,246,.18));
+}
+
+@media(prefers-reduced-motion:reduce){
+    .auth-page *,
+    body.auth-page::after{
+        transition:none !important;
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+    }
+}
+</style>
+
+
+<style>
+/* =========================================================
+   LOGIN V5 — BETTER POPUP POSITION, READABILITY & ANALYST
+   ========================================================= */
+
+/* Greeting bubble: move it clearly to the right of the character. */
+.welcome-popup{
+    left:auto !important;
+    right:-10px !important;
+    top:-8px !important;
+    min-width:310px !important;
+    max-width:330px !important;
+    padding:15px 17px !important;
+    gap:11px !important;
+    border-radius:17px !important;
+    transform:translate3d(14px,8px,0) scale(.94) !important;
+    transform-origin:90% 100% !important;
+}
+
+.welcome-popup strong{
+    font-size:13px !important;
+    line-height:1.35 !important;
+}
+
+.welcome-popup > div > span{
+    margin-top:5px !important;
+    font-size:9.5px !important;
+    line-height:1.55 !important;
+}
+
+.welcome-popup-dot{
+    width:30px !important;
+    height:30px !important;
+    flex-basis:30px !important;
+    border-radius:9px !important;
+}
+
+.welcome-popup-tail{
+    left:auto !important;
+    right:48px !important;
+    bottom:-7px !important;
+}
+
+/* Hover/active state must match the new right-side positioning. */
+.auth-visual-scene .analyst:hover ~ .welcome-popup,
+.welcome-popup.is-active{
+    opacity:1 !important;
+    transform:translate3d(0,0,0) scale(1) !important;
+}
+
+/* Slightly larger role labels, but still compact. */
+.role-legend div{
+    min-height:53px !important;
+    padding:10px 12px !important;
+}
+
+.role-legend strong{
+    font-size:8.5px !important;
+}
+
+.role-legend span{
+    font-size:6.4px !important;
+    margin-top:3px !important;
+}
+
+/* Keep the three role cards separated from the animation. */
+.auth-message{
+    padding-right:8px;
+}
+
+/* --- more human-like, clean faceless analyst --- */
+.analyst{
+    width:205px !important;
+    height:287px !important;
+    filter:
+        drop-shadow(0 25px 26px rgba(0,0,0,.34))
+        saturate(.96);
+}
+
+.analyst-head{
+    width:68px !important;
+    height:76px !important;
+    background:
+        linear-gradient(155deg,#ffe7ca 0%,#f0bd9a 58%,#d99c77 100%) !important;
+    box-shadow:
+        inset -8px -10px 15px rgba(111,62,58,.08),
+        0 8px 18px rgba(0,0,0,.12);
+    overflow:visible !important;
+}
+
+.analyst-hair{
+    width:72px !important;
+    height:38px !important;
+    top:-4px !important;
+    border-radius:42px 42px 17px 17px !important;
+    background:
+        linear-gradient(145deg,#18121e,#302038 72%,#0f0b13) !important;
+    box-shadow:inset 0 -5px 7px rgba(255,255,255,.025);
+}
+
+/* No eyes/nose/mouth: just premium sunglasses. */
+.analyst-glasses{
+    position:absolute;
+    left:50%;
+    top:31px;
+    width:63px;
+    height:25px;
+    transform:translateX(-50%);
+    display:block;
+    z-index:9;
+}
+
+.analyst-glasses::before,
+.analyst-glasses::after{
+    content:"";
+    position:absolute;
+    top:0;
+    width:25px;
+    height:18px;
+    border:3px solid #24162d;
+    border-radius:8px 8px 9px 9px;
+    background:
+        linear-gradient(145deg,rgba(101,79,128,.76),rgba(20,13,29,.94));
+    box-shadow:
+        inset 0 0 9px rgba(167,139,250,.10),
+        0 3px 5px rgba(0,0,0,.20);
+}
+
+.analyst-glasses::before{left:0}
+.analyst-glasses::after{right:0}
+
+.analyst-glasses i{
+    position:absolute;
+    left:50%;
+    top:8px;
+    width:13px;
+    height:3px;
+    transform:translateX(-50%);
+    border-radius:4px;
+    background:#24162d;
+    display:block;
+}
+
+.analyst-neck{
+    top:61px !important;
+    width:20px !important;
+    height:25px !important;
+    background:linear-gradient(150deg,#efb58e,#d99e79) !important;
+}
+
+.analyst-body{
+    top:77px !important;
+    width:114px !important;
+    height:147px !important;
+    border-radius:31px 31px 18px 18px !important;
+    background:
+        linear-gradient(150deg,#241331 0%,#5f2868 64%,#30173f 100%) !important;
+    box-shadow:
+        0 22px 30px rgba(0,0,0,.27),
+        inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.analyst-collar{
+    width:69px !important;
+    height:36px !important;
+    background:#f8f3fb !important;
+}
+
+.analyst-tie{
+    width:16px !important;
+    height:47px !important;
+    background:linear-gradient(180deg,#b56cff,#7c3aed) !important;
+}
+
+.analyst-arm{
+    top:113px !important;
+    width:77px !important;
+    height:18px !important;
+    background:linear-gradient(150deg,#f0b893,#d99f7a) !important;
+}
+
+.analyst-arm.left{
+    left:-9px !important;
+    transform:rotate(25deg) !important;
+}
+
+.analyst-arm.right{
+    right:-9px !important;
+    animation:none !important;
+    transition:transform .62s cubic-bezier(.2,.8,.2,1) !important;
+    transform:rotate(151deg) !important;
+}
+
+/* More natural salute trajectory. */
+.auth-visual-scene .analyst:hover .analyst-arm.right{
+    transform:rotate(219deg) translateY(-1px) !important;
+}
+
+.analyst-hand{
+    width:18px !important;
+    height:18px !important;
+    background:linear-gradient(150deg,#f0b893,#d99f7a) !important;
+}
+
+/* Let the laptop feel like a real desk setup rather than a floating card. */
+.visual-laptop{
+    bottom:34px !important;
+    width:213px !important;
+}
+
+.visual-laptop-screen{
+    width:151px !important;
+    height:94px !important;
+    border-radius:11px 11px 5px 5px !important;
+}
+
+.visual-laptop-base{
+    width:213px !important;
+}
+
+/* Better artwork hierarchy: invoices sit behind the analyst. */
+.floating-invoice{
+    z-index:5 !important;
+    box-shadow:0 18px 28px rgba(0,0,0,.25) !important;
+}
+
+.analyst,
+.visual-laptop{
+    z-index:8 !important;
+}
+
+.mini-hud{
+    z-index:12 !important;
+}
+
+/* Smooth all interactive hover motion. */
+.auth-visual-scene .analyst,
+.auth-visual-scene .visual-laptop,
+.auth-visual-scene .floating-invoice,
+.auth-visual-scene .mini-hud,
+.role-legend div,
+.auth-features > div{
+    will-change:transform;
+}
+
+/* Responsive popup placement */
+@media(max-width:1060px){
+    .welcome-popup{
+        right:-24px !important;
+        top:-16px !important;
+        min-width:290px !important;
+        max-width:310px !important;
+    }
+
+    .auth-visual-scene{
+        overflow:visible !important;
+    }
+}
+
+@media(max-width:720px){
+    .welcome-popup{
+        right:-12px !important;
+        top:-14px !important;
+        min-width:255px !important;
+        max-width:275px !important;
+        padding:13px 14px !important;
+    }
+
+    .welcome-popup strong{font-size:11.5px !important}
+    .welcome-popup > div > span{font-size:8.5px !important}
+    .welcome-popup-dot{
+        width:27px !important;
+        height:27px !important;
+        flex-basis:27px !important;
+    }
+
+    .role-legend div{
+        min-height:50px !important;
+        padding:9px 9px !important;
+    }
+
+    .role-legend strong{font-size:7.5px !important}
+    .role-legend span{font-size:5.8px !important}
+}
+
+@media(max-width:530px){
+    .welcome-popup{
+        right:-6px !important;
+        top:-10px !important;
+        min-width:225px !important;
+        max-width:240px !important;
+        padding:11px 12px !important;
+    }
+
+    .welcome-popup strong{font-size:10px !important}
+    .welcome-popup > div > span{font-size:7.5px !important}
+    .welcome-popup-dot{
+        width:24px !important;
+        height:24px !important;
+        flex-basis:24px !important;
+    }
+
+    .welcome-popup-tail{
+        right:34px !important;
+    }
+}
+</style>
+
+
+<style>
+/* =========================================================
+   LOGIN V6 — CLEAN TWO-COLUMN HERO + POPOVER ABOVE HEAD
+   ========================================================= */
+
+/* Left panel becomes a deliberate composition:
+   copy/features on left, working analyst scene on right. */
+@media(min-width:1061px){
+    .auth-brand-panel--blue{
+        padding:42px 44px 42px !important;
+    }
+
+    .auth-message{
+        width:50% !important;
+        max-width:50% !important;
+        padding-right:4px !important;
+    }
+
+    .auth-message h1{
+        font-size:clamp(39px,3.55vw,55px) !important;
+    }
+
+    .auth-message p{
+        max-width:100% !important;
+        font-size:11.5px !important;
+        line-height:1.75 !important;
+    }
+
+    .auth-features{
+        width:100% !important;
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+        gap:7px !important;
+        margin-top:21px !important;
+    }
+
+    .auth-features > div{
+        min-width:0 !important;
+        min-height:78px !important;
+        padding:11px 9px !important;
+    }
+
+    .auth-features strong{
+        font-size:8px !important;
+        margin-bottom:7px !important;
+    }
+
+    .auth-features span{
+        font-size:7.3px !important;
+    }
+
+    /* Artwork sits to the right of the main headline. */
+    .auth-visual-scene{
+        right:4px !important;
+        top:193px !important;
+        bottom:auto !important;
+        width:47% !important;
+        height:392px !important;
+        overflow:visible !important;
+        pointer-events:none !important;
+    }
+
+    .auth-visual-scene .visual-halo{
+        width:330px !important;
+        height:330px !important;
+    }
+
+    .auth-visual-scene .scene-ring{
+        width:300px !important;
+        height:300px !important;
+    }
+
+    .auth-visual-scene .analyst{
+        left:50% !important;
+        bottom:62px !important;
+        width:195px !important;
+        height:282px !important;
+        transform:translateX(-50%) scale(.72) !important;
+        transform-origin:50% 100% !important;
+        pointer-events:auto !important;
+    }
+
+    .auth-visual-scene .visual-laptop{
+        left:50% !important;
+        bottom:46px !important;
+        transform:translateX(-50%) scale(.64) !important;
+    }
+
+    .auth-visual-scene .floating-invoice{
+        pointer-events:auto !important;
+    }
+
+    .auth-visual-scene .invoice-left{
+        left:5% !important;
+        top:100px !important;
+    }
+
+    .auth-visual-scene .invoice-right{
+        right:2% !important;
+        top:68px !important;
+    }
+
+    .auth-visual-scene .hud-review{
+        left:0 !important;
+        bottom:128px !important;
+    }
+
+    .auth-visual-scene .hud-upload{
+        right:0 !important;
+        bottom:145px !important;
+    }
+
+    /* Three access labels now live below the text, not over the animation. */
+    .auth-message .role-legend{
+        position:static !important;
+        width:100% !important;
+        margin-top:13px !important;
+        display:grid !important;
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+        gap:6px !important;
+        transform:none !important;
+    }
+
+    .auth-message .role-legend div{
+        min-height:52px !important;
+        padding:8px 8px !important;
+    }
+
+    .auth-message .role-legend strong{
+        font-size:7px !important;
+    }
+
+    .auth-message .role-legend span{
+        font-size:5.3px !important;
+    }
+
+    /* Footer stays below the copy column. */
+    .auth-brand-panel--blue .auth-footer{
+        margin-top:auto !important;
+    }
+}
+
+/* Greeting popup is now directly ABOVE the analyst's head. */
+@media(min-width:1061px){
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:5px !important;
+        min-width:300px !important;
+        max-width:320px !important;
+        padding:14px 16px !important;
+        transform:translate(-50%,10px) scale(.94) !important;
+        transform-origin:50% 100% !important;
+        text-align:left;
+    }
+
+    .auth-visual-scene .welcome-popup-tail{
+        left:50% !important;
+        right:auto !important;
+        bottom:-7px !important;
+        transform:translateX(-50%) rotate(45deg) !important;
+    }
+
+    .auth-visual-scene .analyst:hover ~ .welcome-popup{
+        transform:translate(-50%,0) scale(1) !important;
+    }
+}
+
+/* Slightly more visible but still elegant role labels. */
+.auth-message .role-legend div{
+    border:1px solid rgba(255,255,255,.075) !important;
+    background:
+        linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.018)) !important;
+    transition:
+        transform .32s cubic-bezier(.2,.8,.2,1),
+        border-color .32s ease,
+        box-shadow .32s ease,
+        background .32s ease;
+    cursor:pointer;
+}
+
+.auth-message .role-legend div:hover{
+    transform:translateY(-4px);
+    border-color:rgba(167,139,250,.24) !important;
+    background:rgba(139,92,246,.065) !important;
+    box-shadow:0 15px 28px rgba(0,0,0,.20),0 0 20px rgba(139,92,246,.08);
+}
+
+/* Smooth hover across the main visual — no jerky transform jumps. */
+.auth-visual-scene .analyst,
+.auth-visual-scene .visual-laptop,
+.auth-visual-scene .floating-invoice,
+.auth-visual-scene .mini-hud{
+    transition:
+        transform .50s cubic-bezier(.22,.8,.25,1),
+        filter .40s ease,
+        box-shadow .40s ease;
+}
+
+/* Responsive tablet/mobile: stack cleanly, never overlap copy. */
+@media(max-width:1060px){
+    .auth-message{
+        width:100% !important;
+        max-width:100% !important;
+    }
+
+    .auth-visual-scene{
+        position:relative !important;
+        right:auto !important;
+        top:auto !important;
+        bottom:auto !important;
+        width:100% !important;
+        height:300px !important;
+        margin-top:24px !important;
+    }
+
+    .auth-message .role-legend{
+        position:static !important;
+        width:100% !important;
+        margin-top:15px !important;
+        transform:none !important;
+    }
+}
+
+@media(max-width:720px){
+    .auth-message .role-legend{
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    }
+
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:0 !important;
+        min-width:250px !important;
+        max-width:270px !important;
+        transform:translate(-50%,8px) scale(.94) !important;
+    }
+
+    .auth-visual-scene .analyst:hover ~ .welcome-popup{
+        transform:translate(-50%,0) scale(1) !important;
+    }
+}
+
+@media(max-width:530px){
+    .auth-message .role-legend{
+        grid-template-columns:1fr !important;
+    }
+
+    .auth-visual-scene{
+        height:270px !important;
+    }
+
+    .auth-visual-scene .welcome-popup{
+        min-width:220px !important;
+        max-width:235px !important;
+    }
+}
+</style>
+
+
+<style>
+/* =========================================================
+   LOGIN V7 — FILL THE LOWER LEFT SPACE
+   Role cards sit in the reserved lower area; the 01/02/03
+   feature cards remain exactly where they are.
+   ========================================================= */
+
+@media (min-width:1061px){
+    .auth-brand-panel--blue{
+        position:relative !important;
+    }
+
+    /* Use the open area beneath the feature cards. */
+    .auth-message .role-legend{
+        position:absolute !important;
+        left:44px !important;
+        bottom:72px !important;
+        width:calc(50% - 48px) !important;
+        margin:0 !important;
+        display:grid !important;
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+        gap:8px !important;
+        z-index:80 !important;
+    }
+
+    .auth-message .role-legend div{
+        position:relative;
+        min-height:66px !important;
+        padding:11px 9px 10px !important;
+        display:flex !important;
+        flex-direction:column;
+        justify-content:center;
+        overflow:hidden;
+        border-radius:14px !important;
+        background:
+            linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018)) !important;
+        box-shadow:
+            0 14px 28px rgba(0,0,0,.18),
+            inset 0 1px 0 rgba(255,255,255,.035);
+        transition:
+            transform .35s cubic-bezier(.2,.8,.2,1),
+            box-shadow .35s ease,
+            border-color .35s ease,
+            background .35s ease;
+    }
+
+    .auth-message .role-legend div::before{
+        content:"";
+        width:24px;
+        height:3px;
+        margin-bottom:8px;
+        border-radius:99px;
+        opacity:.9;
+    }
+
+    .auth-message .role-legend .r-admin::before{
+        background:linear-gradient(90deg,#fb7185,transparent);
+    }
+
+    .auth-message .role-legend .r-user::before{
+        background:linear-gradient(90deg,#60a5fa,transparent);
+    }
+
+    .auth-message .role-legend .r-finance::before{
+        background:linear-gradient(90deg,#c084fc,transparent);
+    }
+
+    .auth-message .role-legend .r-admin{
+        border-color:rgba(251,113,133,.12) !important;
+    }
+
+    .auth-message .role-legend .r-user{
+        border-color:rgba(96,165,250,.12) !important;
+    }
+
+    .auth-message .role-legend .r-finance{
+        border-color:rgba(196,181,253,.12) !important;
+    }
+
+    .auth-message .role-legend div:hover{
+        transform:translateY(-5px);
+        background:rgba(139,92,246,.055) !important;
+        box-shadow:
+            0 19px 32px rgba(0,0,0,.24),
+            0 0 22px rgba(139,92,246,.08);
+    }
+
+    .auth-message .role-legend strong{
+        font-size:8px !important;
+        line-height:1.2;
+        color:#f3eef9;
+    }
+
+    .auth-message .role-legend span{
+        margin-top:4px !important;
+        font-size:6.2px !important;
+        line-height:1.35;
+        color:#8f839d;
+    }
+
+    /* Keep footer visually separated at the bottom. */
+    .auth-brand-panel--blue .auth-footer{
+        position:absolute !important;
+        left:44px !important;
+        bottom:30px !important;
+        margin:0 !important;
+        z-index:70 !important;
+    }
+
+    /* Slightly enrich the open gap between feature cards and role cards. */
+    .auth-message .auth-features{
+        margin-bottom:0 !important;
+    }
+}
+
+@media (max-width:1060px){
+    /* Tablet: let the role strip return to normal flow. */
+    .auth-message .role-legend{
+        position:static !important;
+        width:100% !important;
+        margin-top:15px !important;
+        transform:none !important;
+    }
+
+    .auth-brand-panel--blue .auth-footer{
+        position:relative !important;
+        left:auto !important;
+        bottom:auto !important;
+        margin-top:28px !important;
+    }
+}
+
+@media (max-width:720px){
+    .auth-message .role-legend{
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+        gap:7px !important;
+    }
+
+    .auth-message .role-legend div{
+        min-height:50px !important;
+        padding:8px 7px !important;
+    }
+
+    .auth-message .role-legend strong{
+        font-size:7px !important;
+    }
+
+    .auth-message .role-legend span{
+        font-size:5.5px !important;
+    }
+}
+
+@media (max-width:530px){
+    .auth-message .role-legend{
+        grid-template-columns:1fr !important;
+    }
+
+    .auth-message .role-legend div{
+        min-height:47px !important;
+    }
+}
+</style>
+
+
+
+<style>
+/* =========================================================
+   CLAIMGUARD LOGIN V8 — BALANCED / PERFECT POSITIONING
+   Visual-only refinement. Existing functionality, IDs,
+   routes, links and JS are preserved.
+   ========================================================= */
+
+@media (min-width:1061px){
+    /* Keep the left composition clean and predictable. */
+    .auth-brand-panel--blue{
+        padding:42px 44px 32px !important;
+        min-height:780px !important;
+        position:relative !important;
+    }
+
+    /* Let the role rail position against the LEFT PANEL,
+       not against the text block. This removes the overlap. */
+    .auth-message{
+        position:static !important;
+        width:48% !important;
+        max-width:48% !important;
+        padding:0 !important;
+        z-index:20 !important;
+    }
+
+    .auth-label{
+        margin-top:0 !important;
+    }
+
+    .auth-message h1{
+        max-width:100% !important;
+        font-size:clamp(41px,3.65vw,55px) !important;
+        line-height:.98 !important;
+        margin-top:14px !important;
+    }
+
+    .auth-message p{
+        max-width:100% !important;
+        font-size:11.5px !important;
+        line-height:1.75 !important;
+    }
+
+    /* 01 / 02 / 03 stay directly under the description. */
+    .auth-features{
+        width:100% !important;
+        max-width:none !important;
+        margin-top:22px !important;
+        display:grid !important;
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+        gap:8px !important;
+    }
+
+    .auth-features > div{
+        min-height:76px !important;
+        padding:12px 10px !important;
+        border-radius:14px !important;
+    }
+
+    .auth-features strong{
+        font-size:8px !important;
+        margin-bottom:7px !important;
+    }
+
+    .auth-features span{
+        font-size:7.2px !important;
+        line-height:1.45 !important;
+    }
+
+    /* --- RIGHT SIDE ART STAGE ---
+       Enough room for the illustration without touching the copy. */
+    .auth-visual-scene{
+        right:10px !important;
+        top:210px !important;
+        bottom:auto !important;
+        width:48% !important;
+        height:405px !important;
+        overflow:visible !important;
+        z-index:18 !important;
+    }
+
+    .auth-visual-scene .visual-halo{
+        width:320px !important;
+        height:320px !important;
+        left:50% !important;
+        top:49% !important;
+    }
+
+    .auth-visual-scene .scene-ring{
+        width:295px !important;
+        height:295px !important;
+        left:50% !important;
+        top:49% !important;
+    }
+
+    .auth-visual-scene .analyst{
+        left:50% !important;
+        bottom:46px !important;
+        width:205px !important;
+        height:287px !important;
+        transform:translateX(-50%) scale(.74) !important;
+        transform-origin:50% 100% !important;
+    }
+
+    .auth-visual-scene .analyst:hover{
+        transform:translateX(-50%) translateY(-9px) scale(.77) !important;
+    }
+
+    .auth-visual-scene .visual-laptop{
+        left:50% !important;
+        bottom:30px !important;
+        width:213px !important;
+        transform:translateX(-50%) scale(.66) !important;
+        transform-origin:50% 100% !important;
+    }
+
+    .auth-visual-scene .visual-laptop:hover{
+        transform:translateX(-50%) translateY(-5px) scale(.69) !important;
+    }
+
+    .auth-visual-scene .invoice-left{
+        left:2% !important;
+        top:100px !important;
+    }
+
+    .auth-visual-scene .invoice-right{
+        right:2% !important;
+        top:82px !important;
+    }
+
+    .auth-visual-scene .hud-review{
+        left:0 !important;
+        bottom:104px !important;
+    }
+
+    .auth-visual-scene .hud-upload{
+        right:0 !important;
+        bottom:118px !important;
+    }
+
+    /* Greeting stays above the character, centered on the art. */
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:0 !important;
+        min-width:285px !important;
+        max-width:305px !important;
+        transform:translate(-50%,10px) scale(.95) !important;
+        transform-origin:50% 100% !important;
+    }
+
+    .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-visual-scene .welcome-popup.is-active{
+        transform:translate(-50%,0) scale(1) !important;
+    }
+
+    /* --- ROLE RAIL ---
+       Anchored to the panel and placed under 01 / 02 / 03. */
+    .auth-message .role-legend{
+        position:absolute !important;
+        left:44px !important;
+        right:auto !important;
+        bottom:58px !important;
+        width:48% !important;
+        margin:0 !important;
+        display:grid !important;
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+        gap:8px !important;
+        z-index:80 !important;
+        transform:none !important;
+    }
+
+    .auth-message .role-legend div{
+        min-height:62px !important;
+        padding:10px 10px 9px !important;
+        border-radius:14px !important;
+        display:flex !important;
+        flex-direction:column !important;
+        justify-content:center !important;
+        overflow:hidden !important;
+        background:
+            linear-gradient(145deg,rgba(255,255,255,.048),rgba(255,255,255,.018)) !important;
+        box-shadow:
+            0 13px 26px rgba(0,0,0,.18),
+            inset 0 1px 0 rgba(255,255,255,.035) !important;
+        transition:
+            transform .34s cubic-bezier(.22,.8,.25,1),
+            border-color .34s ease,
+            box-shadow .34s ease,
+            background .34s ease !important;
+    }
+
+    .auth-message .role-legend div::before{
+        content:"";
+        width:22px;
+        height:3px;
+        margin-bottom:7px;
+        border-radius:999px;
+        opacity:.95;
+    }
+
+    .auth-message .role-legend .r-admin::before{
+        background:linear-gradient(90deg,#fb7185,transparent);
+    }
+
+    .auth-message .role-legend .r-user::before{
+        background:linear-gradient(90deg,#60a5fa,transparent);
+    }
+
+    .auth-message .role-legend .r-finance::before{
+        background:linear-gradient(90deg,#c084fc,transparent);
+    }
+
+    .auth-message .role-legend strong{
+        font-size:8px !important;
+        line-height:1.15 !important;
+    }
+
+    .auth-message .role-legend span{
+        margin-top:4px !important;
+        font-size:6.1px !important;
+        line-height:1.3 !important;
+    }
+
+    .auth-message .role-legend div:hover{
+        transform:translateY(-4px) scale(1.012) !important;
+        border-color:rgba(196,181,253,.23) !important;
+        background:rgba(139,92,246,.06) !important;
+        box-shadow:
+            0 18px 30px rgba(0,0,0,.24),
+            0 0 22px rgba(139,92,246,.08) !important;
+    }
+
+    /* Footer lives on its own baseline and never fights the role rail. */
+    .auth-brand-panel--blue .auth-footer{
+        position:absolute !important;
+        left:44px !important;
+        bottom:22px !important;
+        margin:0 !important;
+        z-index:70 !important;
+    }
+}
+
+/* Keep the same intentional hierarchy on smaller screens. */
+@media(max-width:1060px){
+    .auth-message{
+        position:relative !important;
+        width:100% !important;
+        max-width:100% !important;
+    }
+
+    .auth-message .role-legend{
+        position:static !important;
+        width:100% !important;
+        margin-top:15px !important;
+        transform:none !important;
+    }
+
+    .auth-brand-panel--blue .auth-footer{
+        position:relative !important;
+        left:auto !important;
+        bottom:auto !important;
+        margin-top:28px !important;
+    }
+
+    .auth-visual-scene{
+        margin-top:28px !important;
+    }
+}
+</style>
+
+
+<style id="claimguard-v13-final-layout">
+/* =========================================================
+   CLAIMGUARD LOGIN V13 — STRUCTURAL FINAL LAYOUT
+   Goal: strict separation of copy / artwork / roles and
+   a fuller right-hand form. Visual-only overrides.
+   ========================================================= */
+
+@media (min-width:1061px){
+    /* ---------- LEFT PANEL: REAL TWO-COLUMN COMPOSITION ---------- */
+    .auth-brand-panel--blue{
+        display:grid !important;
+        grid-template-columns:minmax(0,54%) minmax(0,46%) !important;
+        grid-template-rows:auto auto minmax(0,1fr) auto !important;
+        column-gap:8px !important;
+        row-gap:0 !important;
+        align-items:start !important;
+        padding:42px 30px 28px 44px !important;
+        min-height:780px !important;
+        overflow:hidden !important;
+        position:relative !important;
+    }
+
+    .auth-brand{
+        grid-column:1 / -1 !important;
+        grid-row:1 !important;
+        align-self:start !important;
+    }
+
+    .auth-hero-badge{
+        grid-column:1 / -1 !important;
+        grid-row:2 !important;
+        align-self:start !important;
+        margin-top:40px !important;
+    }
+
+    /* The copy owns the whole left column. Nothing from the art can
+       sit on top of it because they are separate grid columns. */
+    .auth-message{
+        grid-column:1 !important;
+        grid-row:3 !important;
+        position:relative !important;
+        z-index:60 !important;
+        width:100% !important;
+        max-width:none !important;
+        min-width:0 !important;
+        padding:0 !important;
+        margin-top:18px !important;
+    }
+
+    .auth-message .auth-label{
+        margin:0 !important;
+    }
+
+    .auth-message h1{
+        width:100% !important;
+        max-width:395px !important;
+        margin:14px 0 15px !important;
+        font-size:clamp(44px,3.55vw,55px) !important;
+        line-height:.98 !important;
+        letter-spacing:-.065em !important;
+    }
+
+    .auth-message p{
+        width:100% !important;
+        max-width:395px !important;
+        margin:0 !important;
+        font-size:11.5px !important;
+        line-height:1.75 !important;
+    }
+
+    /* Feature cards stay immediately below the description. */
+    .auth-features{
+        width:100% !important;
+        max-width:395px !important;
+        margin-top:20px !important;
+        display:grid !important;
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+        gap:8px !important;
+    }
+
+    .auth-features > div{
+        min-width:0 !important;
+        min-height:78px !important;
+        padding:12px 10px !important;
+        border-radius:14px !important;
+        position:relative !important;
+        z-index:65 !important;
+        overflow:hidden !important;
+    }
+
+    .auth-features strong{
+        font-size:8px !important;
+        margin-bottom:7px !important;
+    }
+
+    .auth-features span{
+        font-size:7.3px !important;
+        line-height:1.45 !important;
+    }
+
+    /* Role cards are in normal document flow, clearly BELOW the
+       feature cards. No absolute positioning, no overlap. */
+    .auth-message .role-legend{
+        position:relative !important;
+        inset:auto !important;
+        width:100% !important;
+        max-width:395px !important;
+        margin:18px 0 0 !important;
+        padding:0 !important;
+        display:grid !important;
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+        gap:8px !important;
+        transform:none !important;
+        z-index:70 !important;
+    }
+
+    .auth-message .role-legend div{
+        min-width:0 !important;
+        min-height:62px !important;
+        padding:10px 10px 9px !important;
+        display:flex !important;
+        flex-direction:column !important;
+        justify-content:center !important;
+        align-items:flex-start !important;
+        position:relative !important;
+        overflow:hidden !important;
+        border-radius:14px !important;
+        box-shadow:
+            0 13px 26px rgba(0,0,0,.18),
+            inset 0 1px 0 rgba(255,255,255,.035) !important;
+    }
+
+    /* Small accent rails belong INSIDE each card, never over text. */
+    .auth-message .role-legend div::before{
+        content:"" !important;
+        position:static !important;
+        display:block !important;
+        width:24px !important;
+        height:3px !important;
+        flex:0 0 3px !important;
+        margin:0 0 7px !important;
+        border-radius:999px !important;
+        opacity:.95 !important;
+        transform:none !important;
+    }
+
+    .auth-message .role-legend .r-admin::before{
+        background:linear-gradient(90deg,#fb7185,rgba(251,113,133,0)) !important;
+    }
+
+    .auth-message .role-legend .r-user::before{
+        background:linear-gradient(90deg,#60a5fa,rgba(96,165,250,0)) !important;
+    }
+
+    .auth-message .role-legend .r-finance::before{
+        background:linear-gradient(90deg,#c084fc,rgba(192,132,252,0)) !important;
+    }
+
+    .auth-message .role-legend strong{
+        margin:0 !important;
+        font-size:8px !important;
+        line-height:1.16 !important;
+        color:#f3eef9 !important;
+        white-space:normal !important;
+    }
+
+    .auth-message .role-legend span{
+        margin:4px 0 0 !important;
+        font-size:6.1px !important;
+        line-height:1.3 !important;
+        color:#8f839d !important;
+        white-space:normal !important;
+    }
+
+    /* ---------- ARTWORK: RIGHT COLUMN ONLY ---------- */
+    .auth-visual-scene{
+        grid-column:2 !important;
+        grid-row:3 !important;
+        position:relative !important;
+        right:auto !important;
+        top:auto !important;
+        bottom:auto !important;
+        width:100% !important;
+        height:405px !important;
+        margin:26px 0 0 !important;
+        overflow:visible !important;
+        z-index:25 !important;
+        pointer-events:none !important;
+    }
+
+    .auth-visual-scene .visual-halo{
+        left:50% !important;
+        top:52% !important;
+        width:300px !important;
+        height:300px !important;
+    }
+
+    .auth-visual-scene .scene-ring{
+        left:50% !important;
+        top:52% !important;
+        width:285px !important;
+        height:285px !important;
+    }
+
+    /* Character is explicitly placed below the popup. */
+    .auth-visual-scene .analyst{
+        left:50% !important;
+        top:92px !important;
+        bottom:auto !important;
+        width:205px !important;
+        height:287px !important;
+        transform:translateX(-50%) scale(.68) !important;
+        transform-origin:50% 0 !important;
+        pointer-events:auto !important;
+        z-index:8 !important;
+    }
+
+    .auth-visual-scene .analyst:hover{
+        transform:translateX(-50%) translateY(-7px) scale(.71) !important;
+    }
+
+    .auth-visual-scene .visual-laptop{
+        left:50% !important;
+        top:295px !important;
+        bottom:auto !important;
+        width:213px !important;
+        transform:translateX(-50%) scale(.62) !important;
+        transform-origin:50% 100% !important;
+        z-index:9 !important;
+    }
+
+    .auth-visual-scene .visual-laptop:hover{
+        transform:translateX(-50%) translateY(-5px) scale(.65) !important;
+    }
+
+    .auth-visual-scene .floating-invoice{
+        z-index:5 !important;
+        pointer-events:auto !important;
+    }
+
+    .auth-visual-scene .invoice-left{
+        left:2% !important;
+        top:118px !important;
+    }
+
+    .auth-visual-scene .invoice-right{
+        right:2% !important;
+        top:98px !important;
+    }
+
+    .auth-visual-scene .hud-review{
+        left:0 !important;
+        bottom:105px !important;
+    }
+
+    .auth-visual-scene .hud-upload{
+        right:0 !important;
+        bottom:125px !important;
+    }
+
+    /* Greeting is ABOVE the entire character head with a real gap. */
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:0 !important;
+        min-width:250px !important;
+        max-width:270px !important;
+        padding:12px 14px !important;
+        transform:translate(-50%,-8px) scale(.95) !important;
+        transform-origin:50% 100% !important;
+        z-index:40 !important;
+    }
+
+    .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-visual-scene .welcome-popup.is-active{
+        transform:translate(-50%,-22px) scale(1) !important;
+        opacity:1 !important;
+    }
+
+    .auth-visual-scene .welcome-popup-tail{
+        left:50% !important;
+        right:auto !important;
+        bottom:-7px !important;
+        transform:translateX(-50%) rotate(45deg) !important;
+    }
+
+    /* Footer has its own row; it cannot collide with role cards. */
+    .auth-brand-panel--blue .auth-footer{
+        grid-column:1 !important;
+        grid-row:4 !important;
+        position:relative !important;
+        left:auto !important;
+        bottom:auto !important;
+        margin:14px 0 0 !important;
+        align-self:end !important;
+        z-index:80 !important;
+    }
+
+    /* ---------- RIGHT SIDE: USE THE AVAILABLE WIDTH ---------- */
+    .auth-form-panel{
+        padding:42px 12px 42px 24px !important;
+        justify-content:stretch !important;
+    }
+
+    .auth-form-box{
+        width:100% !important;
+        max-width:none !important;
+        padding:34px 32px !important;
+        margin:0 !important;
+    }
+}
+
+@media (max-width:1060px){
+    /* Keep the clean separation when stacked. */
+    .auth-message .role-legend{
+        position:static !important;
+        inset:auto !important;
+        width:100% !important;
+        max-width:none !important;
+        margin-top:17px !important;
+        transform:none !important;
+    }
+
+    .auth-visual-scene{
+        position:relative !important;
+        width:100% !important;
+        height:300px !important;
+        margin-top:28px !important;
+        right:auto !important;
+        top:auto !important;
+        bottom:auto !important;
+    }
+
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:0 !important;
+        transform:translate(-50%,-8px) scale(.95) !important;
+    }
+
+    .auth-visual-scene .analyst{
+        top:78px !important;
+        bottom:auto !important;
+        transform:translateX(-50%) scale(.62) !important;
+        transform-origin:50% 0 !important;
+    }
+
+    .auth-visual-scene .analyst:hover{
+        transform:translateX(-50%) translateY(-6px) scale(.65) !important;
+    }
+
+    .auth-form-panel{
+        padding-left:20px !important;
+        padding-right:20px !important;
+    }
+
+    .auth-form-box{
+        width:100% !important;
+        max-width:none !important;
+    }
+}
+
+@media (max-width:720px){
+    .auth-form-panel{
+        padding:20px !important;
+    }
+
+    .auth-message .role-legend{
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    }
+
+    .auth-message .role-legend div{
+        min-height:52px !important;
+        padding:8px 8px !important;
+    }
+
+    .auth-visual-scene .welcome-popup{
+        min-width:220px !important;
+        max-width:235px !important;
+        top:-2px !important;
+    }
+}
+
+@media (max-width:530px){
+    .auth-message .role-legend{
+        grid-template-columns:1fr !important;
+    }
+
+    .auth-form-box{
+        padding:26px 19px !important;
+    }
+}
+</style>
+
+
+<style>
+/* =========================================================
+   V14 — MICRO POSITION TUNING FOR THE ARTWORK
+   Keep the established separated layout intact. Only the
+   artwork is nudged so the character, laptop and greeting
+   stay visually grouped without touching the headline/cards.
+   ========================================================= */
+@media (min-width:1061px){
+    /* Shift the complete artwork slightly LEFT so it no longer
+       crowds the centre divider / right form panel. */
+    .auth-visual-scene{
+        right:42px !important;
+    }
+
+    /* Character: a touch lower than V13 so the head doesn't feel
+       pushed upward, while preserving the same scale. */
+    .auth-visual-scene .analyst{
+        bottom:9px !important;
+    }
+
+    /* Laptop: lift it slightly to reconnect visually with the
+       character, and nudge it LEFT within the same scene. */
+    .auth-visual-scene .visual-laptop{
+        left:48% !important;
+        bottom:25px !important;
+    }
+
+    /* Keep the greeting centred over the character's head. */
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+    }
+}
+
+@media (max-width:1060px){
+    .auth-visual-scene .visual-laptop{
+        left:49% !important;
+        bottom:21px !important;
+    }
+}
+</style>
+
+
+
+<style>
+/* LOGIN V19 — Slightly Smaller Animation, Cleaner Text Separation */
+@media (min-width:1061px){
+    .auth-visual-scene{
+        /* Keep the same placement, but gently compact the whole illustration
+           so the headline has its own breathing room. */
+        transform:scale(.90) !important;
+        transform-origin:50% 50% !important;
+    }
+}
+</style>
+
 </head>
 
 <body class="auth-page theme-user">
@@ -15,6 +3526,7 @@
     <div class="auth-shell">
         <nav class="auth-topbar">
             <a href="index.html" class="auth-back-link">← Back to overview</a>
+
             <div class="auth-topbar-links">
                 <a href="register.html">Register</a>
                 <a href="forgot-password.html">Reset password</a>
@@ -28,16 +3540,12 @@
         <div class="auth-brand-panel auth-brand-panel--blue">
 
             <div class="auth-brand">
-
-                <div class="brand-icon">
-                    CG
-                </div>
+                <div class="brand-icon">CG</div>
 
                 <div>
                     <h2>ClaimGuard</h2>
                     <span>Invoice Intelligence</span>
                 </div>
-
             </div>
 
             <div class="auth-hero-badge">
@@ -62,7 +3570,6 @@
                     review results from one secure workspace.
                 </p>
 
-
                 <div class="auth-features">
 
                     <div>
@@ -82,15 +3589,106 @@
 
                 </div>
 
+
+
+                <div class="role-legend">
+                    <div class="r-admin">
+                        <strong>ADMIN</strong>
+                        <span>Control &amp; manage</span>
+                    </div>
+
+                    <div class="r-user">
+                        <strong>USER</strong>
+                        <span>Upload &amp; analyze</span>
+                    </div>
+
+                    <div class="r-finance">
+                        <strong>FINANCE / REVIEWER</strong>
+                        <span>Review &amp; decide</span>
+                    </div>
+                </div>
+
             </div>
 
+            <!-- Animated product scene -->
+            <div class="auth-visual-scene" aria-hidden="true">
 
-            <div class="auth-footer">
+                <div class="visual-halo"></div>
+                <div class="scene-ring"></div>
+
+                <div class="floating-invoice invoice-left">
+                    <i></i>
+                    <i class="short"></i>
+                    <i></i>
+                    <i class="short"></i>
+                    <b></b>
+                </div>
+
+                <div class="floating-invoice invoice-right">
+                    <i></i>
+                    <i class="short"></i>
+                    <i></i>
+                    <i class="short"></i>
+                    <b></b>
+                </div>
+
+                <div class="mini-hud hud-review">
+                    REVIEW QUEUE<br>
+                    <b>Risk 82 · 3 signals</b>
+                </div>
+
+                <div class="mini-hud hud-upload">
+                    INVOICE UPLOAD<br>
+                    <b>PDF · OCR · READY</b>
+                </div>
+
+                <div class="analyst">
+                    <div class="analyst-head"><span class="analyst-glasses"><i></i></span></div>
+                    <div class="analyst-hair"></div>
+                    <div class="analyst-neck"></div>
+
+                    <div class="analyst-body">
+                        <div class="analyst-collar"></div>
+                        <div class="analyst-tie"></div>
+                    </div>
+
+                    <div class="analyst-arm left">
+                        <div class="analyst-hand left"></div>
+                    </div>
+
+                    <div class="analyst-arm right">
+                        <div class="analyst-hand right"></div>
+                    </div>
+                </div>
+
+                <div class="welcome-popup" id="welcomePopup" aria-hidden="true">
+                    <div class="welcome-popup-dot"></div>
+                    <div>
+                        <strong id="welcomeGreeting">Good Evening, Sir!</strong>
+                        <span>Welcome to ClaimGuard.</span>
+                    </div>
+                    <span class="welcome-popup-tail"></span>
+                </div>
+
+                <div class="visual-laptop">
+                    <div class="visual-laptop-screen">
+                        <div class="screen-lines">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+
+                    <div class="visual-laptop-base"></div>
+                </div>
+
+            </div>
+
+                <div class="auth-footer">
                 © 2026 ClaimGuard
             </div>
 
         </div>
-
 
         <!-- RIGHT SIDE -->
         <div class="auth-form-panel">
@@ -98,16 +3696,13 @@
             <div class="auth-form-box">
 
                 <div class="mobile-brand">
-                    <div class="brand-icon">
-                        CG
-                    </div>
+                    <div class="brand-icon">CG</div>
 
                     <div>
                         <h2>ClaimGuard</h2>
                         <span>Invoice Intelligence</span>
                     </div>
                 </div>
-
 
                 <div class="form-heading">
 
@@ -122,7 +3717,6 @@
                     </p>
 
                 </div>
-
 
                 <!-- GOOGLE LOGIN -->
                 <button
@@ -139,11 +3733,9 @@
 
                 </button>
 
-
                 <div class="divider">
                     <span>OR</span>
                 </div>
-
 
                 <!-- LOGIN FORM -->
                 <form id="loginForm">
@@ -164,7 +3756,6 @@
 
                     </div>
 
-
                     <div class="input-group">
 
                         <div class="password-label">
@@ -178,7 +3769,6 @@
                             </a>
 
                         </div>
-
 
                         <div class="password-wrapper">
 
@@ -202,7 +3792,6 @@
 
                     </div>
 
-
                     <div class="remember-row">
 
                         <label class="remember-check">
@@ -220,7 +3809,6 @@
 
                     </div>
 
-
                     <button
                         type="submit"
                         class="login-submit"
@@ -230,12 +3818,10 @@
 
                 </form>
 
-
                 <div
                     id="loginMessage"
                     class="login-message"
                 ></div>
-
 
                 <p class="signup-link">
 
@@ -246,7 +3832,6 @@
                     </a>
 
                 </p>
-
 
                 <div class="security-note">
 
@@ -265,8 +3850,1029 @@
 
     </div>
 
+    
+<script>
+(function () {
+    const popup = document.getElementById("welcomePopup");
+    const greeting = document.getElementById("welcomeGreeting");
+
+    if (!popup || !greeting) return;
+
+    const hour = new Date().getHours();
+
+    let message = "Good Evening, Sir!";
+    if (hour >= 5 && hour < 12) {
+        message = "Good Morning, Sir!";
+    } else if (hour >= 12 && hour < 17) {
+        message = "Good Afternoon, Sir!";
+    } else if (hour >= 17 && hour < 24) {
+        message = "Good Evening, Sir!";
+    } else {
+        message = "Good Night, Sir!";
+    }
+
+    greeting.textContent = message;
+})();
+</script>
 
     <script src="js/app.js"></script>
+
+
+<style>
+/* =========================================================
+   LOGIN V9 — TIGHTER LEFT COMPOSITION / NO DEAD SPACE
+   Keeps all existing functionality and interactions.
+   ========================================================= */
+
+@media(min-width:1061px){
+    /* Bring the role rail directly under the 01/02/03 cards. */
+    .role-legend{
+        left:44px !important;
+        right:auto !important;
+        bottom:132px !important;
+        width:295px !important;
+        gap:8px !important;
+        z-index:72 !important;
+    }
+
+    .role-legend div{
+        min-height:68px !important;
+        padding:11px 10px !important;
+        border-radius:13px !important;
+    }
+
+    .role-legend strong{
+        font-size:8px !important;
+        line-height:1.05;
+    }
+
+    .role-legend span{
+        margin-top:4px !important;
+        font-size:6px !important;
+        line-height:1.35;
+    }
+
+    /* Give the feature row and role rail a deliberate visual rhythm. */
+    .auth-features{
+        margin-top:22px !important;
+        max-width:295px !important;
+        gap:8px !important;
+    }
+
+    .auth-features > div{
+        min-height:84px !important;
+        padding:13px 11px !important;
+    }
+
+    /* Keep the artwork slightly higher so it does not compete with the rail. */
+    .auth-visual-scene{
+        bottom:82px !important;
+        height:225px !important;
+    }
+
+    .auth-footer{
+        position:absolute !important;
+        left:44px !important;
+        bottom:24px !important;
+        margin:0 !important;
+    }
+}
+
+@media(max-width:1060px){
+    .role-legend{
+        left:50% !important;
+        right:auto !important;
+        bottom:92px !important;
+        transform:translateX(-50%) !important;
+        width:min(560px,90%) !important;
+    }
+}
+
+@media(max-width:720px){
+    .role-legend{
+        bottom:92px !important;
+    }
+}
+
+@media(max-width:530px){
+    .role-legend{
+        bottom:86px !important;
+    }
+}
+</style>
+
+
+<style>
+/* =========================================================
+   LOGIN V10 — FULLER RIGHT PANEL / NO DEAD SPACE
+   Visual-only layout refinement; functionality preserved.
+   ========================================================= */
+@media(min-width:1061px){
+    .auth-container{
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    }
+
+    .auth-form-panel{
+        padding:30px 22px !important;
+        align-items:center !important;
+        justify-content:center !important;
+    }
+
+    .auth-form-box{
+        width:min(590px,100%) !important;
+        max-width:none !important;
+        padding:34px 34px 30px !important;
+        border-radius:25px !important;
+    }
+}
+
+@media(min-width:1260px){
+    .auth-form-panel{
+        padding-left:20px !important;
+        padding-right:20px !important;
+    }
+
+    .auth-form-box{
+        width:calc(100% - 8px) !important;
+        max-width:590px !important;
+    }
+}
+
+@media(max-width:1060px){
+    .auth-form-box{width:min(560px,100%) !important;}
+}
+</style>
+
+
+<style>
+/* =========================================================
+   LOGIN V11 — FINAL BALANCE / POPUP ABOVE HEAD / RIGHT SIDE
+   Visual-only refinement. All existing functionality, IDs,
+   links, routes and JavaScript are preserved.
+   ========================================================= */
+
+@media (min-width:1061px){
+    /* -----------------------------------------------------
+       1. GREETING POPUP — genuinely above the analyst head
+       ----------------------------------------------------- */
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:64px !important;
+        min-width:285px !important;
+        max-width:305px !important;
+        transform:translate(-50%,12px) scale(.95) !important;
+        transform-origin:50% 100% !important;
+        z-index:30 !important;
+    }
+
+    .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-visual-scene .welcome-popup.is-active{
+        transform:translate(-50%,0) scale(1) !important;
+        opacity:1 !important;
+    }
+
+    .auth-visual-scene .welcome-popup-tail{
+        left:50% !important;
+        right:auto !important;
+        bottom:-7px !important;
+        transform:translateX(-50%) rotate(45deg) !important;
+    }
+
+    /* Keep the character's face/forehead completely unobstructed. */
+    .auth-visual-scene .analyst{
+        z-index:12 !important;
+    }
+
+    /* -----------------------------------------------------
+       2. RIGHT SIDE — remove the visible dead space
+          by stretching the form card toward the right edge.
+       ----------------------------------------------------- */
+    .auth-form-panel{
+        padding:30px 10px 30px 22px !important;
+        justify-content:flex-start !important;
+        align-items:center !important;
+    }
+
+    .auth-form-box{
+        width:calc(100% - 10px) !important;
+        max-width:none !important;
+        margin:0 !important;
+        padding:34px 36px 30px !important;
+    }
+
+    /* Let the form controls visually use the full available width. */
+    .form-heading h2{
+        max-width:100% !important;
+        white-space:nowrap;
+        font-size:clamp(29px,2.05vw,34px) !important;
+    }
+
+    .form-heading p,
+    .google-btn,
+    .input-group,
+    .remember-row,
+    .login-submit,
+    .login-message,
+    .signup-link,
+    .security-note{
+        width:100% !important;
+        max-width:none !important;
+    }
+
+    .security-note{
+        box-sizing:border-box;
+    }
+}
+
+/* At smaller widths, return to the centered composition. */
+@media (max-width:1060px){
+    .auth-form-panel{
+        padding:32px !important;
+        justify-content:center !important;
+    }
+
+    .auth-form-box{
+        width:min(560px,100%) !important;
+        max-width:none !important;
+        margin:0 auto !important;
+    }
+
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:44px !important;
+        transform:translate(-50%,9px) scale(.95) !important;
+    }
+
+    .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-visual-scene .welcome-popup.is-active{
+        transform:translate(-50%,0) scale(1) !important;
+    }
+}
+
+@media (max-width:720px){
+    .auth-form-panel{
+        padding:20px !important;
+    }
+
+    .auth-form-box{
+        width:100% !important;
+        padding:27px 21px !important;
+    }
+
+    .form-heading h2{
+        white-space:normal;
+    }
+}
+</style>
+
+
+<style>
+/* =========================================================
+   LOGIN V12 — FINAL COMPOSITION FIX
+   - Greeting is strictly above the analyst's head
+   - Face stays fully visible
+   - Feature cards and role cards are separated in normal flow
+   - Left-side information rail stretches farther right
+   - Right form remains wide without changing functionality
+   ========================================================= */
+
+@media (min-width:1061px){
+    /* -----------------------------------------------------
+       1. LEFT CONTENT WIDTH — use the empty right area
+       ----------------------------------------------------- */
+    .auth-message{
+        max-width:600px !important;
+        padding-right:0 !important;
+    }
+
+    .auth-message p{
+        max-width:520px !important;
+    }
+
+    .auth-features{
+        position:relative !important;
+        width:440px !important;
+        max-width:440px !important;
+        margin-top:22px !important;
+        gap:9px !important;
+        z-index:70 !important;
+    }
+
+    .auth-features > div{
+        min-width:0 !important;
+        min-height:86px !important;
+        padding:14px 13px !important;
+    }
+
+    /* Let the three role cards extend toward the right as well,
+       but keep them in document flow so overlap is impossible. */
+    .role-legend{
+        position:relative !important;
+        left:auto !important;
+        right:auto !important;
+        bottom:auto !important;
+        top:auto !important;
+        width:440px !important;
+        max-width:440px !important;
+        margin:30px 0 0 !important;
+        display:grid !important;
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+        gap:9px !important;
+        transform:none !important;
+        z-index:75 !important;
+    }
+
+    .role-legend div{
+        min-height:67px !important;
+        padding:11px 12px !important;
+        overflow:hidden !important;
+    }
+
+    .role-legend strong{
+        font-size:8.2px !important;
+        line-height:1.08 !important;
+    }
+
+    .role-legend span{
+        font-size:6px !important;
+        line-height:1.35 !important;
+        margin-top:4px !important;
+    }
+
+    /* The artwork stays in its own upper-right visual zone. */
+    .auth-visual-scene{
+        right:10px !important;
+        bottom:82px !important;
+        width:560px !important;
+        height:225px !important;
+        z-index:18 !important;
+    }
+
+    /* -----------------------------------------------------
+       2. GREETING — above the HEAD, never over the face
+       Scene top is the reference point. The scaled analyst
+       head begins almost at the scene's top edge, so the bubble
+       must sit above that edge rather than at +64px.
+       ----------------------------------------------------- */
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:-82px !important;
+        min-width:285px !important;
+        max-width:305px !important;
+        transform:translate(-50%,14px) scale(.95) !important;
+        transform-origin:50% 100% !important;
+        z-index:50 !important;
+    }
+
+    .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-visual-scene .welcome-popup.is-active{
+        opacity:1 !important;
+        transform:translate(-50%,0) scale(1) !important;
+    }
+
+    .auth-visual-scene .welcome-popup-tail{
+        left:50% !important;
+        right:auto !important;
+        bottom:-7px !important;
+        transform:translateX(-50%) rotate(45deg) !important;
+    }
+
+    /* Give the popup a little breathing room from the artwork. */
+    .auth-visual-scene .welcome-popup-dot{
+        flex:0 0 30px !important;
+    }
+
+    /* -----------------------------------------------------
+       3. RIGHT FORM — preserve the wide form, but don't
+          over-stretch the outer card itself.
+       ----------------------------------------------------- */
+    .auth-form-panel{
+        padding-left:20px !important;
+        padding-right:20px !important;
+    }
+
+    .auth-form-box{
+        width:100% !important;
+        max-width:630px !important;
+        margin-left:auto !important;
+        margin-right:0 !important;
+        padding-left:36px !important;
+        padding-right:36px !important;
+    }
+}
+
+@media (max-width:1060px){
+    /* Keep mobile/tablet flow clean. */
+    .role-legend{
+        position:relative !important;
+        left:auto !important;
+        right:auto !important;
+        top:auto !important;
+        bottom:auto !important;
+        width:min(440px,100%) !important;
+        max-width:440px !important;
+        margin:28px auto 0 !important;
+        transform:none !important;
+    }
+
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:-72px !important;
+        transform:translate(-50%,10px) scale(.95) !important;
+    }
+
+    .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-visual-scene .welcome-popup.is-active{
+        transform:translate(-50%,0) scale(1) !important;
+    }
+}
+
+@media (max-width:720px){
+    .auth-features{
+        width:100% !important;
+        max-width:100% !important;
+    }
+
+    .role-legend{
+        width:100% !important;
+        max-width:100% !important;
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    }
+
+    .auth-visual-scene .welcome-popup{
+        top:-60px !important;
+        min-width:205px !important;
+        max-width:235px !important;
+    }
+}
+
+@media (max-width:530px){
+    .role-legend{
+        grid-template-columns:1fr !important;
+    }
+
+    .auth-visual-scene .welcome-popup{
+        top:-55px !important;
+        min-width:190px !important;
+        max-width:215px !important;
+    }
+}
+</style>
+
+
+
+<style id="claimguard-v15-art-correction">
+/* =========================================================
+   CLAIMGUARD LOGIN V15 — ARTWORK VISIBILITY + ATTACHED LAPTOP
+   Only corrects the illustration composition. Existing
+   functionality, IDs, links and scripts remain untouched.
+   ========================================================= */
+
+@media (min-width:1061px){
+    /* Keep the artwork inside its own right-side visual column,
+       but shift the whole scene left so it is fully visible. */
+    .auth-visual-scene{
+        transform:translateX(-58px) !important;
+        z-index:30 !important;
+        overflow:visible !important;
+    }
+
+    /* Keep the orbit/halo aligned with the character. */
+    .auth-visual-scene .visual-halo,
+    .auth-visual-scene .scene-ring{
+        left:50% !important;
+    }
+
+    /* Character: visible, slightly left, with a stable baseline. */
+    .auth-visual-scene .analyst{
+        left:50% !important;
+        top:92px !important;
+        bottom:auto !important;
+        transform:translateX(-50%) scale(.68) !important;
+        transform-origin:50% 0 !important;
+        z-index:20 !important;
+    }
+
+    .auth-visual-scene .analyst:hover{
+        transform:translateX(-50%) translateY(-7px) scale(.71) !important;
+    }
+
+    /* Laptop is locked directly under the animated character.
+       Top-origin scaling prevents the large downward visual gap. */
+    .auth-visual-scene .visual-laptop{
+        left:50% !important;
+        top:272px !important;
+        bottom:auto !important;
+        transform:translateX(-50%) scale(.62) !important;
+        transform-origin:50% 0 !important;
+        z-index:19 !important;
+    }
+
+    /* Greeting sits above the head with a small intentional gap;
+       it can never cover the face. */
+    .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:28px !important;
+        transform:translate(-50%,10px) scale(.95) !important;
+        transform-origin:50% 100% !important;
+        z-index:40 !important;
+        min-width:285px !important;
+        max-width:305px !important;
+    }
+
+    .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-visual-scene .welcome-popup.is-active{
+        opacity:1 !important;
+        transform:translate(-50%,0) scale(1) !important;
+    }
+
+    .auth-visual-scene .welcome-popup-tail{
+        left:50% !important;
+        right:auto !important;
+        bottom:-7px !important;
+        transform:translateX(-50%) rotate(45deg) !important;
+    }
+
+    /* Keep invoices/HUDs as supporting elements around the same scene. */
+    .auth-visual-scene .floating-invoice{
+        z-index:10 !important;
+    }
+
+    .auth-visual-scene .mini-hud{
+        z-index:16 !important;
+    }
+}
+</style>
+
+
+<style id="claimguard-v16-artwork-cluster">
+/* =========================================================
+   CLAIMGUARD LOGIN V16 — ARTWORK CLUSTER + VISIBILITY FIX
+   Only the illustration positioning is changed. The copy,
+   role cards, form controls, IDs, links and JS are untouched.
+   ========================================================= */
+
+@media (min-width:1061px){
+    /* Put the complete illustration back into its own absolute
+       visual zone inside the LEFT panel. This prevents the artwork
+       from being pushed into the grid's second column. */
+    .auth-brand-panel--blue .auth-visual-scene{
+        position:absolute !important;
+        grid-column:auto !important;
+        grid-row:auto !important;
+        left:315px !important;
+        right:auto !important;
+        top:170px !important;
+        bottom:auto !important;
+        width:380px !important;
+        height:360px !important;
+        margin:0 !important;
+        overflow:visible !important;
+        z-index:30 !important;
+        transform:none !important;
+    }
+
+    /* Keep the orbit centered on the character cluster. */
+    .auth-brand-panel--blue .auth-visual-scene .visual-halo,
+    .auth-brand-panel--blue .auth-visual-scene .scene-ring{
+        left:55% !important;
+        top:49% !important;
+    }
+
+    /* Character: slightly LEFT, fully inside the left panel. */
+    .auth-brand-panel--blue .auth-visual-scene .analyst{
+        left:55% !important;
+        top:55px !important;
+        bottom:auto !important;
+        transform:translateX(-50%) scale(.68) !important;
+        transform-origin:50% 0 !important;
+        z-index:22 !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .analyst:hover{
+        transform:translateX(-50%) translateY(-7px) scale(.71) !important;
+    }
+
+    /* Laptop sits directly under the character, sharing the same
+       horizontal anchor so the two read as ONE scene. */
+    .auth-brand-panel--blue .auth-visual-scene .visual-laptop{
+        left:55% !important;
+        top:248px !important;
+        bottom:auto !important;
+        transform:translateX(-50%) scale(.62) !important;
+        transform-origin:50% 0 !important;
+        z-index:21 !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .visual-laptop:hover{
+        transform:translateX(-50%) translateY(-4px) scale(.65) !important;
+    }
+
+    /* Greeting: above the HEAD, not across the face. */
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup{
+        left:55% !important;
+        right:auto !important;
+        top:-12px !important;
+        min-width:270px !important;
+        max-width:290px !important;
+        transform:translate(-50%,10px) scale(.95) !important;
+        transform-origin:50% 100% !important;
+        z-index:40 !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup.is-active{
+        opacity:1 !important;
+        transform:translate(-50%,0) scale(1) !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup-tail{
+        left:55% !important;
+        right:auto !important;
+        bottom:-7px !important;
+        transform:translateX(-50%) rotate(45deg) !important;
+    }
+
+    /* Bring the supporting invoice cards in beside the character,
+       rather than leaving them scattered across the panel. */
+    .auth-brand-panel--blue .auth-visual-scene .invoice-left{
+        left:190px !important;
+        right:auto !important;
+        top:108px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .invoice-right{
+        right:8px !important;
+        left:auto !important;
+        top:105px !important;
+    }
+
+    /* Review / upload HUDs stay close to the same character group. */
+    .auth-brand-panel--blue .auth-visual-scene .hud-review{
+        left:170px !important;
+        right:auto !important;
+        bottom:112px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .hud-upload{
+        right:6px !important;
+        left:auto !important;
+        bottom:128px !important;
+    }
+}
+
+@media (max-width:1060px){
+    /* On stacked layouts, keep the established centered scene. */
+    .auth-brand-panel--blue .auth-visual-scene{
+        position:relative !important;
+        left:auto !important;
+        right:auto !important;
+        top:auto !important;
+        bottom:auto !important;
+        width:100% !important;
+        height:300px !important;
+        margin-top:28px !important;
+        transform:none !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .analyst{
+        left:50% !important;
+        top:78px !important;
+        bottom:auto !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .visual-laptop{
+        left:50% !important;
+        top:258px !important;
+        bottom:auto !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:-5px !important;
+    }
+}
+</style>
+
+
+
+<style id="claimguard-v17-reference-cluster">
+/* =========================================================
+   CLAIMGUARD LOGIN V17 — REFERENCE-STYLE ARTWORK CLUSTER
+   The artwork is treated as ONE compact scene, matching the
+   user's reference: character + laptop + invoices + HUDs.
+   Copy, feature cards, role cards and login functionality are
+   left untouched.
+   ========================================================= */
+
+@media (min-width:1061px){
+    /* One compact visual stage on the right side of the LEFT panel. */
+    .auth-brand-panel--blue .auth-visual-scene{
+        position:absolute !important;
+        left:390px !important;
+        right:auto !important;
+        top:165px !important;
+        bottom:auto !important;
+        width:310px !important;
+        height:360px !important;
+        margin:0 !important;
+        overflow:visible !important;
+        transform:none !important;
+        z-index:12 !important;
+        pointer-events:none !important;
+    }
+
+    /* Compact orbit like the reference image. */
+    .auth-brand-panel--blue .auth-visual-scene .visual-halo{
+        left:50% !important;
+        top:48% !important;
+        width:285px !important;
+        height:285px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .scene-ring{
+        left:50% !important;
+        top:48% !important;
+        width:275px !important;
+        height:275px !important;
+    }
+
+    /* Character is the visual anchor. */
+    .auth-brand-panel--blue .auth-visual-scene .analyst{
+        left:50% !important;
+        top:44px !important;
+        bottom:auto !important;
+        width:195px !important;
+        height:282px !important;
+        transform:translateX(-50%) scale(.70) !important;
+        transform-origin:50% 0 !important;
+        z-index:24 !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .analyst:hover{
+        transform:translateX(-50%) translateY(-5px) scale(.735) !important;
+    }
+
+    /* Laptop sits immediately under the character, sharing the SAME
+       horizontal anchor so it reads as one connected illustration. */
+    .auth-brand-panel--blue .auth-visual-scene .visual-laptop{
+        left:50% !important;
+        top:236px !important;
+        bottom:auto !important;
+        width:205px !important;
+        height:126px !important;
+        transform:translateX(-50%) scale(.72) !important;
+        transform-origin:50% 0 !important;
+        z-index:23 !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .visual-laptop:hover{
+        transform:translateX(-50%) translateY(-4px) scale(.75) !important;
+    }
+
+    /* Floating invoices stay close to the character, like the reference. */
+    .auth-brand-panel--blue .auth-visual-scene .invoice-left{
+        left:8px !important;
+        right:auto !important;
+        top:30px !important;
+        transform:rotate(-10deg) !important;
+        z-index:18 !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .invoice-right{
+        right:5px !important;
+        left:auto !important;
+        top:24px !important;
+        transform:rotate(10deg) !important;
+        z-index:18 !important;
+    }
+
+    /* HUD chips sit around the lower sides of the same scene. */
+    .auth-brand-panel--blue .auth-visual-scene .hud-review{
+        left:0 !important;
+        right:auto !important;
+        bottom:86px !important;
+        z-index:27 !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .hud-upload{
+        right:0 !important;
+        left:auto !important;
+        bottom:100px !important;
+        z-index:27 !important;
+    }
+
+    /* Greeting stays above the head with a real visual gap.
+       It never covers the face/head. */
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:4px !important;
+        min-width:245px !important;
+        max-width:265px !important;
+        transform:translate(-50%,8px) scale(.95) !important;
+        transform-origin:50% 100% !important;
+        z-index:60 !important;
+        pointer-events:none !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup.is-active{
+        opacity:1 !important;
+        transform:translate(-50%,0) scale(1) !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup-tail{
+        left:50% !important;
+        right:auto !important;
+        bottom:-7px !important;
+        transform:translateX(-50%) rotate(45deg) !important;
+    }
+}
+
+@media (max-width:1060px){
+    /* Preserve the clean responsive layout; centered scene on stacked screens. */
+    .auth-brand-panel--blue .auth-visual-scene{
+        left:auto !important;
+        right:auto !important;
+        top:auto !important;
+        bottom:auto !important;
+        width:100% !important;
+        height:300px !important;
+        margin-top:28px !important;
+        transform:none !important;
+    }
+}
+</style>
+
+
+
+<style id="claimguard-v18-expanded-canvas">
+/* =========================================================
+   CLAIMGUARD LOGIN V18 — EXPANDED DESKTOP CANVAS
+   Give the left illustration more physical room by widening
+   the overall page and slightly increasing the LEFT/RIGHT
+   canvas proportions. Existing content and functionality are
+   intentionally preserved.
+   ========================================================= */
+@media (min-width:1061px){
+    /* Expand the entire experience so the composition can breathe. */
+    .auth-shell,
+    .auth-container{
+        width:min(1440px,calc(100% - 48px)) !important;
+    }
+
+    /* A little more room for the visual side; right form remains wide. */
+    .auth-container{
+        grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr) !important;
+    }
+
+    /* Keep the artwork in its own lane, now with enough width to
+       display the whole cluster instead of forcing pieces outward. */
+    .auth-brand-panel--blue .auth-visual-scene{
+        left:350px !important;
+        right:auto !important;
+        top:150px !important;
+        width:385px !important;
+        height:380px !important;
+        overflow:visible !important;
+        transform:none !important;
+    }
+
+    /* Slightly enlarge the focal illustration now that the stage is wider. */
+    .auth-brand-panel--blue .auth-visual-scene .analyst{
+        left:50% !important;
+        top:48px !important;
+        transform:translateX(-50%) scale(.73) !important;
+        transform-origin:50% 0 !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .analyst:hover{
+        transform:translateX(-50%) translateY(-5px) scale(.765) !important;
+    }
+
+    /* Laptop stays physically attached to the character's base. */
+    .auth-brand-panel--blue .auth-visual-scene .visual-laptop{
+        left:50% !important;
+        top:238px !important;
+        transform:translateX(-50%) scale(.73) !important;
+        transform-origin:50% 0 !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .visual-laptop:hover{
+        transform:translateX(-50%) translateY(-4px) scale(.76) !important;
+    }
+
+    /* Keep both invoices close to the same visual cluster. */
+    .auth-brand-panel--blue .auth-visual-scene .invoice-left{
+        left:14px !important;
+        top:48px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .invoice-right{
+        right:10px !important;
+        top:42px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .hud-review{
+        left:10px !important;
+        bottom:92px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .hud-upload{
+        right:8px !important;
+        bottom:108px !important;
+    }
+
+    /* Greeting is anchored above the character head, with the face
+       completely clear when the hover greeting appears. */
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:-18px !important;
+        transform:translate(-50%,10px) scale(.95) !important;
+        transform-origin:50% 100% !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup.is-active{
+        transform:translate(-50%,0) scale(1) !important;
+    }
+}
+</style>
+
+<style id="claimguard-v20-no-text-overlap">
+/* =========================================================
+   LOGIN V20 — TRUE TEXT / ARTWORK SEPARATION
+   The illustration gets its own physical lane on desktop so
+   no invoice, HUD, character or laptop can touch the headline.
+   Existing functionality and interaction hooks are preserved.
+   ========================================================= */
+@media (min-width:1061px){
+    .auth-brand-panel--blue .auth-visual-scene{
+        left:420px !important;
+        right:auto !important;
+        top:150px !important;
+        width:365px !important;
+        height:380px !important;
+        overflow:visible !important;
+        transform:scale(.90) !important;
+        transform-origin:50% 50% !important;
+    }
+
+    /* Keep the entire illustration centered inside the dedicated lane. */
+    .auth-brand-panel--blue .auth-visual-scene .analyst{
+        left:50% !important;
+        top:48px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .visual-laptop{
+        left:50% !important;
+        top:238px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .invoice-left{
+        left:14px !important;
+        top:48px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .invoice-right{
+        right:10px !important;
+        top:42px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .hud-review{
+        left:6px !important;
+        bottom:92px !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .hud-upload{
+        right:4px !important;
+        bottom:108px !important;
+    }
+
+    /* Greeting remains above the character's head with the face clear. */
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup{
+        left:50% !important;
+        right:auto !important;
+        top:-18px !important;
+        transform:translate(-50%,10px) scale(.95) !important;
+        transform-origin:50% 100% !important;
+        z-index:40 !important;
+    }
+
+    .auth-brand-panel--blue .auth-visual-scene .analyst:hover ~ .welcome-popup,
+    .auth-brand-panel--blue .auth-visual-scene .welcome-popup.is-active{
+        transform:translate(-50%,0) scale(1) !important;
+    }
+}
+</style>
 
 </body>
 

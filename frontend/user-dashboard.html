@@ -368,6 +368,1435 @@
 
     </style>
 
+
+<style id="claimguard-user-dashboard-light-theme">
+/* =========================================================
+   CLAIMGUARD USER DASHBOARD — LIGHT-TONE VISUAL UPDATE
+   Decoration/layout only. Original JS is untouched.
+   ========================================================= */
+
+:root{
+    --cg-u-bg:#f4f1f8;
+    --cg-u-surface:#fffdfd;
+    --cg-u-surface-2:#f7f4fa;
+    --cg-u-ink:#241b2e;
+    --cg-u-ink-2:#3f354b;
+    --cg-u-muted:#6f6579;
+    --cg-u-border:#e4ddea;
+    --cg-u-purple:#8a43dc;
+    --cg-u-purple-2:#b64fd3;
+    --cg-u-pink:#d15bc8;
+    --cg-u-green:#27ae87;
+    --cg-u-blue:#5d7fe0;
+    --cg-u-red:#d95b6b;
+    --cg-u-shadow:0 18px 50px rgba(45,30,60,.10);
+}
+
+html,body{
+    min-height:100%;
+}
+
+body.theme-user{
+    color:var(--cg-u-ink) !important;
+    background:
+        radial-gradient(circle at 7% 5%,rgba(137,84,226,.11),transparent 24%),
+        radial-gradient(circle at 92% 8%,rgba(209,91,200,.08),transparent 22%),
+        linear-gradient(135deg,#f7f4fa 0%,#f1edf6 55%,#f8f6fa 100%) !important;
+    overflow-x:hidden !important;
+}
+
+body.theme-user::before{
+    opacity:.26 !important;
+    background:
+        linear-gradient(rgba(73,51,89,.026) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(73,51,89,.022) 1px,transparent 1px) !important;
+    background-size:42px 42px !important;
+}
+
+/* Top navigation */
+body.theme-user .navbar{
+    width:min(1500px,calc(100vw - 56px)) !important;
+    min-height:66px !important;
+    margin:14px auto 0 !important;
+    padding:0 20px 0 22px !important;
+    background:rgba(255,253,255,.88) !important;
+    border:1px solid var(--cg-u-border) !important;
+    border-radius:18px !important;
+    box-shadow:0 14px 38px rgba(55,35,72,.08) !important;
+    backdrop-filter:blur(18px) !important;
+}
+
+body.theme-user .brand-icon{
+    background:linear-gradient(145deg,#8c45dd,#c23fd1) !important;
+    box-shadow:0 10px 22px rgba(141,67,220,.20) !important;
+}
+
+body.theme-user .brand-text h2{
+    color:var(--cg-u-ink) !important;
+}
+
+body.theme-user .brand-text span{
+    color:#82778c !important;
+}
+
+body.theme-user .search-box{
+    border:1px solid #e2dbe8 !important;
+    background:#fff !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.7) !important;
+}
+
+body.theme-user .search-box span{
+    color:#7c7288 !important;
+}
+
+body.theme-user .search-box input{
+    color:var(--cg-u-ink) !important;
+}
+
+body.theme-user .search-box input::placeholder{
+    color:#9a90a2 !important;
+}
+
+body.theme-user .notification-pill{
+    color:#5d3b77 !important;
+    background:#f2eafb !important;
+    border-color:#dccaea !important;
+}
+
+body.theme-user .nav-login{
+    color:#4f455a !important;
+    background:#fff !important;
+    border-color:#e2dbe8 !important;
+}
+
+body.theme-user .nav-login:hover{
+    color:#2c2237 !important;
+    border-color:#cdb6df !important;
+    background:#faf7fd !important;
+}
+
+/* Main */
+body.theme-user .dashboard-page{
+    width:min(1500px,calc(100vw - 56px)) !important;
+    margin:18px auto 40px !important;
+}
+
+/* Existing hero stays single; make it light and readable. */
+body.theme-user .dashboard-header{
+    position:relative !important;
+    overflow:hidden !important;
+    min-height:250px !important;
+    padding:30px 370px 30px 32px !important;
+    margin-bottom:16px !important;
+    color:var(--cg-u-ink) !important;
+    background:
+        radial-gradient(circle at 88% 42%,rgba(155,92,224,.11),transparent 24%),
+        linear-gradient(135deg,#fffefe 0%,#f6f1fb 100%) !important;
+    border:1px solid #ded4e7 !important;
+    border-radius:24px !important;
+    box-shadow:var(--cg-u-shadow) !important;
+}
+
+body.theme-user .dashboard-header::before{
+    content:"" !important;
+    position:absolute !important;
+    left:0 !important;
+    top:0 !important;
+    bottom:0 !important;
+    width:4px !important;
+    background:linear-gradient(180deg,var(--cg-u-purple),var(--cg-u-pink)) !important;
+}
+
+body.theme-user .dashboard-header::after{
+    content:"" !important;
+    position:absolute !important;
+    left:20% !important;
+    right:0 !important;
+    bottom:0 !important;
+    height:1px !important;
+    background:linear-gradient(90deg,transparent,rgba(134,91,163,.14),transparent) !important;
+}
+
+body.theme-user .dashboard-header .auth-label{
+    color:#6e4b89 !important;
+    background:#f1e9f8 !important;
+    border-color:#dfcfea !important;
+}
+
+body.theme-user .dashboard-header h1{
+    color:#231a2d !important;
+    letter-spacing:-.055em !important;
+}
+
+body.theme-user .dashboard-header h1 span{
+    color:#8a43dc !important;
+}
+
+body.theme-user .dashboard-header p{
+    color:#61576b !important;
+    max-width:680px !important;
+}
+
+body.theme-user .dashboard-header .btn-primary{
+    position:relative !important;
+    z-index:5 !important;
+    background:linear-gradient(90deg,#8b43dc,#b24ed3) !important;
+    color:#fff !important;
+}
+
+/* Animated user illustration */
+.user-hero-visual{
+    position:absolute;
+    right:30px;
+    top:50%;
+    width:330px;
+    height:205px;
+    transform:translateY(-50%);
+    z-index:4;
+    pointer-events:none;
+}
+
+.user-hero-visual .orbit{
+    position:absolute;
+    width:190px;
+    height:190px;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    border:1px dashed rgba(126,88,165,.24);
+    border-radius:50%;
+    animation:userOrbitSpin 22s linear infinite;
+}
+
+.user-hero-visual .orbit::before,
+.user-hero-visual .orbit::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    border:1px solid rgba(130,94,165,.13);
+}
+
+.user-hero-visual .orbit::before{width:146px;height:146px}
+.user-hero-visual .orbit::after{width:105px;height:105px}
+
+@keyframes userOrbitSpin{
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+
+.user-hero-visual .glow{
+    position:absolute;
+    left:50%;
+    top:54%;
+    width:155px;
+    height:100px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(143,72,214,.15),transparent 70%);
+    filter:blur(12px);
+}
+
+.user-hero-person{
+    position:absolute;
+    left:50%;
+    top:34px;
+    width:94px;
+    height:122px;
+    transform:translateX(-50%);
+    animation:userPersonFloat 4.2s ease-in-out infinite;
+}
+
+@keyframes userPersonFloat{
+    50%{transform:translate(-50%,-5px)}
+}
+
+.user-hero-person .head{
+    position:absolute;
+    left:50%;
+    top:0;
+    width:35px;
+    height:35px;
+    transform:translateX(-50%);
+    border-radius:12px 12px 14px 14px;
+    background:linear-gradient(180deg,#c98f6b,#a86549);
+}
+
+.user-hero-person .hair{
+    position:absolute;
+    left:50%;
+    top:-3px;
+    width:39px;
+    height:18px;
+    transform:translateX(-50%);
+    border-radius:17px 17px 8px 8px;
+    background:#292333;
+}
+
+.user-hero-person .glasses{
+    position:absolute;
+    left:50%;
+    top:13px;
+    width:31px;
+    height:10px;
+    transform:translateX(-50%);
+    display:flex;
+    gap:2px;
+    z-index:2;
+}
+
+.user-hero-person .glasses span{
+    flex:1;
+    border-radius:4px;
+    border:1.5px solid #211a29;
+    background:#574e61;
+}
+
+.user-hero-person .body{
+    position:absolute;
+    left:50%;
+    top:34px;
+    width:60px;
+    height:70px;
+    transform:translateX(-50%);
+    border-radius:18px 18px 11px 11px;
+    background:linear-gradient(160deg,#7a4391,#4e285e);
+    box-shadow:0 12px 20px rgba(57,37,72,.15);
+}
+
+.user-hero-person .shirt{
+    position:absolute;
+    left:50%;
+    top:35px;
+    width:27px;
+    height:21px;
+    transform:translateX(-50%);
+    border-radius:8px 8px 4px 4px;
+    background:#fff;
+    z-index:2;
+}
+
+.user-hero-person .tie{
+    position:absolute;
+    left:50%;
+    top:41px;
+    width:8px;
+    height:23px;
+    transform:translateX(-50%);
+    background:linear-gradient(180deg,#a34ce3,#7131a6);
+    clip-path:polygon(20% 0,80% 0,100% 55%,50% 100%,0 55%);
+    z-index:3;
+}
+
+.user-hero-person .arm{
+    position:absolute;
+    top:57px;
+    width:50px;
+    height:11px;
+    border-radius:11px;
+    background:#c98f6b;
+    z-index:1;
+}
+
+.user-hero-person .arm.left{
+    left:0;
+    transform:rotate(22deg);
+}
+
+.user-hero-person .arm.right{
+    right:0;
+    transform:rotate(-22deg);
+}
+
+.user-hero-person .hand{
+    position:absolute;
+    width:14px;
+    height:11px;
+    border-radius:50%;
+    background:#d39a73;
+    z-index:2;
+}
+
+.user-hero-person .hand.left{left:-5px;top:68px}
+.user-hero-person .hand.right{right:-5px;top:68px}
+
+.user-hero-laptop{
+    position:absolute;
+    left:50%;
+    top:124px;
+    width:118px;
+    height:63px;
+    transform:translateX(-50%);
+    animation:userLaptopFloat 4.2s ease-in-out infinite;
+}
+
+@keyframes userLaptopFloat{
+    50%{transform:translate(-50%,-3px)}
+}
+
+.user-hero-laptop .screen{
+    position:absolute;
+    left:8px;
+    top:0;
+    width:102px;
+    height:51px;
+    border:4px solid #d7cddf;
+    border-radius:6px;
+    background:#21182a;
+    box-shadow:0 10px 18px rgba(58,39,73,.14);
+}
+
+.user-hero-laptop .screen::after{
+    content:"CLAIMGUARD";
+    position:absolute;
+    left:8px;
+    top:7px;
+    color:#d5a5ef;
+    font-size:4px;
+    font-weight:900;
+    letter-spacing:.08em;
+}
+
+.user-hero-laptop .line{
+    position:absolute;
+    left:8px;
+    height:3px;
+    border-radius:99px;
+    background:#51435e;
+}
+
+.user-hero-laptop .line.a{top:19px;width:70px}
+.user-hero-laptop .line.b{top:27px;width:56px}
+.user-hero-laptop .line.c{top:35px;width:78px}
+.user-hero-laptop .line.d{
+    top:43px;width:37px;
+    background:linear-gradient(90deg,#9a4be4,#ce50c7);
+}
+
+.user-hero-laptop .base{
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:118px;
+    height:9px;
+    clip-path:polygon(8% 0,92% 0,100% 100%,0 100%);
+    background:linear-gradient(180deg,#c4b4ce,#9d8cab);
+}
+
+.hero-doc{
+    position:absolute;
+    width:47px;
+    height:65px;
+    padding:7px;
+    border-radius:5px;
+    background:#fff;
+    border:1px solid #ddd4e2;
+    box-shadow:0 10px 20px rgba(58,39,73,.10);
+}
+
+.hero-doc::before{
+    content:"INVOICE";
+    display:block;
+    color:#796d83;
+    font-size:4px;
+    font-weight:900;
+    margin-bottom:6px;
+}
+
+.hero-doc::after{
+    content:"";
+    display:block;
+    width:21px;
+    height:4px;
+    margin-top:6px;
+    border-radius:4px;
+    background:linear-gradient(90deg,#9746df,#d355c6);
+}
+
+.hero-doc span{
+    display:block;
+    width:100%;
+    height:3px;
+    margin:4px 0;
+    border-radius:4px;
+    background:#ddd5e2;
+}
+
+.hero-doc.doc-a{
+    left:18px;
+    top:36px;
+    transform:rotate(-9deg);
+    animation:userDocA 4.8s ease-in-out infinite;
+}
+
+.hero-doc.doc-b{
+    right:18px;
+    top:30px;
+    transform:rotate(9deg);
+    animation:userDocB 5.0s ease-in-out infinite;
+}
+
+@keyframes userDocA{
+    50%{transform:rotate(-6deg) translateY(-6px)}
+}
+
+@keyframes userDocB{
+    50%{transform:rotate(6deg) translateY(-7px)}
+}
+
+.hero-chip{
+    position:absolute;
+    z-index:8;
+    padding:7px 9px;
+    border-radius:8px;
+    background:rgba(255,255,255,.92);
+    border:1px solid #dfd6e5;
+    box-shadow:0 10px 20px rgba(58,39,73,.08);
+}
+
+.hero-chip .dot{
+    display:inline-block;
+    width:5px;
+    height:5px;
+    margin-right:4px;
+    border-radius:50%;
+    background:#2bb28a;
+}
+
+.hero-chip .title{
+    color:#4f4658;
+    font-size:5px;
+    font-weight:900;
+    letter-spacing:.05em;
+}
+
+.hero-chip .sub{
+    margin-top:2px;
+    color:#8a8191;
+    font-size:4px;
+}
+
+.hero-chip.left{left:7px;top:112px}
+.hero-chip.right{right:7px;top:107px}
+
+/* Stats */
+body.theme-user .dashboard-stats{
+    margin-top:0 !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:12px !important;
+}
+
+body.theme-user .dashboard-stat-card{
+    min-height:126px !important;
+    padding:18px !important;
+    color:var(--cg-u-ink) !important;
+    background:rgba(255,255,255,.92) !important;
+    border:1px solid var(--cg-u-border) !important;
+    border-radius:18px !important;
+    box-shadow:0 14px 40px rgba(54,36,69,.075) !important;
+}
+
+body.theme-user .dashboard-stat-card::after{
+    background:radial-gradient(circle,rgba(141,72,213,.10),transparent 68%) !important;
+}
+
+body.theme-user .dashboard-stat-card:hover{
+    transform:translateY(-4px) !important;
+    border-color:#cfbee0 !important;
+}
+
+body.theme-user .dashboard-stat-card>span:first-child{
+    color:#70667a !important;
+}
+
+body.theme-user .dashboard-stat-card strong{
+    color:#2a2133 !important;
+}
+
+body.theme-user .dashboard-stat-card .stat-meta{
+    color:#7b7184 !important;
+}
+
+/* Panels */
+body.theme-user .dashboard-content{
+    grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr) !important;
+    gap:14px !important;
+    margin-top:14px !important;
+}
+
+body.theme-user .dashboard-panel{
+    padding:20px !important;
+    color:var(--cg-u-ink) !important;
+    background:rgba(255,255,255,.94) !important;
+    border:1px solid var(--cg-u-border) !important;
+    border-radius:20px !important;
+    box-shadow:0 16px 42px rgba(54,36,69,.07) !important;
+}
+
+body.theme-user .dashboard-panel:hover{
+    border-color:#d3c4df !important;
+}
+
+body.theme-user .panel-header h2{
+    color:#292032 !important;
+}
+
+body.theme-user .panel-header>div>span{
+    color:#80619c !important;
+}
+
+/* Table */
+body.theme-user .invoice-table th{
+    color:#776d80 !important;
+    border-bottom-color:#ece6ef !important;
+}
+
+body.theme-user .invoice-table td{
+    color:#4c4355 !important;
+    border-bottom-color:#eee8f1 !important;
+}
+
+body.theme-user .invoice-table tbody tr:hover{
+    background:#faf7fc !important;
+}
+
+body.theme-user .invoice-table td strong{
+    color:#33283c !important;
+}
+
+body.theme-user .invoice-secondary{
+    color:#81778b !important;
+}
+
+body.theme-user .invoice-action-link{
+    color:#7545a1 !important;
+    background:#f7f0fb !important;
+    border-color:#dfcfea !important;
+}
+
+body.theme-user .invoice-action-link:hover{
+    color:#5b2d87 !important;
+    border-color:#cdb3df !important;
+    background:#f3ebf8 !important;
+}
+
+/* Statuses stay semantic but are light */
+body.theme-user .dashboard-status.status-success,
+body.theme-user .dashboard-risk.risk-low{
+    color:#17785e !important;
+    background:#e9f8f3 !important;
+    border-color:#bee5d7 !important;
+}
+
+body.theme-user .dashboard-status.status-warning,
+body.theme-user .dashboard-risk.risk-medium{
+    color:#9a6a18 !important;
+    background:#fff7e7 !important;
+    border-color:#f1ddb2 !important;
+}
+
+body.theme-user .dashboard-status.status-error,
+body.theme-user .dashboard-risk.risk-high{
+    color:#a3384b !important;
+    background:#fff0f2 !important;
+    border-color:#efc5cc !important;
+}
+
+body.theme-user .dashboard-status.status-neutral,
+body.theme-user .dashboard-risk.risk-none{
+    color:#655c6d !important;
+    background:#f4f1f5 !important;
+    border-color:#ddd7e0 !important;
+}
+
+body.theme-user .risk-score,
+body.theme-user .finance-review-detail{
+    color:#7b7184 !important;
+}
+
+body.theme-user .finance-review.pending,
+body.theme-user .finance-review.requested{color:#9a6a18 !important}
+body.theme-user .finance-review.approved{color:#17785e !important}
+body.theme-user .finance-review.rejected{color:#a3384b !important}
+
+/* Activity + notification cards */
+body.theme-user .activity-item,
+body.theme-user .finance-notification{
+    border-bottom-color:#ece6ef !important;
+}
+
+body.theme-user .activity-dot,
+body.theme-user .finance-notification-dot{
+    background:#8b4bd9 !important;
+    box-shadow:0 0 10px rgba(139,75,217,.18) !important;
+}
+
+body.theme-user .activity-text strong,
+body.theme-user .finance-notification-text strong{
+    color:#44394d !important;
+}
+
+body.theme-user .activity-text span,
+body.theme-user .finance-notification-text span{
+    color:#82788a !important;
+}
+
+body.theme-user .notification-unread{
+    background:#faf5ff !important;
+}
+
+body.theme-user .notification-read{opacity:.68 !important}
+
+body.theme-user .notification-open{
+    color:#7a49a4 !important;
+}
+
+body.theme-user .notification-badge{
+    color:#fff !important;
+    background:#8d4bdc !important;
+    border-color:#cfaee8 !important;
+}
+
+body.theme-user .notification-mark-read{
+    color:#62586d !important;
+    background:#fff !important;
+    border-color:#e0d8e5 !important;
+}
+
+body.theme-user .notification-mark-read:hover{
+    color:#3e3448 !important;
+    border-color:#cbb7d8 !important;
+    background:#faf7fc !important;
+}
+
+/* States */
+body.theme-user .dashboard-loading,
+body.theme-user .dashboard-error,
+body.theme-user .dashboard-empty{
+    color:#514757 !important;
+    background:#fbf9fc !important;
+    border-color:#e4ddea !important;
+}
+
+body.theme-user .dashboard-error{
+    color:#a3384b !important;
+    background:#fff3f5 !important;
+    border-color:#efcbd1 !important;
+}
+
+body.theme-user .dashboard-empty h3{color:#30263a !important}
+body.theme-user .dashboard-empty p{color:#817789 !important}
+
+/* Original dashboard header responsive */
+@media(max-width:1180px){
+    body.theme-user .dashboard-page,
+    body.theme-user .navbar{
+        width:min(94vw,1200px) !important;
+    }
+
+    body.theme-user .dashboard-stats{
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    }
+
+    body.theme-user .dashboard-content{
+        grid-template-columns:1fr !important;
+    }
+
+    body.theme-user .dashboard-panel-wide{
+        grid-column:auto !important;
+    }
+
+    body.theme-user .dashboard-header{
+        padding-right:320px !important;
+    }
+
+    .user-hero-visual{
+        right:8px;
+        width:300px;
+        transform:translateY(-50%) scale(.92);
+        transform-origin:right center;
+    }
+}
+
+@media(max-width:800px){
+    body.theme-user .navbar{
+        min-height:62px !important;
+        padding:0 14px !important;
+    }
+
+    body.theme-user .dashboard-header{
+        min-height:auto !important;
+        padding:25px 24px 245px !important;
+    }
+
+    .user-hero-visual{
+        right:50%;
+        top:auto;
+        bottom:12px;
+        width:330px;
+        height:205px;
+        transform:translateX(50%) scale(.90);
+        transform-origin:center bottom;
+    }
+
+    body.theme-user .dashboard-stats{
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    }
+}
+
+@media(max-width:560px){
+    body.theme-user .navbar,
+    body.theme-user .dashboard-page{
+        width:94vw !important;
+    }
+
+    body.theme-user .search-box{
+        width:42px !important;
+        padding:0 11px !important;
+    }
+
+    body.theme-user .search-box input{display:none !important}
+
+    body.theme-user .brand-text span{display:none !important}
+
+    body.theme-user .dashboard-header{
+        padding:23px 20px 225px !important;
+    }
+
+    body.theme-user .dashboard-header h1{
+        font-size:38px !important;
+    }
+
+    .user-hero-visual{
+        transform:translateX(50%) scale(.78);
+    }
+
+    body.theme-user .dashboard-stats{
+        grid-template-columns:1fr !important;
+    }
+
+    body.theme-user .dashboard-panel{
+        padding:16px !important;
+    }
+}
+</style>
+
+
+<style id="claimguard-user-dashboard-layout-fix">
+/* =========================================================
+   FINAL USER DASHBOARD POLISH
+   VISUAL / POSITIONING ONLY.
+   No API, auth, function, ID, event listener or redirect
+   logic is changed.
+   ========================================================= */
+
+/* ---------- top navigation: keep search, badge, logout
+   in one clean horizontal row ---------- */
+body.theme-user .navbar{
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+}
+
+body.theme-user .brand{
+    flex:0 0 auto !important;
+}
+
+body.theme-user .nav-utility{
+    margin-left:auto !important;
+    flex:0 0 auto !important;
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+    white-space:nowrap !important;
+}
+
+body.theme-user .search-box{
+    width:clamp(230px,24vw,330px) !important;
+    flex:0 1 330px !important;
+}
+
+body.theme-user .notification-pill{
+    flex:0 0 auto !important;
+}
+
+body.theme-user .nav-login{
+    flex:0 0 auto !important;
+    min-width:82px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-decoration:none !important;
+}
+
+/* ---------- brand area ----------
+   The role identity sits directly after the ClaimGuard
+   brand rather than creating a detached dark block. */
+body.theme-user .brand{
+    gap:14px !important;
+}
+
+body.theme-user .brand-text{
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+}
+
+body.theme-user .brand-text h2{
+    margin:0 !important;
+    line-height:1.05 !important;
+}
+
+body.theme-user .brand-text span{
+    margin-top:4px !important;
+}
+
+/* A compact user-role caption visually lives with the
+   ClaimGuard brand. It is created without touching JS. */
+body.theme-user .brand-text::after{
+    content:"USER DASHBOARD" !important;
+    display:block !important;
+    margin-top:5px !important;
+    color:#7b5b96 !important;
+    font-size:7px !important;
+    font-weight:900 !important;
+    letter-spacing:.14em !important;
+}
+
+/* ---------- the large welcome hero should remain the
+   real personalized dashboard greeting ---------- */
+body.theme-user .dashboard-header{
+    min-height:244px !important;
+    padding:30px 370px 30px 32px !important;
+    background:
+        radial-gradient(circle at 84% 40%,rgba(164,92,220,.09),transparent 25%),
+        linear-gradient(135deg,#fffefe 0%,#f7f3fb 100%) !important;
+}
+
+body.theme-user .dashboard-header h1{
+    color:#241b2d !important;
+    font-weight:900 !important;
+}
+
+body.theme-user .dashboard-header h1 span{
+    color:#8a43dc !important;
+}
+
+body.theme-user .dashboard-header p{
+    color:#5e5567 !important;
+}
+
+/* ---------- animation: slightly larger visual footprint
+   and centered in its own lane so it reads immediately ---------- */
+.user-hero-visual{
+    right:22px !important;
+    width:348px !important;
+    height:215px !important;
+    transform:translateY(-50%) !important;
+}
+
+.user-hero-visual .orbit{
+    width:198px !important;
+    height:198px !important;
+}
+
+.user-hero-visual .orbit::before{
+    width:151px !important;
+    height:151px !important;
+}
+
+.user-hero-visual .orbit::after{
+    width:108px !important;
+    height:108px !important;
+}
+
+.user-hero-person{
+    top:31px !important;
+}
+
+.user-hero-laptop{
+    top:125px !important;
+}
+
+.hero-doc.doc-a{
+    left:14px !important;
+}
+
+.hero-doc.doc-b{
+    right:14px !important;
+}
+
+.hero-chip.left{
+    left:4px !important;
+}
+
+.hero-chip.right{
+    right:4px !important;
+}
+
+/* ---------- stats + content readability ---------- */
+body.theme-user .dashboard-stat-card>span:first-child{
+    color:#5e536a !important;
+    font-weight:800 !important;
+}
+
+body.theme-user .dashboard-stat-card strong{
+    color:#241b30 !important;
+    font-weight:900 !important;
+}
+
+body.theme-user .dashboard-stat-card .stat-meta{
+    color:#756b7e !important;
+}
+
+body.theme-user .panel-header>div>span{
+    color:#77588f !important;
+}
+
+body.theme-user .panel-header h2{
+    color:#2d2335 !important;
+}
+
+body.theme-user .invoice-table th{
+    color:#6c6175 !important;
+}
+
+body.theme-user .invoice-table td,
+body.theme-user .activity-text strong,
+body.theme-user .finance-notification-text strong{
+    color:#403646 !important;
+}
+
+/* ---------- search / logout finish ---------- */
+body.theme-user .search-box,
+body.theme-user .nav-login{
+    box-shadow:0 5px 18px rgba(66,42,84,.05) !important;
+}
+
+body.theme-user .nav-login{
+    color:#4d4257 !important;
+    background:linear-gradient(180deg,#ffffff,#faf7fc) !important;
+}
+
+body.theme-user .nav-login:hover{
+    color:#2d2137 !important;
+    border-color:#cdb8db !important;
+    background:#ffffff !important;
+}
+
+/* ---------- responsive ---------- */
+@media(max-width:1120px){
+    body.theme-user .search-box{
+        width:220px !important;
+        flex-basis:220px !important;
+    }
+
+    body.theme-user .dashboard-header{
+        padding-right:330px !important;
+    }
+
+    .user-hero-visual{
+        right:12px !important;
+        transform:translateY(-50%) scale(.93) !important;
+        transform-origin:right center !important;
+    }
+}
+
+@media(max-width:800px){
+    body.theme-user .nav-utility{
+        gap:7px !important;
+    }
+
+    body.theme-user .search-box{
+        width:170px !important;
+        flex-basis:170px !important;
+    }
+
+    body.theme-user .dashboard-header{
+        padding:25px 24px 245px !important;
+    }
+
+    .user-hero-visual{
+        right:50% !important;
+        top:auto !important;
+        bottom:12px !important;
+        width:330px !important;
+        height:205px !important;
+        transform:translateX(50%) scale(.90) !important;
+        transform-origin:center bottom !important;
+    }
+}
+
+@media(max-width:560px){
+    body.theme-user .brand-text::after{
+        display:none !important;
+    }
+
+    body.theme-user .nav-utility{
+        gap:6px !important;
+    }
+
+    body.theme-user .search-box{
+        width:42px !important;
+        flex-basis:42px !important;
+        padding:0 11px !important;
+    }
+
+    body.theme-user .search-box input{
+        display:none !important;
+    }
+
+    body.theme-user .nav-login{
+        min-width:68px !important;
+        padding:0 9px !important;
+    }
+
+    body.theme-user .dashboard-header{
+        padding:23px 20px 225px !important;
+    }
+}
+</style>
+
+
+<style id="claimguard-user-dashboard-v5-final-polish">
+/* =========================================================
+   USER DASHBOARD V5 — FINAL HEADER / HERO POLISH
+   Visual-only override. Original JS is untouched.
+   ========================================================= */
+
+/* Remove the redundant first role banner so the original
+   USER DASHBOARD hero becomes the single primary banner. */
+body.theme-user .role-banner{
+    display:none !important;
+}
+
+/* Keep the top utility bar, but remove the large brand block.
+   Search + logout remain side by side. */
+body.theme-user .navbar{
+    width:min(1500px,calc(100vw - 56px)) !important;
+    min-height:58px !important;
+    padding:0 12px 0 0 !important;
+    margin:12px auto 4px !important;
+    background:transparent !important;
+    border-color:transparent !important;
+    box-shadow:none !important;
+    backdrop-filter:none !important;
+}
+
+body.theme-user .navbar .brand{
+    display:none !important;
+}
+
+body.theme-user .nav-utility{
+    margin-left:auto !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:9px !important;
+    flex-wrap:nowrap !important;
+}
+
+body.theme-user .search-box{
+    width:260px !important;
+    height:38px !important;
+    flex:0 0 260px !important;
+    background:rgba(255,255,255,.92) !important;
+    border:1px solid #ded4e8 !important;
+    border-radius:11px !important;
+    box-shadow:0 8px 22px rgba(66,42,84,.06) !important;
+}
+
+body.theme-user .notification-pill{
+    display:none !important;
+}
+
+body.theme-user .nav-login{
+    min-width:88px !important;
+    height:38px !important;
+    padding:0 16px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    border:1px solid rgba(125,64,174,.24) !important;
+    border-radius:11px !important;
+    color:#fff !important;
+    background:linear-gradient(135deg,#8a43dc,#b84ad0) !important;
+    box-shadow:0 10px 22px rgba(139,67,220,.22) !important;
+    font-weight:900 !important;
+    text-decoration:none !important;
+    transition:transform .2s ease,box-shadow .2s ease,filter .2s ease !important;
+}
+
+body.theme-user .nav-login:hover{
+    transform:translateY(-2px) !important;
+    filter:saturate(1.08) !important;
+    box-shadow:0 15px 28px rgba(139,67,220,.30) !important;
+}
+
+/* Main page starts close to utility row. */
+body.theme-user .dashboard-page{
+    width:min(1500px,calc(100vw - 56px)) !important;
+    margin:4px auto 40px !important;
+}
+
+/* The original USER DASHBOARD hero is now the primary hero.
+   Make it match the purple light-tone look of the rest of the
+   page instead of the old blue treatment. */
+body.theme-user .dashboard-header{
+    min-height:250px !important;
+    margin:0 0 16px !important;
+    padding:32px 410px 32px 32px !important;
+    position:relative !important;
+    overflow:hidden !important;
+    color:#2a2033 !important;
+    background:
+        radial-gradient(circle at 86% 45%,rgba(173,93,221,.15),transparent 25%),
+        radial-gradient(circle at 60% 100%,rgba(120,67,213,.07),transparent 25%),
+        linear-gradient(135deg,#ffffff 0%,#f5eefb 54%,#f8f5fb 100%) !important;
+    border:1px solid #d9cbe3 !important;
+    border-radius:24px !important;
+    box-shadow:0 18px 50px rgba(51,34,66,.09) !important;
+}
+
+body.theme-user .dashboard-header::before{
+    content:"" !important;
+    position:absolute !important;
+    left:0 !important;
+    top:0 !important;
+    bottom:0 !important;
+    width:4px !important;
+    background:linear-gradient(180deg,#8b43dc,#c84fcf) !important;
+}
+
+body.theme-user .dashboard-header .auth-label{
+    display:inline-flex !important;
+    align-items:center !important;
+    gap:8px !important;
+    color:#714895 !important;
+    background:#f0e5f8 !important;
+    border:1px solid #dcc9e8 !important;
+    padding:8px 12px !important;
+    border-radius:999px !important;
+}
+
+body.theme-user .dashboard-header h1{
+    margin:18px 0 8px !important;
+    color:#271d31 !important;
+    font-size:clamp(38px,4vw,58px) !important;
+    line-height:1 !important;
+    letter-spacing:-.058em !important;
+    font-weight:900 !important;
+}
+
+body.theme-user .dashboard-header h1 span{
+    color:#8d44dc !important;
+}
+
+body.theme-user .dashboard-header p{
+    max-width:720px !important;
+    margin:0 !important;
+    color:#5e5368 !important;
+    font-size:12px !important;
+    line-height:1.7 !important;
+}
+
+body.theme-user .dashboard-header .btn-primary{
+    background:linear-gradient(90deg,#8b43dc,#b64bd2) !important;
+    color:#fff !important;
+    box-shadow:0 14px 28px rgba(139,67,220,.22) !important;
+}
+
+body.theme-user .dashboard-header .btn-primary:hover{
+    transform:translateY(-2px) !important;
+    box-shadow:0 18px 34px rgba(139,67,220,.30) !important;
+}
+
+/* Existing hero visual stays attached to this banner. */
+.user-hero-visual{
+    right:26px !important;
+    width:360px !important;
+    height:220px !important;
+    z-index:8 !important;
+}
+
+.user-hero-visual .orbit{
+    width:202px !important;
+    height:202px !important;
+}
+
+.user-hero-visual .orbit::before{
+    width:154px !important;
+    height:154px !important;
+}
+
+.user-hero-visual .orbit::after{
+    width:110px !important;
+    height:110px !important;
+}
+
+/* Keep illustration away from title copy. */
+.user-hero-person{top:31px !important}
+.user-hero-laptop{top:126px !important}
+.hero-doc.doc-a{left:12px !important}
+.hero-doc.doc-b{right:12px !important}
+.hero-chip.left{left:3px !important}
+.hero-chip.right{right:3px !important}
+
+/* Content below hero remains dark-text/light-surface. */
+body.theme-user .dashboard-stats{
+    margin-top:0 !important;
+}
+
+body.theme-user .dashboard-stat-card{
+    background:rgba(255,255,255,.95) !important;
+    border-color:#e0d7e7 !important;
+    box-shadow:0 14px 40px rgba(54,36,69,.065) !important;
+}
+
+body.theme-user .dashboard-stat-card strong{
+    color:#281e31 !important;
+}
+
+body.theme-user .dashboard-panel{
+    background:rgba(255,255,255,.96) !important;
+    border-color:#e0d7e7 !important;
+    box-shadow:0 16px 42px rgba(54,36,69,.065) !important;
+}
+
+body.theme-user .panel-header h2{
+    color:#2c2235 !important;
+}
+
+/* ---------- responsive ---------- */
+@media(max-width:1120px){
+    body.theme-user .search-box{
+        width:225px !important;
+        flex-basis:225px !important;
+    }
+
+    body.theme-user .dashboard-header{
+        padding-right:330px !important;
+    }
+
+    .user-hero-visual{
+        right:10px !important;
+        transform:translateY(-50%) scale(.92) !important;
+        transform-origin:right center !important;
+    }
+}
+
+@media(max-width:800px){
+    body.theme-user .navbar{
+        min-height:54px !important;
+        padding-right:0 !important;
+        margin-bottom:4px !important;
+    }
+
+    body.theme-user .nav-utility{
+        width:100% !important;
+    }
+
+    body.theme-user .search-box{
+        width:100% !important;
+        flex:1 1 auto !important;
+    }
+
+    body.theme-user .nav-login{
+        flex:0 0 auto !important;
+    }
+
+    body.theme-user .dashboard-header{
+        min-height:470px !important;
+        padding:25px 24px 235px !important;
+    }
+
+    .user-hero-visual{
+        right:50% !important;
+        top:auto !important;
+        bottom:8px !important;
+        width:330px !important;
+        height:205px !important;
+        transform:translateX(50%) scale(.90) !important;
+        transform-origin:center bottom !important;
+    }
+}
+
+@media(max-width:560px){
+    body.theme-user .dashboard-page,
+    body.theme-user .navbar{
+        width:94vw !important;
+    }
+
+    body.theme-user .search-box{
+        flex-basis:auto !important;
+    }
+
+    body.theme-user .dashboard-header{
+        min-height:455px !important;
+        padding:23px 20px 225px !important;
+    }
+
+    body.theme-user .dashboard-header h1{
+        font-size:38px !important;
+    }
+
+    body.theme-user .nav-login{
+        min-width:72px !important;
+        padding:0 10px !important;
+    }
+
+    .user-hero-visual{
+        transform:translateX(50%) scale(.78) !important;
+    }
+}
+</style>
+
+
+<style id="cg-user-dashboard-last-small-fix">
+/* ONLY: round the existing white hero container. */
+body.theme-user .dashboard-header{
+    border-radius:30px !important;
+}
+
+/* ONLY: rounded purple name chip; JS supplies the actual logged-in name. */
+body.theme-user .dashboard-header h1 #userName{
+    display:inline-flex !important;
+    align-items:center !important;
+    vertical-align:middle !important;
+    margin-left:7px !important;
+    padding:7px 16px 9px !important;
+    border-radius:999px !important;
+    color:#fff !important;
+    background:linear-gradient(135deg,#8b43dc,#b64bd2) !important;
+    box-shadow:0 10px 22px rgba(139,67,220,.18) !important;
+    font-size:.70em !important;
+    line-height:1 !important;
+    letter-spacing:-.035em !important;
+    white-space:nowrap !important;
+}
+</style>
+
+
+<style id="cg-user-dashboard-name-and-hero-polish">
+/* ONLY the requested visual polish:
+   - round the large white welcome box more
+   - make the dynamic name pill lighter and easier to read
+   Everything else stays unchanged. */
+
+body.theme-user .dashboard-header{
+    border-radius:34px !important;
+}
+
+body.theme-user .dashboard-header h1 #userName{
+    background:linear-gradient(135deg,#a85be2,#c565d5) !important;
+    color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.18) !important;
+    box-shadow:
+        0 10px 22px rgba(139,67,220,.14),
+        inset 0 1px 0 rgba(255,255,255,.18) !important;
+    text-shadow:0 1px 1px rgba(58,20,79,.12) !important;
+}
+</style>
+
 </head>
 
 
@@ -400,7 +1829,7 @@
             <div class="role-banner-inner">
                 <div class="role-banner-copy">
                     <span class="role-banner-label">User workspace</span>
-                    <h1>Welcome back, <span id="userName">User</span></h1>
+                    <h1>Welcome back, <span id="userNameLegacy">User</span></h1>
                     <p>Track your submissions, verification updates, review activity, and invoice outcomes from one secure workspace.</p>
                 </div>
                 <div class="role-banner-actions">
@@ -440,7 +1869,76 @@
                 Upload Invoice
             </a>
 
-        </section>
+        
+
+            <div class="user-hero-visual" aria-hidden="true">
+
+                <div class="orbit"></div>
+                <div class="glow"></div>
+
+                <div class="hero-doc doc-a">
+                    <span></span>
+                    <span></span>
+                    <span style="width:72%;"></span>
+                </div>
+
+                <div class="hero-doc doc-b">
+                    <span></span>
+                    <span></span>
+                    <span style="width:82%;"></span>
+                </div>
+
+                <div class="hero-chip left">
+                    <span class="dot"></span>
+                    <span class="title">INVOICE REVIEW</span>
+                    <div class="sub">Risk scan ready</div>
+                </div>
+
+                <div class="hero-chip right">
+                    <span class="dot"></span>
+                    <span class="title">MARKET CHECK</span>
+                    <div class="sub">Price matched</div>
+                </div>
+
+                <div class="user-hero-person">
+
+                    <div class="hair"></div>
+
+                    <div class="head">
+                        <div class="glasses">
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+
+                    <div class="body"></div>
+                    <div class="shirt"></div>
+                    <div class="tie"></div>
+
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+
+                    <div class="hand left"></div>
+                    <div class="hand right"></div>
+
+                </div>
+
+                <div class="user-hero-laptop">
+
+                    <div class="screen">
+                        <span class="line a"></span>
+                        <span class="line b"></span>
+                        <span class="line c"></span>
+                        <span class="line d"></span>
+                    </div>
+
+                    <div class="base"></div>
+
+                </div>
+
+            </div>
+
+</section>
 
 
         <!-- =================================================
@@ -1009,8 +2507,57 @@
         }
 
 
+        function normalizeDashboardRole(
+            value
+        ) {
+
+            return String(
+                value ??
+                ""
+            )
+                .trim()
+                .toLowerCase()
+                .replace(/[_\/\s]+/g, "-")
+                .replace(/-+/g, "-");
+
+        }
+
+
+        const dashboardRole =
+            normalizeDashboardRole(
+                currentUser?.role
+            );
+
+
+        // This page is the Normal User workspace. Redirect privileged
+        // accounts before any user-only invoice controls are used.
         if (
-            currentUser
+            currentUser &&
+            dashboardRole !== "user"
+        ) {
+
+            if (
+                dashboardRole === "admin"
+            ) {
+
+                window.location.replace(
+                    "admin-dashboard.html"
+                );
+
+            } else {
+
+                window.location.replace(
+                    "reviewer-dashboard.html"
+                );
+
+            }
+
+        }
+
+
+        if (
+            currentUser &&
+            dashboardRole === "user"
         ) {
 
             userNameElement.textContent =
@@ -3114,9 +4661,14 @@
                                         `Bearer ${accessToken}`,
 
                                     "Accept":
-                                        "application/json"
+                                        "application/json",
 
-                                }
+                                    "Cache-Control":
+                                        "no-cache"
+
+                                },
+
+                            cache: "no-store"
 
                         }
                     );

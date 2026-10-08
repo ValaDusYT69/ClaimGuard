@@ -1,14 +1,14 @@
 [
     {
-        "invoice_id": "INV-20261003-855D8E65",
+        "invoice_id": "INV-20261008-91B4D0DE",
         "uploaded_by": "d944c56d-7b0d-4a7e-a115-3f545967a622",
         "original_filename": "z.pdf",
-        "stored_filename": "INV-20261003-855D8E65.pdf",
-        "file_path": "uploads\\d944c56d-7b0d-4a7e-a115-3f545967a622\\INV-20261003-855D8E65.pdf",
+        "stored_filename": "INV-20261008-91B4D0DE.pdf",
+        "file_path": "uploads\\d944c56d-7b0d-4a7e-a115-3f545967a622\\INV-20261008-91B4D0DE.pdf",
         "file_size": 185681,
         "file_extension": ".pdf",
-        "uploaded_at": "2026-10-03T01:45:15.368848+00:00",
-        "status": "verification_required",
+        "uploaded_at": "2026-10-08T04:23:24.509420+00:00",
+        "status": "approved",
         "verification_code": null,
         "extracted_data": {
             "invoice_number": "RO113",
@@ -64,7 +64,7 @@
                     "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
                     "price": 850.0,
                     "currency": "BDT",
-                    "observed_at": "2026-10-03T01:45:18.866307+00:00",
+                    "observed_at": "2026-10-08T04:23:28.393240+00:00",
                     "match_confidence": 0.9,
                     "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
                     "retrieval_method": "direct_http_hard_timeout",
@@ -83,7 +83,7 @@
                     "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
                     "price": 1500.0,
                     "currency": "BDT",
-                    "observed_at": "2026-10-03T01:45:18.956013+00:00",
+                    "observed_at": "2026-10-08T04:23:28.942432+00:00",
                     "match_confidence": 0.86,
                     "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
                     "retrieval_method": "direct_http_hard_timeout",
@@ -117,7 +117,7 @@
                     "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
                     "price": 1500.0,
                     "currency": "BDT",
-                    "observed_at": "2026-10-03T01:45:18.956013+00:00",
+                    "observed_at": "2026-10-08T04:23:28.942432+00:00",
                     "match_confidence": 0.86,
                     "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
                     "retrieval_method": "direct_http_hard_timeout",
@@ -148,7 +148,7 @@
                     "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
                     "price": 850.0,
                     "currency": "BDT",
-                    "observed_at": "2026-10-03T01:45:18.866307+00:00",
+                    "observed_at": "2026-10-08T04:23:28.393240+00:00",
                     "match_confidence": 0.9,
                     "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
                     "retrieval_method": "direct_http_hard_timeout",
@@ -198,31 +198,2296 @@
                 "vendor_website_sources_accepted": 0,
                 "fast_path_used": true,
                 "generic_search_skipped": true,
-                "elapsed_seconds": 1.71,
+                "elapsed_seconds": 1.99,
                 "fallback_used": false,
                 "hard_timeout_seconds": 4.0,
                 "process_grace_seconds": 1.0,
                 "source_timings": {
                     "bike": {
-                        "elapsed_seconds": 0.53,
+                        "elapsed_seconds": 0.56,
                         "status": "accepted"
                     },
                     "daraz": {
-                        "elapsed_seconds": 0.62,
+                        "elapsed_seconds": 1.11,
                         "status": "accepted"
                     },
                     "cst": {
-                        "elapsed_seconds": 1.71,
+                        "elapsed_seconds": 1.99,
                         "status": "cst_jina_catalog_price_not_found"
                     }
                 }
             },
-            "analyzed_at": "2026-10-03T01:45:20.048707+00:00"
+            "analyzed_at": "2026-10-08T04:23:29.826538+00:00"
         },
-        "risk_score": null,
+        "risk_score": 35.0,
+        "risk_level": "low",
+        "anomalies": [
+            {
+                "anomaly_type": "possible_duplicate",
+                "severity": "high",
+                "score_contribution": 35.0,
+                "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                "evidence": {
+                    "duplicate_invoice_id": "INV-20261007-643B7832",
+                    "invoice_number": "RO113",
+                    "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                    "total_amount": 2200.0
+                }
+            }
+        ],
+        "risk_analysis": {
+            "status": "scored",
+            "risk_score": 35.0,
+            "risk_level": "low",
+            "anomalies": [
+                {
+                    "anomaly_type": "possible_duplicate",
+                    "severity": "high",
+                    "score_contribution": 35.0,
+                    "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                    "evidence": {
+                        "duplicate_invoice_id": "INV-20261007-643B7832",
+                        "invoice_number": "RO113",
+                        "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                        "total_amount": 2200.0
+                    }
+                }
+            ],
+            "explanation": {
+                "summary": "Another invoice has the same invoice number, vendor, and total amount.",
+                "reasons": [
+                    "Another invoice has the same invoice number, vendor, and total amount."
+                ],
+                "evidence_based": true,
+                "human_review_required": true
+            },
+            "ai_analysis": {
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "dependency_unavailable",
+                "available": false,
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 7,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI scoring requires scikit-learn. Install the project requirements and restart the backend."
+            },
+            "score_breakdown": {
+                "deterministic_score": 35.0,
+                "ml_score": 0.0,
+                "ml_contribution": 0.0,
+                "final_score": 35.0
+            },
+            "deterministic_engine": {
+                "rule_count_triggered": 1,
+                "evidence": {
+                    "market_price_difference_percent": -6.38,
+                    "market_reference_average": 1175.0,
+                    "historical_unit_price_count": 7,
+                    "historical_average": 1100.0,
+                    "historical_difference_percent": 0.0
+                },
+                "historical_baseline": {
+                    "count": 7,
+                    "average": 1100.0,
+                    "median": 1100.0,
+                    "stddev": 0.0
+                },
+                "duplicate_invoice_id": "INV-20261007-643B7832"
+            },
+            "ml_engine": {
+                "available": false,
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "dependency_unavailable",
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 7,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI scoring requires scikit-learn. Install the project requirements and restart the backend."
+            },
+            "market_context": {
+                "usable_for_risk_calculation": true,
+                "price_difference": -75.0,
+                "price_difference_percent": -6.38
+            },
+            "human_review_required": true
+        },
+        "decision": {
+            "decision": "approved",
+            "note": "",
+            "reviewed_by": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+            "reviewer_name": "Tazim Kb",
+            "reviewer_email": "tazimkb120@gmail.com",
+            "reviewer_role": "admin",
+            "decided_at": "2026-10-08T04:56:26.913506+00:00",
+            "previous_decision": null
+        },
+        "extraction_error": null,
+        "automated_analysis_status": "verification_required",
+        "review_routing": {
+            "review_required": true,
+            "routed_to": "finance_reviewer",
+            "routed_at": "2026-10-08T04:23:24.509420+00:00",
+            "trigger_reasons": [
+                "1 anomaly finding(s) were detected.",
+                "Document verification requires manual attention."
+            ]
+        },
+        "review_audit_trail": [
+            {
+                "event_type": "review_decision",
+                "decision": "approved",
+                "actor_id": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+                "actor_name": "Tazim Kb",
+                "actor_email": "tazimkb120@gmail.com",
+                "actor_role": "admin",
+                "note": "",
+                "timestamp": "2026-10-08T04:56:26.913523+00:00"
+            }
+        ]
+    },
+    {
+        "invoice_id": "INV-20261007-643B7832",
+        "uploaded_by": "4e4ee016-3884-4adc-b40c-fc9625aaccdc",
+        "original_filename": "z.pdf",
+        "stored_filename": "INV-20261007-643B7832.pdf",
+        "file_path": "uploads\\4e4ee016-3884-4adc-b40c-fc9625aaccdc\\INV-20261007-643B7832.pdf",
+        "file_size": 185681,
+        "file_extension": ".pdf",
+        "uploaded_at": "2026-10-07T19:10:03.772170+00:00",
+        "status": "approved",
+        "verification_code": null,
+        "extracted_data": {
+            "invoice_number": "RO113",
+            "order_id": "RO113",
+            "vendor_name": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_date": "10-Jul-2025",
+            "verification_code": null,
+            "tax_id": null,
+            "quantity": 2,
+            "unit_price": 1100,
+            "line_amount": 2200,
+            "subtotal": null,
+            "tax_amount": null,
+            "total_amount": 2200,
+            "currency": "BDT",
+            "product_description": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "extraction_status": "extracted",
+            "extraction_method": "pdf_ocr",
+            "fields_detected": 10,
+            "raw_text_length": 841,
+            "raw_text_preview": "~“\n\nON\n\nSWAN\n\n~\n\nINTERNATIONAL\n\nSWAN INTERNATIONAL (PVT.) LIMITED\n\nINVOICE\n\nOrder ID: RO113\n\nDate\n\n10-Jul-2025\n\nCustomer's Name\n\nMr, Ishan\n\nCustomer's Address\n\nDhaka\n\nContact Number\n\n01400960027\n\nT\n\nSI No\n\nDescription\n\n_Unit Price\n\nQuantity\n\nTotal\n\n\\\n\n=\n\n|\n\n1\n\nC ST Jack Rabbit 27.5 X 2.10 Wired Coffee\n\n1,100\n\n2\n\n+\n\n2,200\n\nGrand Total 2,200\n\nIn Word: Two Thousand Two Hundred Taka Only\n\nRegards\n\nxo we\n\nSk. Hasan Tanvyirul Islam\n\nSwan International (Pvt) Limited\n\nMAXXIS*\n\ncsT.\n\nPresa\n\nHead Office :1230, D.T. Road, Kadamtali, Chattogram- 4100, Bangladesh, Phone : +880-31-725593, Fax : +880-31-710235, Web : www.maxxis.com.bd\n\nDhaka Office : Navana Rahim Ardent, Apt # C-2 (2nd Floor), 185, Shahid Syed Nazrul Islam Sharan|, Bljoynagar, Kakrall, Dhaka-1000, Bangladesh, Phone : +88-02-222220458, +88-02-49349936, Web ; www.csttires,.com.bd"
+        },
+        "verification": {
+            "status": "verification_required",
+            "is_valid": false,
+            "verification_code": null,
+            "checks": {
+                "code_present": false,
+                "format_valid": false,
+                "duplicate_code": false,
+                "document_check": false,
+                "invoice_number_present": true,
+                "vendor_present": true,
+                "total_amount_present": true
+            },
+            "message": "Additional verification is required before the invoice can be considered verified.",
+            "source": "invoice_document",
+            "duplicate_invoice_id": null
+        },
+        "market_analysis": {
+            "status": "analyzed",
+            "message": "Comparable web-observed prices were found.",
+            "product_query": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_unit_price": 1100.0,
+            "invoice_currency": "BDT",
+            "sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-07T19:10:07.174197+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                },
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-07T19:10:07.267947+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "vendor_website_sources": [],
+            "official_brand_sources": [],
+            "other_web_sources": [],
+            "marketplace_sources": [
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-07T19:10:07.267947+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "retailer_sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-07T19:10:07.174197+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                }
+            ],
+            "market_statistics": {
+                "currency": "BDT",
+                "lowest": 850.0,
+                "highest": 1500.0,
+                "average": 1175.0,
+                "median": 1175.0
+            },
+            "price_difference": -75.0,
+            "price_difference_percent": -6.38,
+            "usable_for_risk_calculation": true,
+            "search_diagnostics": {
+                "queries_attempted": 0,
+                "search_results_found": 0,
+                "candidates_checked": 0,
+                "sources_accepted": 2,
+                "engine_result_counts": {},
+                "search_domain_counts": {},
+                "priority_domains_found": [],
+                "direct_sources_checked": 9,
+                "direct_sources_accepted": 2,
+                "priority_domains_checked_directly": [
+                    "csttires.com.bd",
+                    "daraz.com.bd",
+                    "bikeshopbd.com.bd"
+                ],
+                "direct_unique_domains_accepted": [
+                    "bikeshopbd.com.bd",
+                    "daraz.com.bd"
+                ],
+                "search_hint_domains_available": [],
+                "unique_source_domains": 2,
+                "minimum_sources_for_risk": 2,
+                "marketplace_sources_accepted": 1,
+                "retailer_sources_accepted": 1,
+                "official_brand_sources_accepted": 0,
+                "vendor_website_sources_accepted": 0,
+                "fast_path_used": true,
+                "generic_search_skipped": true,
+                "elapsed_seconds": 1.74,
+                "fallback_used": false,
+                "hard_timeout_seconds": 4.0,
+                "process_grace_seconds": 1.0,
+                "source_timings": {
+                    "bike": {
+                        "elapsed_seconds": 0.51,
+                        "status": "accepted"
+                    },
+                    "daraz": {
+                        "elapsed_seconds": 0.6,
+                        "status": "accepted"
+                    },
+                    "cst": {
+                        "elapsed_seconds": 1.74,
+                        "status": "cst_jina_catalog_price_not_found"
+                    }
+                }
+            },
+            "analyzed_at": "2026-10-07T19:10:08.403618+00:00"
+        },
+        "risk_score": 35.0,
+        "risk_level": "low",
+        "anomalies": [
+            {
+                "anomaly_type": "possible_duplicate",
+                "severity": "high",
+                "score_contribution": 35.0,
+                "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                "evidence": {
+                    "duplicate_invoice_id": "INV-20261007-DFB46871",
+                    "invoice_number": "RO113",
+                    "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                    "total_amount": 2200.0
+                }
+            }
+        ],
+        "risk_analysis": {
+            "status": "scored",
+            "risk_score": 35.0,
+            "risk_level": "low",
+            "anomalies": [
+                {
+                    "anomaly_type": "possible_duplicate",
+                    "severity": "high",
+                    "score_contribution": 35.0,
+                    "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                    "evidence": {
+                        "duplicate_invoice_id": "INV-20261007-DFB46871",
+                        "invoice_number": "RO113",
+                        "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                        "total_amount": 2200.0
+                    }
+                }
+            ],
+            "explanation": {
+                "summary": "Another invoice has the same invoice number, vendor, and total amount.",
+                "reasons": [
+                    "Another invoice has the same invoice number, vendor, and total amount."
+                ],
+                "evidence_based": true,
+                "human_review_required": true
+            },
+            "ai_analysis": {
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "dependency_unavailable",
+                "available": false,
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 6,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI scoring requires scikit-learn. Install the project requirements and restart the backend."
+            },
+            "score_breakdown": {
+                "deterministic_score": 35.0,
+                "ml_score": 0.0,
+                "ml_contribution": 0.0,
+                "final_score": 35.0
+            },
+            "deterministic_engine": {
+                "rule_count_triggered": 1,
+                "evidence": {
+                    "market_price_difference_percent": -6.38,
+                    "market_reference_average": 1175.0,
+                    "historical_unit_price_count": 6,
+                    "historical_average": 1100.0,
+                    "historical_difference_percent": 0.0
+                },
+                "historical_baseline": {
+                    "count": 6,
+                    "average": 1100.0,
+                    "median": 1100.0,
+                    "stddev": 0.0
+                },
+                "duplicate_invoice_id": "INV-20261007-DFB46871"
+            },
+            "ml_engine": {
+                "available": false,
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "dependency_unavailable",
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 6,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI scoring requires scikit-learn. Install the project requirements and restart the backend."
+            },
+            "market_context": {
+                "usable_for_risk_calculation": true,
+                "price_difference": -75.0,
+                "price_difference_percent": -6.38
+            },
+            "human_review_required": true
+        },
+        "decision": {
+            "decision": "approved",
+            "note": "",
+            "reviewed_by": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+            "reviewer_name": "Tazim Kb",
+            "reviewer_email": "tazimkb120@gmail.com",
+            "reviewer_role": "admin",
+            "decided_at": "2026-10-08T05:05:46.274733+00:00",
+            "previous_decision": null
+        },
+        "extraction_error": null,
+        "automated_analysis_status": "verification_required",
+        "review_routing": {
+            "review_required": true,
+            "routed_to": "finance_reviewer",
+            "routed_at": "2026-10-07T19:10:03.772170+00:00",
+            "trigger_reasons": [
+                "1 anomaly finding(s) were detected.",
+                "Document verification requires manual attention."
+            ]
+        },
+        "review_audit_trail": [
+            {
+                "event_type": "review_decision",
+                "decision": "approved",
+                "actor_id": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+                "actor_name": "Tazim Kb",
+                "actor_email": "tazimkb120@gmail.com",
+                "actor_role": "admin",
+                "note": "",
+                "timestamp": "2026-10-08T05:05:46.274760+00:00"
+            }
+        ]
+    },
+    {
+        "invoice_id": "INV-20261007-DFB46871",
+        "uploaded_by": "4e4ee016-3884-4adc-b40c-fc9625aaccdc",
+        "original_filename": "z.pdf",
+        "stored_filename": "INV-20261007-DFB46871.pdf",
+        "file_path": "uploads\\4e4ee016-3884-4adc-b40c-fc9625aaccdc\\INV-20261007-DFB46871.pdf",
+        "file_size": 185681,
+        "file_extension": ".pdf",
+        "uploaded_at": "2026-10-07T19:09:23.935147+00:00",
+        "status": "approved",
+        "verification_code": null,
+        "extracted_data": {
+            "invoice_number": "RO113",
+            "order_id": "RO113",
+            "vendor_name": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_date": "10-Jul-2025",
+            "verification_code": null,
+            "tax_id": null,
+            "quantity": 2,
+            "unit_price": 1100,
+            "line_amount": 2200,
+            "subtotal": null,
+            "tax_amount": null,
+            "total_amount": 2200,
+            "currency": "BDT",
+            "product_description": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "extraction_status": "extracted",
+            "extraction_method": "pdf_ocr",
+            "fields_detected": 10,
+            "raw_text_length": 841,
+            "raw_text_preview": "~“\n\nON\n\nSWAN\n\n~\n\nINTERNATIONAL\n\nSWAN INTERNATIONAL (PVT.) LIMITED\n\nINVOICE\n\nOrder ID: RO113\n\nDate\n\n10-Jul-2025\n\nCustomer's Name\n\nMr, Ishan\n\nCustomer's Address\n\nDhaka\n\nContact Number\n\n01400960027\n\nT\n\nSI No\n\nDescription\n\n_Unit Price\n\nQuantity\n\nTotal\n\n\\\n\n=\n\n|\n\n1\n\nC ST Jack Rabbit 27.5 X 2.10 Wired Coffee\n\n1,100\n\n2\n\n+\n\n2,200\n\nGrand Total 2,200\n\nIn Word: Two Thousand Two Hundred Taka Only\n\nRegards\n\nxo we\n\nSk. Hasan Tanvyirul Islam\n\nSwan International (Pvt) Limited\n\nMAXXIS*\n\ncsT.\n\nPresa\n\nHead Office :1230, D.T. Road, Kadamtali, Chattogram- 4100, Bangladesh, Phone : +880-31-725593, Fax : +880-31-710235, Web : www.maxxis.com.bd\n\nDhaka Office : Navana Rahim Ardent, Apt # C-2 (2nd Floor), 185, Shahid Syed Nazrul Islam Sharan|, Bljoynagar, Kakrall, Dhaka-1000, Bangladesh, Phone : +88-02-222220458, +88-02-49349936, Web ; www.csttires,.com.bd"
+        },
+        "verification": {
+            "status": "verification_required",
+            "is_valid": false,
+            "verification_code": null,
+            "checks": {
+                "code_present": false,
+                "format_valid": false,
+                "duplicate_code": false,
+                "document_check": false,
+                "invoice_number_present": true,
+                "vendor_present": true,
+                "total_amount_present": true
+            },
+            "message": "Additional verification is required before the invoice can be considered verified.",
+            "source": "invoice_document",
+            "duplicate_invoice_id": null
+        },
+        "market_analysis": {
+            "status": "analyzed",
+            "message": "Comparable web-observed prices were found.",
+            "product_query": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_unit_price": 1100.0,
+            "invoice_currency": "BDT",
+            "sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-07T19:09:27.931182+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                },
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-07T19:09:28.514450+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "vendor_website_sources": [],
+            "official_brand_sources": [],
+            "other_web_sources": [],
+            "marketplace_sources": [
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-07T19:09:28.514450+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "retailer_sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-07T19:09:27.931182+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                }
+            ],
+            "market_statistics": {
+                "currency": "BDT",
+                "lowest": 850.0,
+                "highest": 1500.0,
+                "average": 1175.0,
+                "median": 1175.0
+            },
+            "price_difference": -75.0,
+            "price_difference_percent": -6.38,
+            "usable_for_risk_calculation": true,
+            "search_diagnostics": {
+                "queries_attempted": 0,
+                "search_results_found": 0,
+                "candidates_checked": 0,
+                "sources_accepted": 2,
+                "engine_result_counts": {},
+                "search_domain_counts": {},
+                "priority_domains_found": [],
+                "direct_sources_checked": 9,
+                "direct_sources_accepted": 2,
+                "priority_domains_checked_directly": [
+                    "csttires.com.bd",
+                    "daraz.com.bd",
+                    "bikeshopbd.com.bd"
+                ],
+                "direct_unique_domains_accepted": [
+                    "bikeshopbd.com.bd",
+                    "daraz.com.bd"
+                ],
+                "search_hint_domains_available": [],
+                "unique_source_domains": 2,
+                "minimum_sources_for_risk": 2,
+                "marketplace_sources_accepted": 1,
+                "retailer_sources_accepted": 1,
+                "official_brand_sources_accepted": 0,
+                "vendor_website_sources_accepted": 0,
+                "fast_path_used": true,
+                "generic_search_skipped": true,
+                "elapsed_seconds": 1.98,
+                "fallback_used": false,
+                "hard_timeout_seconds": 4.0,
+                "process_grace_seconds": 1.0,
+                "source_timings": {
+                    "bike": {
+                        "elapsed_seconds": 0.48,
+                        "status": "accepted"
+                    },
+                    "daraz": {
+                        "elapsed_seconds": 1.07,
+                        "status": "accepted"
+                    },
+                    "cst": {
+                        "elapsed_seconds": 1.98,
+                        "status": "cst_jina_catalog_price_not_found"
+                    }
+                }
+            },
+            "analyzed_at": "2026-10-07T19:09:29.429883+00:00"
+        },
+        "risk_score": 35.0,
+        "risk_level": "low",
+        "anomalies": [
+            {
+                "anomaly_type": "possible_duplicate",
+                "severity": "high",
+                "score_contribution": 35.0,
+                "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                "evidence": {
+                    "duplicate_invoice_id": "INV-20261003-4C3ADB42",
+                    "invoice_number": "RO113",
+                    "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                    "total_amount": 2200.0
+                }
+            }
+        ],
+        "risk_analysis": {
+            "status": "scored",
+            "risk_score": 35.0,
+            "risk_level": "low",
+            "anomalies": [
+                {
+                    "anomaly_type": "possible_duplicate",
+                    "severity": "high",
+                    "score_contribution": 35.0,
+                    "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                    "evidence": {
+                        "duplicate_invoice_id": "INV-20261003-4C3ADB42",
+                        "invoice_number": "RO113",
+                        "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                        "total_amount": 2200.0
+                    }
+                }
+            ],
+            "explanation": {
+                "summary": "Another invoice has the same invoice number, vendor, and total amount.",
+                "reasons": [
+                    "Another invoice has the same invoice number, vendor, and total amount."
+                ],
+                "evidence_based": true,
+                "human_review_required": true
+            },
+            "ai_analysis": {
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "dependency_unavailable",
+                "available": false,
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 5,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI scoring requires scikit-learn. Install the project requirements and restart the backend."
+            },
+            "score_breakdown": {
+                "deterministic_score": 35.0,
+                "ml_score": 0.0,
+                "ml_contribution": 0.0,
+                "final_score": 35.0
+            },
+            "deterministic_engine": {
+                "rule_count_triggered": 1,
+                "evidence": {
+                    "market_price_difference_percent": -6.38,
+                    "market_reference_average": 1175.0,
+                    "historical_unit_price_count": 5,
+                    "historical_average": 1100.0,
+                    "historical_difference_percent": 0.0
+                },
+                "historical_baseline": {
+                    "count": 5,
+                    "average": 1100.0,
+                    "median": 1100.0,
+                    "stddev": 0.0
+                },
+                "duplicate_invoice_id": "INV-20261003-4C3ADB42"
+            },
+            "ml_engine": {
+                "available": false,
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "dependency_unavailable",
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 5,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI scoring requires scikit-learn. Install the project requirements and restart the backend."
+            },
+            "market_context": {
+                "usable_for_risk_calculation": true,
+                "price_difference": -75.0,
+                "price_difference_percent": -6.38
+            },
+            "human_review_required": true
+        },
+        "decision": {
+            "decision": "approved",
+            "note": "",
+            "reviewed_by": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+            "reviewer_name": "Tazim Kb",
+            "reviewer_email": "tazimkb120@gmail.com",
+            "reviewer_role": "admin",
+            "decided_at": "2026-10-08T05:06:00.091034+00:00",
+            "previous_decision": null
+        },
+        "extraction_error": null,
+        "automated_analysis_status": "verification_required",
+        "review_routing": {
+            "review_required": true,
+            "routed_to": "finance_reviewer",
+            "routed_at": "2026-10-07T19:09:23.935147+00:00",
+            "trigger_reasons": [
+                "1 anomaly finding(s) were detected.",
+                "Document verification requires manual attention."
+            ]
+        },
+        "review_audit_trail": [
+            {
+                "event_type": "review_decision",
+                "decision": "approved",
+                "actor_id": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+                "actor_name": "Tazim Kb",
+                "actor_email": "tazimkb120@gmail.com",
+                "actor_role": "admin",
+                "note": "",
+                "timestamp": "2026-10-08T05:06:00.091047+00:00"
+            }
+        ]
+    },
+    {
+        "invoice_id": "INV-20261007-418E4E46",
+        "uploaded_by": "4e4ee016-3884-4adc-b40c-fc9625aaccdc",
+        "original_filename": "ClaimGuard_Report_INV-20261003-4C3ADB42.pdf",
+        "stored_filename": "INV-20261007-418E4E46.pdf",
+        "file_path": "uploads\\4e4ee016-3884-4adc-b40c-fc9625aaccdc\\INV-20261007-418E4E46.pdf",
+        "file_size": 6702,
+        "file_extension": ".pdf",
+        "uploaded_at": "2026-10-07T19:07:59.111905+00:00",
+        "status": "verified_document",
+        "verification_code": "Verification",
+        "extracted_data": {
+            "invoice_number": "RO113",
+            "order_id": null,
+            "vendor_name": "SWAN INTERNATIONAL (PVT.) LIMITED | total_amount: 2200.0",
+            "invoice_date": "10-Jul-2025",
+            "verification_code": "Verification",
+            "tax_id": null,
+            "quantity": 2,
+            "unit_price": 1100,
+            "line_amount": 2200,
+            "subtotal": null,
+            "tax_amount": null,
+            "total_amount": 2200,
+            "currency": "BDT",
+            "extraction_status": "extracted",
+            "extraction_method": "pdf_text",
+            "fields_detected": 9,
+            "raw_text_length": 2587,
+            "raw_text_preview": "ClaimGuard - Invoice Intelligence\nPage 1\nClaimGuard Invoice Review Report\nExplainable invoice verification, anomaly analysis, market evidence and Finance/Reviewer decision record.\nInvoice Number\nRO113\nInvoice ID\nINV-20261003-4C3ADB42\nVendor\nSWAN INTERNATIONAL (PVT.) LIMITED\nCurrent Status\npending_review\nRisk Score\n35/100\nRisk Level\nlow\nReport Generated\n2026-10-07T19:04:25.278223+00:00\n1. Invoice Information\nInvoice Date\n10-Jul-2025\nVendor\nSWAN INTERNATIONAL (PVT.) LIMITED\nQuantity\n2\nUnit Price\n1,100\nSubtotal\n-\nTax / VAT\n-\nTotal Amount\nBDT -\nPurchase Order\nRO113\nExtraction Method\npdf_ocr\n2. Verification Result\nVerification Status\nverification_required\nVerification Code\n-\nVerification Message\nAdditional verification is required before the invoice can be considered verified.\nVendor Check\n-\nCalculation / Field Check\n-\n3. Risk & Anomaly Analysis\nRisk Score\n35/100\nRisk Level\nlow\n\nClaimGuard - Invoice Intelligence\nPage 2\nAI / ML Status\ninsufficient_training_data\nAI Score\n-\nAI Model\n-\nHuman Review Required\nTrue\npossible_duplicate\nAnother invoice has the same invoice number, vendor, and total amount.\nSeverity: high\nEvidence: duplicate_invoice_id: INV-20261003-43CC0B60 | invoice_number: RO113 |\nvendor: SWAN INTERNATIONAL (PVT.) LIMITED | total_amount: 2200.0\n4. Why the Invoice Was Flagged\n{'summary': 'Another invoice has the same invoice number, vendor, and total amount.', 'reasons': ['Another invoice has the\nsame invoice number, vendor, and total amount.', 'Local AI anomaly scoring was not activated because the available real\nhistorical sample is too small.'], 'evidence_based': True, 'human_review_required': True}\n5. Market Price Evidence\nAnalysis Status\nanalyzed\nInvoice Unit Price\n1100.0\nLowest Observed Price\n-\nHighest Observed Price\n-\nAverage Price\n-\nMedian Price\n-\nDifference %\n-\nSource 1\nPrice: 1500.0\nURL: https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-2\n7-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/\nSource 2\nPrice: 850.0\nURL: https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210\n6. Finance / Reviewer Decision\nDecision\n-\nReviewer\n-\nReviewer Role\n-\nDecision Time\n-\nReviewer Note\n-\n7. Verification Submission\n\nClaimGuard - Invoice Intelligence\nPage 3\nSubmission Status\n-\nSubmitted By\n-\nSubmitted At\n-\nSubmitted Information\n-\n8. Review Audit Trail\nNo review audit events have been recorded.\nClaimGuard report note: A risk score or anomaly is a verification signal, not definitive proof of fraud. Final financial decisions remain with\nthe authorized Finance/Reviewer process."
+        },
+        "verification": {
+            "status": "verified_document",
+            "is_valid": true,
+            "verification_code": "VERIFICATION",
+            "checks": {
+                "code_present": true,
+                "format_valid": true,
+                "duplicate_code": false,
+                "document_check": true,
+                "invoice_number_present": true,
+                "vendor_present": true,
+                "total_amount_present": true
+            },
+            "message": "Invoice document checks passed. The verification code is valid in format, has not been duplicated in existing ClaimGuard records, and the required invoice fields were found.",
+            "source": "internal_invoice_records",
+            "duplicate_invoice_id": null
+        },
+        "market_analysis": {
+            "status": "insufficient_product_identity",
+            "message": "A reliable comparable product could not be identified from the invoice.",
+            "product_query": null,
+            "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED | total_amount: 2200.0",
+            "invoice_unit_price": 1100,
+            "invoice_currency": "BDT",
+            "sources": [],
+            "vendor_website_sources": [],
+            "marketplace_sources": [],
+            "market_statistics": {
+                "currency": null,
+                "lowest": null,
+                "highest": null,
+                "average": null,
+                "median": null
+            },
+            "price_difference": null,
+            "price_difference_percent": null,
+            "usable_for_risk_calculation": false,
+            "analyzed_at": "2026-10-07T19:08:01.437950+00:00"
+        },
+        "risk_score": 0.0,
+        "risk_level": "low",
         "anomalies": [],
+        "risk_analysis": {
+            "status": "scored",
+            "risk_score": 0.0,
+            "risk_level": "low",
+            "anomalies": [],
+            "explanation": {
+                "summary": "Local AI anomaly scoring was not activated because the available real historical sample is too small.",
+                "reasons": [
+                    "Local AI anomaly scoring was not activated because the available real historical sample is too small."
+                ],
+                "evidence_based": true,
+                "human_review_required": true
+            },
+            "ai_analysis": {
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "insufficient_training_data",
+                "available": false,
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 0,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI is integrated and ready, but it needs at least 5 real similar historical invoices. Only 0 matching records are currently available."
+            },
+            "score_breakdown": {
+                "deterministic_score": 0.0,
+                "ml_score": 0.0,
+                "ml_contribution": 0.0,
+                "final_score": 0.0
+            },
+            "deterministic_engine": {
+                "rule_count_triggered": 0,
+                "evidence": {},
+                "historical_baseline": {
+                    "count": 0,
+                    "average": null,
+                    "median": null,
+                    "stddev": null
+                },
+                "duplicate_invoice_id": null
+            },
+            "ml_engine": {
+                "available": false,
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "insufficient_training_data",
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 0,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI is integrated and ready, but it needs at least 5 real similar historical invoices. Only 0 matching records are currently available."
+            },
+            "market_context": {
+                "usable_for_risk_calculation": false,
+                "price_difference": null,
+                "price_difference_percent": null
+            },
+            "human_review_required": true
+        },
         "decision": null,
-        "extraction_error": null
+        "extraction_error": null,
+        "automated_analysis_status": "verified_document",
+        "review_routing": {
+            "review_required": false,
+            "routed_to": null,
+            "routed_at": null,
+            "trigger_reasons": []
+        }
+    },
+    {
+        "invoice_id": "INV-20261003-4C3ADB42",
+        "uploaded_by": "4e4ee016-3884-4adc-b40c-fc9625aaccdc",
+        "original_filename": "z.pdf",
+        "stored_filename": "INV-20261003-4C3ADB42.pdf",
+        "file_path": "uploads\\4e4ee016-3884-4adc-b40c-fc9625aaccdc\\INV-20261003-4C3ADB42.pdf",
+        "file_size": 185681,
+        "file_extension": ".pdf",
+        "uploaded_at": "2026-10-03T09:55:18.302848+00:00",
+        "status": "approved",
+        "verification_code": null,
+        "extracted_data": {
+            "invoice_number": "RO113",
+            "order_id": "RO113",
+            "vendor_name": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_date": "10-Jul-2025",
+            "verification_code": null,
+            "tax_id": null,
+            "quantity": 2,
+            "unit_price": 1100,
+            "line_amount": 2200,
+            "subtotal": null,
+            "tax_amount": null,
+            "total_amount": 2200,
+            "currency": "BDT",
+            "product_description": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "extraction_status": "extracted",
+            "extraction_method": "pdf_ocr",
+            "fields_detected": 10,
+            "raw_text_length": 841,
+            "raw_text_preview": "~“\n\nON\n\nSWAN\n\n~\n\nINTERNATIONAL\n\nSWAN INTERNATIONAL (PVT.) LIMITED\n\nINVOICE\n\nOrder ID: RO113\n\nDate\n\n10-Jul-2025\n\nCustomer's Name\n\nMr, Ishan\n\nCustomer's Address\n\nDhaka\n\nContact Number\n\n01400960027\n\nT\n\nSI No\n\nDescription\n\n_Unit Price\n\nQuantity\n\nTotal\n\n\\\n\n=\n\n|\n\n1\n\nC ST Jack Rabbit 27.5 X 2.10 Wired Coffee\n\n1,100\n\n2\n\n+\n\n2,200\n\nGrand Total 2,200\n\nIn Word: Two Thousand Two Hundred Taka Only\n\nRegards\n\nxo we\n\nSk. Hasan Tanvyirul Islam\n\nSwan International (Pvt) Limited\n\nMAXXIS*\n\ncsT.\n\nPresa\n\nHead Office :1230, D.T. Road, Kadamtali, Chattogram- 4100, Bangladesh, Phone : +880-31-725593, Fax : +880-31-710235, Web : www.maxxis.com.bd\n\nDhaka Office : Navana Rahim Ardent, Apt # C-2 (2nd Floor), 185, Shahid Syed Nazrul Islam Sharan|, Bljoynagar, Kakrall, Dhaka-1000, Bangladesh, Phone : +88-02-222220458, +88-02-49349936, Web ; www.csttires,.com.bd"
+        },
+        "verification": {
+            "status": "verification_required",
+            "is_valid": false,
+            "verification_code": null,
+            "checks": {
+                "code_present": false,
+                "format_valid": false,
+                "duplicate_code": false,
+                "document_check": false,
+                "invoice_number_present": true,
+                "vendor_present": true,
+                "total_amount_present": true
+            },
+            "message": "Additional verification is required before the invoice can be considered verified.",
+            "source": "invoice_document",
+            "duplicate_invoice_id": null
+        },
+        "market_analysis": {
+            "status": "analyzed",
+            "message": "Comparable web-observed prices were found.",
+            "product_query": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_unit_price": 1100.0,
+            "invoice_currency": "BDT",
+            "sources": [
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T09:55:21.902687+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                },
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T09:55:22.029100+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                }
+            ],
+            "vendor_website_sources": [],
+            "official_brand_sources": [],
+            "other_web_sources": [],
+            "marketplace_sources": [
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T09:55:21.902687+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "retailer_sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T09:55:22.029100+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                }
+            ],
+            "market_statistics": {
+                "currency": "BDT",
+                "lowest": 850.0,
+                "highest": 1500.0,
+                "average": 1175.0,
+                "median": 1175.0
+            },
+            "price_difference": -75.0,
+            "price_difference_percent": -6.38,
+            "usable_for_risk_calculation": true,
+            "search_diagnostics": {
+                "queries_attempted": 0,
+                "search_results_found": 0,
+                "candidates_checked": 0,
+                "sources_accepted": 2,
+                "engine_result_counts": {},
+                "search_domain_counts": {},
+                "priority_domains_found": [],
+                "direct_sources_checked": 9,
+                "direct_sources_accepted": 2,
+                "priority_domains_checked_directly": [
+                    "csttires.com.bd",
+                    "daraz.com.bd",
+                    "bikeshopbd.com.bd"
+                ],
+                "direct_unique_domains_accepted": [
+                    "bikeshopbd.com.bd",
+                    "daraz.com.bd"
+                ],
+                "search_hint_domains_available": [],
+                "unique_source_domains": 2,
+                "minimum_sources_for_risk": 2,
+                "marketplace_sources_accepted": 1,
+                "retailer_sources_accepted": 1,
+                "official_brand_sources_accepted": 0,
+                "vendor_website_sources_accepted": 0,
+                "fast_path_used": true,
+                "generic_search_skipped": true,
+                "elapsed_seconds": 1.73,
+                "fallback_used": false,
+                "hard_timeout_seconds": 4.0,
+                "process_grace_seconds": 1.0,
+                "source_timings": {
+                    "daraz": {
+                        "elapsed_seconds": 0.59,
+                        "status": "accepted"
+                    },
+                    "bike": {
+                        "elapsed_seconds": 0.72,
+                        "status": "accepted"
+                    },
+                    "cst": {
+                        "elapsed_seconds": 1.73,
+                        "status": "cst_jina_catalog_price_not_found"
+                    }
+                }
+            },
+            "analyzed_at": "2026-10-03T09:55:23.034997+00:00"
+        },
+        "risk_score": 35.0,
+        "risk_level": "low",
+        "anomalies": [
+            {
+                "anomaly_type": "possible_duplicate",
+                "severity": "high",
+                "score_contribution": 35.0,
+                "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                "evidence": {
+                    "duplicate_invoice_id": "INV-20261003-43CC0B60",
+                    "invoice_number": "RO113",
+                    "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                    "total_amount": 2200.0
+                }
+            }
+        ],
+        "risk_analysis": {
+            "status": "scored",
+            "risk_score": 35.0,
+            "risk_level": "low",
+            "anomalies": [
+                {
+                    "anomaly_type": "possible_duplicate",
+                    "severity": "high",
+                    "score_contribution": 35.0,
+                    "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                    "evidence": {
+                        "duplicate_invoice_id": "INV-20261003-43CC0B60",
+                        "invoice_number": "RO113",
+                        "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                        "total_amount": 2200.0
+                    }
+                }
+            ],
+            "explanation": {
+                "summary": "Another invoice has the same invoice number, vendor, and total amount.",
+                "reasons": [
+                    "Another invoice has the same invoice number, vendor, and total amount.",
+                    "Local AI anomaly scoring was not activated because the available real historical sample is too small."
+                ],
+                "evidence_based": true,
+                "human_review_required": true
+            },
+            "ai_analysis": {
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "insufficient_training_data",
+                "available": false,
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 4,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI is integrated and ready, but it needs at least 5 real similar historical invoices. Only 4 matching records are currently available."
+            },
+            "score_breakdown": {
+                "deterministic_score": 35.0,
+                "ml_score": 0.0,
+                "ml_contribution": 0.0,
+                "final_score": 35.0
+            },
+            "deterministic_engine": {
+                "rule_count_triggered": 1,
+                "evidence": {
+                    "market_price_difference_percent": -6.38,
+                    "market_reference_average": 1175.0,
+                    "historical_unit_price_count": 4,
+                    "historical_average": 1100.0,
+                    "historical_difference_percent": 0.0
+                },
+                "historical_baseline": {
+                    "count": 4,
+                    "average": 1100.0,
+                    "median": 1100.0,
+                    "stddev": 0.0
+                },
+                "duplicate_invoice_id": "INV-20261003-43CC0B60"
+            },
+            "ml_engine": {
+                "available": false,
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "insufficient_training_data",
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 4,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI is integrated and ready, but it needs at least 5 real similar historical invoices. Only 4 matching records are currently available."
+            },
+            "market_context": {
+                "usable_for_risk_calculation": true,
+                "price_difference": -75.0,
+                "price_difference_percent": -6.38
+            },
+            "human_review_required": true
+        },
+        "decision": {
+            "decision": "approved",
+            "note": "",
+            "reviewed_by": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+            "reviewer_name": "Tazim Kb",
+            "reviewer_email": "tazimkb120@gmail.com",
+            "reviewer_role": "admin",
+            "decided_at": "2026-10-08T05:06:10.600850+00:00",
+            "previous_decision": null
+        },
+        "extraction_error": null,
+        "automated_analysis_status": "verification_required",
+        "review_routing": {
+            "review_required": true,
+            "routed_to": "finance_reviewer",
+            "routed_at": "2026-10-03T09:55:18.302848+00:00",
+            "trigger_reasons": [
+                "1 anomaly finding(s) were detected.",
+                "Document verification requires manual attention."
+            ]
+        },
+        "review_audit_trail": [
+            {
+                "event_type": "review_decision",
+                "decision": "approved",
+                "actor_id": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+                "actor_name": "Tazim Kb",
+                "actor_email": "tazimkb120@gmail.com",
+                "actor_role": "admin",
+                "note": "",
+                "timestamp": "2026-10-08T05:06:10.600867+00:00"
+            }
+        ]
+    },
+    {
+        "invoice_id": "INV-20261003-22862DBD",
+        "uploaded_by": "4e4ee016-3884-4adc-b40c-fc9625aaccdc",
+        "original_filename": "invoice.pdf",
+        "stored_filename": "INV-20261003-22862DBD.pdf",
+        "file_path": "uploads\\4e4ee016-3884-4adc-b40c-fc9625aaccdc\\INV-20261003-22862DBD.pdf",
+        "file_size": 201656,
+        "file_extension": ".pdf",
+        "uploaded_at": "2026-10-03T09:39:13.523659+00:00",
+        "status": "rejected",
+        "verification_code": null,
+        "extracted_data": {
+            "invoice_number": null,
+            "order_id": null,
+            "vendor_name": null,
+            "invoice_date": null,
+            "verification_code": null,
+            "tax_id": null,
+            "quantity": null,
+            "unit_price": null,
+            "line_amount": null,
+            "subtotal": null,
+            "tax_amount": null,
+            "total_amount": null,
+            "currency": "BDT",
+            "extraction_status": "extracted",
+            "extraction_method": "pdf_ocr",
+            "fields_detected": 1,
+            "raw_text_length": 547,
+            "raw_text_preview": "Ss...\n\nAny Call Teler\n\npve\n\nOm\n\nServe you the best\n\n'\n\nShop # 5/64, Eastom Plus g\n\n\"OUnunnonne,\n\n1366\n\n145 Shantinagar,\n\non Cell; 01912466174, vitae\n\nDate: J. > 26\n\nCustomer Name___\n\nAddress\n\nb\n\nSerial\n\n- Mo. 215 fo20d03\n\nseen b lhl ee eee\n\nParticulars\n\nQuantity\n\nRate\n\nPath SPO ROMS CERN C ETS. ne ee eee\n\nete wwe Set teen\n\nAmount\n\nz.\n\nHelobuds\n\n24°\n\n.\n\ner Terre ee ee\n\neee eeeeeeeeee\n\nanene baeeseeneus\n\nTaka In Words\n\nLotal Tk\n\nfod\n\nPee ee eee eee\n\nTTeTTTTT TT TT\n\nHhn\n\nve taken back\n\nithorised Signature\n\nCustomer signature\n\noods once sold can"
+        },
+        "verification": {
+            "status": "verification_required",
+            "is_valid": false,
+            "verification_code": null,
+            "checks": {
+                "code_present": false,
+                "format_valid": false,
+                "duplicate_code": false,
+                "document_check": false,
+                "invoice_number_present": false,
+                "vendor_present": false,
+                "total_amount_present": false
+            },
+            "message": "Additional verification is required before the invoice can be considered verified.",
+            "source": "invoice_document",
+            "duplicate_invoice_id": null
+        },
+        "market_analysis": {
+            "status": "insufficient_product_identity",
+            "message": "A reliable comparable product could not be identified from the invoice.",
+            "product_query": null,
+            "vendor": null,
+            "invoice_unit_price": null,
+            "invoice_currency": "BDT",
+            "sources": [],
+            "vendor_website_sources": [],
+            "marketplace_sources": [],
+            "market_statistics": {
+                "currency": null,
+                "lowest": null,
+                "highest": null,
+                "average": null,
+                "median": null
+            },
+            "price_difference": null,
+            "price_difference_percent": null,
+            "usable_for_risk_calculation": false,
+            "analyzed_at": "2026-10-03T09:39:16.041997+00:00"
+        },
+        "risk_score": 0.0,
+        "risk_level": "low",
+        "anomalies": [],
+        "risk_analysis": {
+            "status": "scored",
+            "risk_score": 0.0,
+            "risk_level": "low",
+            "anomalies": [],
+            "explanation": {
+                "summary": "No deterministic anomaly rule was triggered by the available evidence.",
+                "reasons": [
+                    "No deterministic anomaly rule was triggered by the available evidence."
+                ],
+                "evidence_based": true,
+                "human_review_required": true
+            },
+            "ai_analysis": {
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "no_numeric_features",
+                "available": false,
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 0,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI scoring was skipped because the invoice does not contain a valid numeric unit price."
+            },
+            "score_breakdown": {
+                "deterministic_score": 0.0,
+                "ml_score": 0.0,
+                "ml_contribution": 0.0,
+                "final_score": 0.0
+            },
+            "deterministic_engine": {
+                "rule_count_triggered": 0,
+                "evidence": {},
+                "historical_baseline": {
+                    "count": 4,
+                    "average": 1100.0,
+                    "median": 1100.0,
+                    "stddev": 0.0
+                },
+                "duplicate_invoice_id": null
+            },
+            "ml_engine": {
+                "available": false,
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "no_numeric_features",
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 0,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI scoring was skipped because the invoice does not contain a valid numeric unit price."
+            },
+            "market_context": {
+                "usable_for_risk_calculation": false,
+                "price_difference": null,
+                "price_difference_percent": null
+            },
+            "human_review_required": true
+        },
+        "decision": {
+            "decision": "rejected",
+            "note": "",
+            "reviewed_by": "df7c93d0-56a9-48ad-95b2-266f03dea6f2",
+            "reviewer_name": "Finance Officer",
+            "reviewer_email": "finance@company.com",
+            "reviewer_role": "reviewer",
+            "decided_at": "2026-10-03T09:39:54.434458+00:00",
+            "previous_decision": null
+        },
+        "extraction_error": null,
+        "automated_analysis_status": "verification_required",
+        "review_routing": {
+            "review_required": true,
+            "routed_to": "finance_reviewer",
+            "routed_at": "2026-10-03T09:39:13.523659+00:00",
+            "trigger_reasons": [
+                "Document verification requires manual attention."
+            ]
+        }
+    },
+    {
+        "invoice_id": "INV-20261003-43CC0B60",
+        "uploaded_by": "4e4ee016-3884-4adc-b40c-fc9625aaccdc",
+        "original_filename": "z.pdf",
+        "stored_filename": "INV-20261003-43CC0B60.pdf",
+        "file_path": "uploads\\4e4ee016-3884-4adc-b40c-fc9625aaccdc\\INV-20261003-43CC0B60.pdf",
+        "file_size": 185681,
+        "file_extension": ".pdf",
+        "uploaded_at": "2026-10-03T09:35:33.091339+00:00",
+        "status": "approved",
+        "verification_code": null,
+        "extracted_data": {
+            "invoice_number": "RO113",
+            "order_id": "RO113",
+            "vendor_name": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_date": "10-Jul-2025",
+            "verification_code": null,
+            "tax_id": null,
+            "quantity": 2,
+            "unit_price": 1100,
+            "line_amount": 2200,
+            "subtotal": null,
+            "tax_amount": null,
+            "total_amount": 2200,
+            "currency": "BDT",
+            "product_description": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "extraction_status": "extracted",
+            "extraction_method": "pdf_ocr",
+            "fields_detected": 10,
+            "raw_text_length": 841,
+            "raw_text_preview": "~“\n\nON\n\nSWAN\n\n~\n\nINTERNATIONAL\n\nSWAN INTERNATIONAL (PVT.) LIMITED\n\nINVOICE\n\nOrder ID: RO113\n\nDate\n\n10-Jul-2025\n\nCustomer's Name\n\nMr, Ishan\n\nCustomer's Address\n\nDhaka\n\nContact Number\n\n01400960027\n\nT\n\nSI No\n\nDescription\n\n_Unit Price\n\nQuantity\n\nTotal\n\n\\\n\n=\n\n|\n\n1\n\nC ST Jack Rabbit 27.5 X 2.10 Wired Coffee\n\n1,100\n\n2\n\n+\n\n2,200\n\nGrand Total 2,200\n\nIn Word: Two Thousand Two Hundred Taka Only\n\nRegards\n\nxo we\n\nSk. Hasan Tanvyirul Islam\n\nSwan International (Pvt) Limited\n\nMAXXIS*\n\ncsT.\n\nPresa\n\nHead Office :1230, D.T. Road, Kadamtali, Chattogram- 4100, Bangladesh, Phone : +880-31-725593, Fax : +880-31-710235, Web : www.maxxis.com.bd\n\nDhaka Office : Navana Rahim Ardent, Apt # C-2 (2nd Floor), 185, Shahid Syed Nazrul Islam Sharan|, Bljoynagar, Kakrall, Dhaka-1000, Bangladesh, Phone : +88-02-222220458, +88-02-49349936, Web ; www.csttires,.com.bd"
+        },
+        "verification": {
+            "status": "verification_required",
+            "is_valid": false,
+            "verification_code": null,
+            "checks": {
+                "code_present": false,
+                "format_valid": false,
+                "duplicate_code": false,
+                "document_check": false,
+                "invoice_number_present": true,
+                "vendor_present": true,
+                "total_amount_present": true
+            },
+            "message": "Additional verification is required before the invoice can be considered verified.",
+            "source": "invoice_document",
+            "duplicate_invoice_id": null
+        },
+        "market_analysis": {
+            "status": "analyzed",
+            "message": "Comparable web-observed prices were found.",
+            "product_query": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_unit_price": 1100.0,
+            "invoice_currency": "BDT",
+            "sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T09:35:38.078825+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                },
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T09:35:38.580038+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "vendor_website_sources": [],
+            "official_brand_sources": [],
+            "other_web_sources": [],
+            "marketplace_sources": [
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T09:35:38.580038+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "retailer_sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T09:35:38.078825+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                }
+            ],
+            "market_statistics": {
+                "currency": "BDT",
+                "lowest": 850.0,
+                "highest": 1500.0,
+                "average": 1175.0,
+                "median": 1175.0
+            },
+            "price_difference": -75.0,
+            "price_difference_percent": -6.38,
+            "usable_for_risk_calculation": true,
+            "search_diagnostics": {
+                "queries_attempted": 0,
+                "search_results_found": 0,
+                "candidates_checked": 0,
+                "sources_accepted": 2,
+                "engine_result_counts": {},
+                "search_domain_counts": {},
+                "priority_domains_found": [],
+                "direct_sources_checked": 9,
+                "direct_sources_accepted": 2,
+                "priority_domains_checked_directly": [
+                    "csttires.com.bd",
+                    "daraz.com.bd",
+                    "bikeshopbd.com.bd"
+                ],
+                "direct_unique_domains_accepted": [
+                    "bikeshopbd.com.bd",
+                    "daraz.com.bd"
+                ],
+                "search_hint_domains_available": [],
+                "unique_source_domains": 2,
+                "minimum_sources_for_risk": 2,
+                "marketplace_sources_accepted": 1,
+                "retailer_sources_accepted": 1,
+                "official_brand_sources_accepted": 0,
+                "vendor_website_sources_accepted": 0,
+                "fast_path_used": true,
+                "generic_search_skipped": true,
+                "elapsed_seconds": 1.87,
+                "fallback_used": false,
+                "hard_timeout_seconds": 4.0,
+                "process_grace_seconds": 1.0,
+                "source_timings": {
+                    "bike": {
+                        "elapsed_seconds": 0.64,
+                        "status": "accepted"
+                    },
+                    "daraz": {
+                        "elapsed_seconds": 1.14,
+                        "status": "accepted"
+                    },
+                    "cst": {
+                        "elapsed_seconds": 1.87,
+                        "status": "cst_jina_catalog_price_not_found"
+                    }
+                }
+            },
+            "analyzed_at": "2026-10-03T09:35:39.310249+00:00"
+        },
+        "risk_score": 35.0,
+        "risk_level": "low",
+        "anomalies": [
+            {
+                "anomaly_type": "possible_duplicate",
+                "severity": "high",
+                "score_contribution": 35.0,
+                "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                "evidence": {
+                    "duplicate_invoice_id": "INV-20261003-E5ADEB70",
+                    "invoice_number": "RO113",
+                    "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                    "total_amount": 2200.0
+                }
+            }
+        ],
+        "risk_analysis": {
+            "status": "scored",
+            "risk_score": 35.0,
+            "risk_level": "low",
+            "anomalies": [
+                {
+                    "anomaly_type": "possible_duplicate",
+                    "severity": "high",
+                    "score_contribution": 35.0,
+                    "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                    "evidence": {
+                        "duplicate_invoice_id": "INV-20261003-E5ADEB70",
+                        "invoice_number": "RO113",
+                        "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                        "total_amount": 2200.0
+                    }
+                }
+            ],
+            "explanation": {
+                "summary": "Another invoice has the same invoice number, vendor, and total amount.",
+                "reasons": [
+                    "Another invoice has the same invoice number, vendor, and total amount.",
+                    "Local AI anomaly scoring was not activated because the available real historical sample is too small."
+                ],
+                "evidence_based": true,
+                "human_review_required": true
+            },
+            "ai_analysis": {
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "insufficient_training_data",
+                "available": false,
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 3,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI is integrated and ready, but it needs at least 5 real similar historical invoices. Only 3 matching records are currently available."
+            },
+            "score_breakdown": {
+                "deterministic_score": 35.0,
+                "ml_score": 0.0,
+                "ml_contribution": 0.0,
+                "final_score": 35.0
+            },
+            "deterministic_engine": {
+                "rule_count_triggered": 1,
+                "evidence": {
+                    "market_price_difference_percent": -6.38,
+                    "market_reference_average": 1175.0,
+                    "historical_unit_price_count": 3,
+                    "historical_average": 1100.0,
+                    "historical_difference_percent": 0.0
+                },
+                "historical_baseline": {
+                    "count": 3,
+                    "average": 1100.0,
+                    "median": 1100.0,
+                    "stddev": 0.0
+                },
+                "duplicate_invoice_id": "INV-20261003-E5ADEB70"
+            },
+            "ml_engine": {
+                "available": false,
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "insufficient_training_data",
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 3,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI is integrated and ready, but it needs at least 5 real similar historical invoices. Only 3 matching records are currently available."
+            },
+            "market_context": {
+                "usable_for_risk_calculation": true,
+                "price_difference": -75.0,
+                "price_difference_percent": -6.38
+            },
+            "human_review_required": true
+        },
+        "decision": {
+            "decision": "approved",
+            "note": "",
+            "reviewed_by": "df7c93d0-56a9-48ad-95b2-266f03dea6f2",
+            "reviewer_name": "Finance Officer",
+            "reviewer_email": "finance@company.com",
+            "reviewer_role": "reviewer",
+            "decided_at": "2026-10-03T09:36:17.811767+00:00",
+            "previous_decision": null
+        },
+        "extraction_error": null,
+        "automated_analysis_status": "verification_required",
+        "review_routing": {
+            "review_required": true,
+            "routed_to": "finance_reviewer",
+            "routed_at": "2026-10-03T09:35:33.091339+00:00",
+            "trigger_reasons": [
+                "1 anomaly finding(s) were detected.",
+                "Document verification requires manual attention."
+            ]
+        }
+    },
+    {
+        "invoice_id": "INV-20261003-E5ADEB70",
+        "uploaded_by": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+        "original_filename": "z.pdf",
+        "stored_filename": "INV-20261003-E5ADEB70.pdf",
+        "file_path": "uploads\\d944c56d-7b0d-4a7e-a115-3f545967a622\\INV-20261003-E5ADEB70.pdf",
+        "file_size": 185681,
+        "file_extension": ".pdf",
+        "uploaded_at": "2026-10-03T03:17:48.216665+00:00",
+        "status": "approved",
+        "verification_code": null,
+        "extracted_data": {
+            "invoice_number": "RO113",
+            "order_id": "RO113",
+            "vendor_name": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_date": "10-Jul-2025",
+            "verification_code": null,
+            "tax_id": null,
+            "quantity": 2,
+            "unit_price": 1100,
+            "line_amount": 2200,
+            "subtotal": null,
+            "tax_amount": null,
+            "total_amount": 2200,
+            "currency": "BDT",
+            "product_description": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "extraction_status": "extracted",
+            "extraction_method": "pdf_ocr",
+            "fields_detected": 10,
+            "raw_text_length": 841,
+            "raw_text_preview": "~“\n\nON\n\nSWAN\n\n~\n\nINTERNATIONAL\n\nSWAN INTERNATIONAL (PVT.) LIMITED\n\nINVOICE\n\nOrder ID: RO113\n\nDate\n\n10-Jul-2025\n\nCustomer's Name\n\nMr, Ishan\n\nCustomer's Address\n\nDhaka\n\nContact Number\n\n01400960027\n\nT\n\nSI No\n\nDescription\n\n_Unit Price\n\nQuantity\n\nTotal\n\n\\\n\n=\n\n|\n\n1\n\nC ST Jack Rabbit 27.5 X 2.10 Wired Coffee\n\n1,100\n\n2\n\n+\n\n2,200\n\nGrand Total 2,200\n\nIn Word: Two Thousand Two Hundred Taka Only\n\nRegards\n\nxo we\n\nSk. Hasan Tanvyirul Islam\n\nSwan International (Pvt) Limited\n\nMAXXIS*\n\ncsT.\n\nPresa\n\nHead Office :1230, D.T. Road, Kadamtali, Chattogram- 4100, Bangladesh, Phone : +880-31-725593, Fax : +880-31-710235, Web : www.maxxis.com.bd\n\nDhaka Office : Navana Rahim Ardent, Apt # C-2 (2nd Floor), 185, Shahid Syed Nazrul Islam Sharan|, Bljoynagar, Kakrall, Dhaka-1000, Bangladesh, Phone : +88-02-222220458, +88-02-49349936, Web ; www.csttires,.com.bd"
+        },
+        "verification": {
+            "status": "verification_required",
+            "is_valid": false,
+            "verification_code": null,
+            "checks": {
+                "code_present": false,
+                "format_valid": false,
+                "duplicate_code": false,
+                "document_check": false,
+                "invoice_number_present": true,
+                "vendor_present": true,
+                "total_amount_present": true
+            },
+            "message": "Additional verification is required before the invoice can be considered verified.",
+            "source": "invoice_document",
+            "duplicate_invoice_id": null
+        },
+        "market_analysis": {
+            "status": "analyzed",
+            "message": "Comparable web-observed prices were found.",
+            "product_query": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_unit_price": 1100.0,
+            "invoice_currency": "BDT",
+            "sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T03:17:51.697371+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                },
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T03:17:52.237648+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "vendor_website_sources": [],
+            "official_brand_sources": [],
+            "other_web_sources": [],
+            "marketplace_sources": [
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T03:17:52.237648+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "retailer_sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T03:17:51.697371+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                }
+            ],
+            "market_statistics": {
+                "currency": "BDT",
+                "lowest": 850.0,
+                "highest": 1500.0,
+                "average": 1175.0,
+                "median": 1175.0
+            },
+            "price_difference": -75.0,
+            "price_difference_percent": -6.38,
+            "usable_for_risk_calculation": true,
+            "search_diagnostics": {
+                "queries_attempted": 0,
+                "search_results_found": 0,
+                "candidates_checked": 0,
+                "sources_accepted": 2,
+                "engine_result_counts": {},
+                "search_domain_counts": {},
+                "priority_domains_found": [],
+                "direct_sources_checked": 9,
+                "direct_sources_accepted": 2,
+                "priority_domains_checked_directly": [
+                    "csttires.com.bd",
+                    "daraz.com.bd",
+                    "bikeshopbd.com.bd"
+                ],
+                "direct_unique_domains_accepted": [
+                    "bikeshopbd.com.bd",
+                    "daraz.com.bd"
+                ],
+                "search_hint_domains_available": [],
+                "unique_source_domains": 2,
+                "minimum_sources_for_risk": 2,
+                "marketplace_sources_accepted": 1,
+                "retailer_sources_accepted": 1,
+                "official_brand_sources_accepted": 0,
+                "vendor_website_sources_accepted": 0,
+                "fast_path_used": true,
+                "generic_search_skipped": true,
+                "elapsed_seconds": 1.86,
+                "fallback_used": false,
+                "hard_timeout_seconds": 4.0,
+                "process_grace_seconds": 1.0,
+                "source_timings": {
+                    "bike": {
+                        "elapsed_seconds": 0.55,
+                        "status": "accepted"
+                    },
+                    "daraz": {
+                        "elapsed_seconds": 1.1,
+                        "status": "accepted"
+                    },
+                    "cst": {
+                        "elapsed_seconds": 1.86,
+                        "status": "cst_jina_catalog_price_not_found"
+                    }
+                }
+            },
+            "analyzed_at": "2026-10-03T03:17:53.001316+00:00"
+        },
+        "risk_score": 35.0,
+        "risk_level": "low",
+        "anomalies": [
+            {
+                "anomaly_type": "possible_duplicate",
+                "severity": "high",
+                "score_contribution": 35.0,
+                "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                "evidence": {
+                    "duplicate_invoice_id": "INV-20261003-523E52A4",
+                    "invoice_number": "RO113",
+                    "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                    "total_amount": 2200.0
+                }
+            }
+        ],
+        "risk_analysis": {
+            "status": "scored",
+            "risk_score": 35.0,
+            "risk_level": "low",
+            "anomalies": [
+                {
+                    "anomaly_type": "possible_duplicate",
+                    "severity": "high",
+                    "score_contribution": 35.0,
+                    "message": "Another invoice has the same invoice number, vendor, and total amount.",
+                    "evidence": {
+                        "duplicate_invoice_id": "INV-20261003-523E52A4",
+                        "invoice_number": "RO113",
+                        "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+                        "total_amount": 2200.0
+                    }
+                }
+            ],
+            "explanation": {
+                "summary": "Another invoice has the same invoice number, vendor, and total amount.",
+                "reasons": [
+                    "Another invoice has the same invoice number, vendor, and total amount.",
+                    "Local AI anomaly scoring was not activated because the available real historical sample is too small."
+                ],
+                "evidence_based": true,
+                "human_review_required": true
+            },
+            "ai_analysis": {
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "insufficient_training_data",
+                "available": false,
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 2,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI is integrated and ready, but it needs at least 5 real similar historical invoices. Only 2 matching records are currently available."
+            },
+            "score_breakdown": {
+                "deterministic_score": 35.0,
+                "ml_score": 0.0,
+                "ml_contribution": 0.0,
+                "final_score": 35.0
+            },
+            "deterministic_engine": {
+                "rule_count_triggered": 1,
+                "evidence": {
+                    "market_price_difference_percent": -6.38,
+                    "market_reference_average": 1175.0,
+                    "historical_unit_price_count": 2,
+                    "historical_average": 1100.0,
+                    "historical_difference_percent": 0.0
+                },
+                "historical_baseline": {
+                    "count": 2,
+                    "average": 1100.0,
+                    "median": 1100.0,
+                    "stddev": 0.0
+                },
+                "duplicate_invoice_id": "INV-20261003-523E52A4"
+            },
+            "ml_engine": {
+                "available": false,
+                "engine": "ClaimGuard Local AI Anomaly Engine",
+                "version": "1.0",
+                "model": null,
+                "status": "insufficient_training_data",
+                "score": 0.0,
+                "interpretation": "not_scored",
+                "training_rows": 2,
+                "minimum_training_rows": 5,
+                "reliability": "limited",
+                "feature_names": [
+                    "log_unit_price",
+                    "log_quantity",
+                    "log_total_amount",
+                    "log_total_per_unit"
+                ],
+                "message": "Local AI is integrated and ready, but it needs at least 5 real similar historical invoices. Only 2 matching records are currently available."
+            },
+            "market_context": {
+                "usable_for_risk_calculation": true,
+                "price_difference": -75.0,
+                "price_difference_percent": -6.38
+            },
+            "human_review_required": true
+        },
+        "decision": {
+            "decision": "approved",
+            "note": "",
+            "reviewed_by": "df7c93d0-56a9-48ad-95b2-266f03dea6f2",
+            "reviewer_name": "Finance Officer",
+            "reviewer_email": "finance@company.com",
+            "reviewer_role": "reviewer",
+            "decided_at": "2026-10-03T09:32:21.602702+00:00",
+            "previous_decision": null
+        },
+        "extraction_error": null,
+        "automated_analysis_status": "verification_required",
+        "review_routing": {
+            "review_required": true,
+            "routed_to": "finance_reviewer",
+            "routed_at": "2026-10-03T03:17:48.216665+00:00",
+            "trigger_reasons": [
+                "1 anomaly finding(s) were detected.",
+                "Document verification requires manual attention."
+            ]
+        }
     },
     {
         "invoice_id": "INV-20261003-523E52A4",
@@ -526,7 +2791,275 @@
             },
             "human_review_required": true
         },
-        "decision": null,
-        "extraction_error": null
+        "decision": {
+            "decision": "request_verification",
+            "note": "",
+            "reviewed_by": "df7c93d0-56a9-48ad-95b2-266f03dea6f2",
+            "reviewer_name": "Finance Officer",
+            "reviewer_email": "finance@company.com",
+            "reviewer_role": "reviewer",
+            "decided_at": "2026-10-03T09:56:25.637893+00:00",
+            "previous_decision": null
+        },
+        "extraction_error": null,
+        "review_audit_trail": [
+            {
+                "event_type": "review_decision",
+                "decision": "request_verification",
+                "actor_id": "df7c93d0-56a9-48ad-95b2-266f03dea6f2",
+                "actor_name": "Finance Officer",
+                "actor_email": "finance@company.com",
+                "actor_role": "reviewer",
+                "note": "",
+                "timestamp": "2026-10-03T09:56:25.637915+00:00"
+            }
+        ]
+    },
+    {
+        "invoice_id": "INV-20261003-855D8E65",
+        "uploaded_by": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+        "original_filename": "z.pdf",
+        "stored_filename": "INV-20261003-855D8E65.pdf",
+        "file_path": "uploads\\d944c56d-7b0d-4a7e-a115-3f545967a622\\INV-20261003-855D8E65.pdf",
+        "file_size": 185681,
+        "file_extension": ".pdf",
+        "uploaded_at": "2026-10-03T01:45:15.368848+00:00",
+        "status": "approved",
+        "verification_code": null,
+        "extracted_data": {
+            "invoice_number": "RO113",
+            "order_id": "RO113",
+            "vendor_name": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_date": "10-Jul-2025",
+            "verification_code": null,
+            "tax_id": null,
+            "quantity": 2,
+            "unit_price": 1100,
+            "line_amount": 2200,
+            "subtotal": null,
+            "tax_amount": null,
+            "total_amount": 2200,
+            "currency": "BDT",
+            "product_description": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "extraction_status": "extracted",
+            "extraction_method": "pdf_ocr",
+            "fields_detected": 10,
+            "raw_text_length": 841,
+            "raw_text_preview": "~“\n\nON\n\nSWAN\n\n~\n\nINTERNATIONAL\n\nSWAN INTERNATIONAL (PVT.) LIMITED\n\nINVOICE\n\nOrder ID: RO113\n\nDate\n\n10-Jul-2025\n\nCustomer's Name\n\nMr, Ishan\n\nCustomer's Address\n\nDhaka\n\nContact Number\n\n01400960027\n\nT\n\nSI No\n\nDescription\n\n_Unit Price\n\nQuantity\n\nTotal\n\n\\\n\n=\n\n|\n\n1\n\nC ST Jack Rabbit 27.5 X 2.10 Wired Coffee\n\n1,100\n\n2\n\n+\n\n2,200\n\nGrand Total 2,200\n\nIn Word: Two Thousand Two Hundred Taka Only\n\nRegards\n\nxo we\n\nSk. Hasan Tanvyirul Islam\n\nSwan International (Pvt) Limited\n\nMAXXIS*\n\ncsT.\n\nPresa\n\nHead Office :1230, D.T. Road, Kadamtali, Chattogram- 4100, Bangladesh, Phone : +880-31-725593, Fax : +880-31-710235, Web : www.maxxis.com.bd\n\nDhaka Office : Navana Rahim Ardent, Apt # C-2 (2nd Floor), 185, Shahid Syed Nazrul Islam Sharan|, Bljoynagar, Kakrall, Dhaka-1000, Bangladesh, Phone : +88-02-222220458, +88-02-49349936, Web ; www.csttires,.com.bd"
+        },
+        "verification": {
+            "status": "verification_required",
+            "is_valid": false,
+            "verification_code": null,
+            "checks": {
+                "code_present": false,
+                "format_valid": false,
+                "duplicate_code": false,
+                "document_check": false,
+                "invoice_number_present": true,
+                "vendor_present": true,
+                "total_amount_present": true
+            },
+            "message": "Additional verification is required before the invoice can be considered verified.",
+            "source": "invoice_document",
+            "duplicate_invoice_id": null
+        },
+        "market_analysis": {
+            "status": "analyzed",
+            "message": "Comparable web-observed prices were found.",
+            "product_query": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+            "vendor": "SWAN INTERNATIONAL (PVT.) LIMITED",
+            "invoice_unit_price": 1100.0,
+            "invoice_currency": "BDT",
+            "sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T01:45:18.866307+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                },
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T01:45:18.956013+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "vendor_website_sources": [],
+            "official_brand_sources": [],
+            "other_web_sources": [],
+            "marketplace_sources": [
+                {
+                    "source_type": "marketplace",
+                    "source_category": "marketplace",
+                    "source_name": "daraz.com.bd",
+                    "title": "CST Jack Rabbit C1747N 27.5 Coffee",
+                    "url": "https://www.daraz.com.bd/products/cst-jack-rabbit-mountain-bike-tires-26-inch-210-27-inch-210-off-road-anti-puncture-eps-26-27-x-210-c1747n-bicycle-tyre-i276464216.html/",
+                    "price": 1500.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T01:45:18.956013+00:00",
+                    "match_confidence": 0.86,
+                    "search_snippet": "CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store | Daraz.com.bd Save More on App Download the App Become a Seller Help & Support Help Center Contact Customer Care Shipping & Delivery Order Payment Returns & Refunds Login Sign Up Manage My Account My Orders My Wishlist & Followed Stores My Reviews My Returns & Cancellations Logout ভাষা BN / Bengali EN / English Categories CST Jack Rabbit Mountain Bike Tires 26\" Inch *2.10 / 27\" Inch *2.10 off-Road  Anti Puncture EPS 26\" / 27 \" X 2.10  C1747N Bicycle Tyre Prince Cycle Store No Ratings Brand : Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contac",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "variant_specific_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "unknown",
+                    "variant_evidence": {
+                        "size": "27.5",
+                        "variant": "Coffee",
+                        "model": "C1747N",
+                        "wired_confirmed": false,
+                        "exact_size_variant_confirmed": true
+                    },
+                    "marketplace_brand_label": "Jim & Jolly More Outdoor Recreation from Jim & Jolly Color Family 27.5 Coffee Quantity Customer Care Help Center How to Buy Returns & Refunds Contact Us Terms & Conditions CCMS - Central Complain Management System Daraz About Daraz Digital Payments Daraz Card Daraz Blog Daraz Cares Privacy Policy Daraz Mart Daraz App Daraz Exclusives Daraz Donates Daraz University Sell on Daraz Code of Conduct Join the Daraz Affiliate Program Happy Shopping Download App Payment Methods Verified by DBID Registration ID : 304903094 Daraz International Pakistan Bangladesh Sri Lanka Myanmar Nepal Follow Us © Daraz 2026",
+                    "brand_metadata_conflict": true,
+                    "variant_match_note": "27.5 Coffee variant confirmed; Wired construction was not explicitly confirmed in the marketplace evidence."
+                }
+            ],
+            "retailer_sources": [
+                {
+                    "source_type": "retailer",
+                    "source_category": "retailer",
+                    "source_name": "bikeshopbd.com.bd",
+                    "title": "CST Jack Rabbit 27.5 X 2.10 Wired Coffee",
+                    "url": "https://bikeshopbd.com.bd/products/cst-jack-rabbit-c1747-275x210",
+                    "price": 850.0,
+                    "currency": "BDT",
+                    "observed_at": "2026-10-03T01:45:18.866307+00:00",
+                    "match_confidence": 0.9,
+                    "search_snippet": "CST JACK RABBIT C1747 27.5x2.10 All Categories Contact Us Store Search Wishlist Account Menu Shopping cart All Categories All Categories Hello, Guest Login / Register Compare 0 Wishlist 0 View cart 0 All Categories Home All Products Contact Track Your Order Hotline: +8801757819301 Home All Products Contact Track Your Order Compare 0 Wishlist 0 View cart 0 Out Of Stock CST JACK RABBIT C1747 27.5x2.10 (0 reviews) \\n Excellent Rolling and Balance \\n Multi-Purpose Pattern \\n Tubeless Compatible \\n ৳850.00 ৳850.00 Out of stock Quantity কার্টে যোগ করুন অর্ডার করুন Compare Add Wishlist SKU: Category: 27.5 Share: Facebook X (Twitter) Pinterest LinkedIn WhatsApp Email Copy link বিদ্র: ছবি এবং বর্ণনার সাথে পণ্যর সম্পূর্ণ মিল থাকা সত্ত্বেও আপনি পণ্য গ্রহণ করতে না চাইলে কুরিয়ার চার্জ ঢাকার মধ্যে ৬০ ট",
+                    "retrieval_method": "direct_http_hard_timeout",
+                    "price_source": "local_product_context",
+                    "direct_source": true,
+                    "vendor_owned": false,
+                    "official_brand": false,
+                    "vendor_relationship": null,
+                    "availability": "out_of_stock"
+                }
+            ],
+            "market_statistics": {
+                "currency": "BDT",
+                "lowest": 850.0,
+                "highest": 1500.0,
+                "average": 1175.0,
+                "median": 1175.0
+            },
+            "price_difference": -75.0,
+            "price_difference_percent": -6.38,
+            "usable_for_risk_calculation": true,
+            "search_diagnostics": {
+                "queries_attempted": 0,
+                "search_results_found": 0,
+                "candidates_checked": 0,
+                "sources_accepted": 2,
+                "engine_result_counts": {},
+                "search_domain_counts": {},
+                "priority_domains_found": [],
+                "direct_sources_checked": 9,
+                "direct_sources_accepted": 2,
+                "priority_domains_checked_directly": [
+                    "csttires.com.bd",
+                    "daraz.com.bd",
+                    "bikeshopbd.com.bd"
+                ],
+                "direct_unique_domains_accepted": [
+                    "bikeshopbd.com.bd",
+                    "daraz.com.bd"
+                ],
+                "search_hint_domains_available": [],
+                "unique_source_domains": 2,
+                "minimum_sources_for_risk": 2,
+                "marketplace_sources_accepted": 1,
+                "retailer_sources_accepted": 1,
+                "official_brand_sources_accepted": 0,
+                "vendor_website_sources_accepted": 0,
+                "fast_path_used": true,
+                "generic_search_skipped": true,
+                "elapsed_seconds": 1.71,
+                "fallback_used": false,
+                "hard_timeout_seconds": 4.0,
+                "process_grace_seconds": 1.0,
+                "source_timings": {
+                    "bike": {
+                        "elapsed_seconds": 0.53,
+                        "status": "accepted"
+                    },
+                    "daraz": {
+                        "elapsed_seconds": 0.62,
+                        "status": "accepted"
+                    },
+                    "cst": {
+                        "elapsed_seconds": 1.71,
+                        "status": "cst_jina_catalog_price_not_found"
+                    }
+                }
+            },
+            "analyzed_at": "2026-10-03T01:45:20.048707+00:00"
+        },
+        "risk_score": null,
+        "anomalies": [],
+        "decision": {
+            "decision": "approved",
+            "note": "",
+            "reviewed_by": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+            "reviewer_name": "Tazim Kb",
+            "reviewer_email": "tazimkb120@gmail.com",
+            "reviewer_role": "admin",
+            "decided_at": "2026-10-08T05:06:48.173947+00:00",
+            "previous_decision": null
+        },
+        "extraction_error": null,
+        "risk_level": null,
+        "review_audit_trail": [
+            {
+                "event_type": "review_decision",
+                "decision": "approved",
+                "actor_id": "d944c56d-7b0d-4a7e-a115-3f545967a622",
+                "actor_name": "Tazim Kb",
+                "actor_email": "tazimkb120@gmail.com",
+                "actor_role": "admin",
+                "note": "",
+                "timestamp": "2026-10-08T05:06:48.173961+00:00"
+            }
+        ]
     }
 ]

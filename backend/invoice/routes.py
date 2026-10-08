@@ -127,6 +127,34 @@ REVIEWER_ROLES = {
 }
 
 
+def require_invoice_upload_access(
+    user: dict[str, Any]
+) -> None:
+    """
+    Only Normal User accounts are allowed to create/upload invoices.
+
+    Admin and Finance/Reviewer accounts are restricted to their
+    management/review responsibilities and must not create invoice
+    submissions.
+    """
+
+    role = normalize_role_name(
+        user.get(
+            "role",
+            ""
+        )
+    )
+
+    if role != "user":
+
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                "Only Normal User accounts can upload invoices."
+            )
+        )
+
+
 def require_reviewer_access(
     user: dict[str, Any]
 ) -> None:
@@ -1258,6 +1286,50 @@ def write_invoices(
 
         connection.commit()
 
+        # -------------------------------------------------
+        # Legacy JSON mirror
+        # -------------------------------------------------
+        # Keep invoices.json synchronized for the existing project
+        # workflow/backups while SQLite remains the authoritative
+        # active database. The mirror is written only after the
+        # SQLite transaction has committed successfully.
+
+        INVOICES_FILE.parent.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        temp_file = INVOICES_FILE.with_suffix(
+            ".json.tmp"
+        )
+
+        try:
+
+            temp_file.write_text(
+                json.dumps(
+                    invoices,
+                    ensure_ascii=False,
+                    indent=4
+                ),
+                encoding="utf-8"
+            )
+
+            temp_file.replace(
+                INVOICES_FILE
+            )
+
+        except Exception:
+
+            try:
+                if temp_file.exists():
+                    temp_file.unlink()
+            except OSError:
+                pass
+
+            # SQLite is already committed and remains authoritative.
+            # Do not roll back a successful invoice write only because
+            # the legacy compatibility mirror could not be written.
+
     except Exception:
 
         connection.rollback()
@@ -1455,6 +1527,17 @@ async def upload_invoice(
 
     user = get_current_user(
         authorization
+    )
+
+    # -----------------------------------------------------
+    # UPLOAD PERMISSION
+    # -----------------------------------------------------
+    # Invoice creation is intentionally limited to Normal User
+    # accounts. Admin and Finance/Reviewer roles may inspect and
+    # review invoices, but they must not upload new submissions.
+
+    require_invoice_upload_access(
+        user
     )
 
 
@@ -2129,6 +2212,19 @@ async def upload_invoice(
     )
 
 
+    # Read the just-persisted record back from the authoritative
+    # storage layer so the frontend receives the same invoice shape
+    # used by the dashboard/details endpoints.
+    stored_invoice = next(
+        (
+            item
+            for item in read_invoices()
+            if item.get("invoice_id") == invoice_id
+        ),
+        invoice_record
+    )
+
+
     # =====================================================
     # RESPONSE MESSAGE
     # =====================================================
@@ -2233,69 +2329,7 @@ async def upload_invoice(
             message,
 
         "invoice":
-            {
-
-                "invoice_id":
-                    invoice_id,
-
-                "original_filename":
-                    original_filename,
-
-                "status":
-                    final_status,
-
-                "uploaded_at":
-                    now,
-
-                "verification_code":
-                    extracted_data.get(
-                        "verification_code"
-                    ),
-
-                "extracted_data":
-                    extracted_data,
-
-                "verification":
-                    verification_result,
-
-                "market_analysis":
-                    market_analysis,
-
-                "risk_score":
-                    risk_analysis.get(
-                        "risk_score"
-                    ),
-
-                "risk_level":
-                    risk_analysis.get(
-                        "risk_level"
-                    ),
-
-                "anomalies":
-                    risk_analysis.get(
-                        "anomalies",
-                        []
-                    ),
-
-                "risk_analysis":
-                    risk_analysis,
-
-                "automated_analysis_status":
-                    invoice_record.get(
-                        "automated_analysis_status"
-                    ),
-
-                "review_routing":
-                    invoice_record.get(
-                        "review_routing"
-                    ),
-
-                "decision":
-                    invoice_record.get(
-                        "decision"
-                    ),
-
-            },
+            stored_invoice,
 
     }
 

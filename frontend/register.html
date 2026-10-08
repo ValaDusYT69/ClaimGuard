@@ -1,751 +1,1458 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account | ClaimGuard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+  :root{
+    --cg-bg:#07040d;
+    --cg-bg2:#10071a;
+    --cg-card:#120b1a;
+    --cg-card2:#0d0914;
+    --cg-text:#faf7ff;
+    --cg-muted:#a9a0af;
+    --cg-dim:#766d7f;
+    --cg-border:rgba(255,255,255,.10);
+    --cg-purple:#8e3dff;
+    --cg-pink:#cf2fe2;
+    --cg-green:#38dfb1;
+  }
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
 
-    <title>Create Account | ClaimGuard</title>
+  body.register-page{
+    min-height:100vh;
+    color:var(--cg-text);
+    background:
+      radial-gradient(circle at 8% 12%,rgba(117,60,255,.18),transparent 28%),
+      radial-gradient(circle at 91% 10%,rgba(215,47,188,.14),transparent 25%),
+      radial-gradient(circle at 55% 88%,rgba(102,49,194,.10),transparent 24%),
+      linear-gradient(135deg,#08040d 0%,#10061a 52%,#08050d 100%);
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    overflow-x:hidden;
+  }
 
-    <link
-        rel="stylesheet"
-        href="css/style.css"
-    >
+  body.register-page::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.23;
+    background:
+      linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);
+    background-size:44px 44px;
+  }
+
+  .rg-topbar{
+    width:min(1500px,calc(100vw - 60px));
+    min-height:58px;
+    margin:10px auto 0;
+    padding:0 26px;
+    border:1px solid var(--cg-border);
+    border-radius:18px;
+    background:rgba(7,4,13,.72);
+    backdrop-filter:blur(18px);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:relative;
+    z-index:50;
+    box-shadow:0 20px 55px rgba(0,0,0,.22);
+  }
+  .rg-topbar a{
+    text-decoration:none;color:#d7cedd;font-size:12px;font-weight:800;
+    transition:transform .2s ease,color .2s ease,background .2s ease;
+  }
+  .rg-topbar a:hover{color:#fff;transform:translateY(-1px)}
+  .rg-toplinks{display:flex;gap:28px;align-items:center}
+  .rg-toplinks a.active{color:#c992ff}
+
+  .rg-shell{
+    width:min(1500px,calc(100vw - 60px));
+    min-height:calc(100vh - 106px);
+    margin:20px auto 28px;
+    display:grid;
+    grid-template-columns:minmax(0,58%) minmax(430px,42%);
+    border:1px solid var(--cg-border);
+    border-radius:30px;
+    overflow:hidden;
+    position:relative;
+    background:#0a0610;
+    box-shadow:0 30px 110px rgba(0,0,0,.42);
+    z-index:2;
+  }
+  .rg-left{
+    position:relative;
+    min-width:0;
+    padding:38px 44px 30px;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 75% 43%,rgba(113,51,231,.16),transparent 27%),
+      radial-gradient(circle at 25% 78%,rgba(106,47,214,.08),transparent 22%),
+      linear-gradient(145deg,#0c0615 0%,#12071b 55%,#130619 100%);
+  }
+  .rg-left::after{
+    content:"";position:absolute;top:0;right:0;bottom:0;width:1px;
+    background:linear-gradient(180deg,transparent,rgba(201,120,255,.18),transparent);
+  }
+
+  .rg-brand{
+    display:flex;align-items:center;gap:14px;position:relative;z-index:20;
+  }
+  .rg-brand-mark{
+    width:52px;height:52px;border-radius:16px;
+    display:grid;place-items:center;
+    color:#fff;font-weight:900;
+    background:linear-gradient(145deg,#9c45ff,#c82bdd);
+    box-shadow:0 15px 34px rgba(153,56,255,.25);
+  }
+  .rg-brand-name{margin:0 0 3px;font-size:19px;letter-spacing:-.035em}
+  .rg-brand-sub{font-size:10px;letter-spacing:.12em;color:#8a8090;font-weight:800}
+
+  .rg-copy{
+    position:relative;z-index:18;
+    width:47%;max-width:485px;
+    margin-top:52px;
+  }
+  .rg-kicker{
+    display:inline-flex;align-items:center;gap:9px;
+    padding:8px 12px;
+    border:1px solid rgba(168,100,255,.24);
+    border-radius:999px;
+    background:rgba(125,67,255,.08);
+    color:#c9bce4;font-size:10px;letter-spacing:.14em;font-weight:900;
+  }
+  .rg-kicker::before{
+    content:"";width:7px;height:7px;border-radius:50%;
+    background:var(--cg-green);
+    box-shadow:0 0 0 5px rgba(56,223,177,.08),0 0 14px rgba(56,223,177,.38);
+  }
+  .rg-copy h1{
+    margin:20px 0 18px;
+    max-width:520px;
+    font-size:clamp(48px,4.6vw,72px);
+    line-height:.94;
+    letter-spacing:-.065em;
+    font-weight:900;
+  }
+  .rg-copy h1::after{
+    content:"";display:block;width:96px;height:4px;margin-top:20px;
+    border-radius:99px;
+    background:linear-gradient(90deg,#973eff,#d338ca,transparent);
+    box-shadow:0 0 24px rgba(153,62,255,.3);
+  }
+  .rg-copy p{
+    margin:0;max-width:450px;
+    color:#9f95a8;font-size:13px;line-height:1.75;
+  }
+
+  .rg-scene{
+    position:absolute;
+    z-index:10;
+    right:0;
+    top:50%;
+    width:56%;
+    max-width:650px;
+    height:540px;
+    transform:translateY(-48%);
+    pointer-events:none;
+  }
+  .rg-orbit{position:absolute;left:50%;top:53%;transform:translate(-50%,-50%);width:420px;height:420px;border-radius:50%;border:1px dashed rgba(170,106,255,.17)}
+  .rg-orbit::before,.rg-orbit::after{
+    content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    border-radius:50%;border:1px solid rgba(170,106,255,.10);
+  }
+  .rg-orbit::before{width:320px;height:320px}
+  .rg-orbit::after{width:240px;height:240px}
+  .rg-glow{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);width:260px;height:190px;background:radial-gradient(circle,rgba(152,61,255,.25),transparent 70%);filter:blur(17px)}
+
+  .rg-greeting{
+    position:absolute;z-index:30;top:4px;left:50%;transform:translateX(-50%);
+    min-width:245px;padding:13px 16px;border-radius:15px;
+    border:1px solid rgba(203,130,255,.30);
+    background:rgba(15,8,24,.94);backdrop-filter:blur(16px);
+    box-shadow:0 18px 44px rgba(0,0,0,.34);
+  }
+  .rg-greeting::after{
+    content:"";position:absolute;left:50%;bottom:-8px;transform:translateX(-50%) rotate(45deg);
+    width:15px;height:15px;background:#150a22;
+    border-right:1px solid rgba(203,130,255,.22);
+    border-bottom:1px solid rgba(203,130,255,.22);
+  }
+  .rg-gcheck{
+    width:28px;height:28px;border-radius:9px;display:grid;place-items:center;float:left;
+    margin-right:10px;color:#fff;font-weight:900;
+    background:linear-gradient(145deg,#a343ff,#c92bdd);
+  }
+  .rg-gtitle{font-size:12px;font-weight:900;color:#fff}
+  .rg-gsub{margin-top:4px;color:#8e8397;font-size:9px}
+
+  .rg-person{
+    position:absolute;left:50%;top:108px;transform:translateX(-50%);
+    width:178px;height:214px;
+    animation:rgPersonFloat 4.7s ease-in-out infinite;
+  }
+  @keyframes rgPersonFloat{50%{transform:translate(-50%,-7px)}}
+  .rg-head{position:absolute;left:50%;top:3px;transform:translateX(-50%);width:68px;height:68px;border-radius:24px 24px 28px 28px;background:linear-gradient(180deg,#d89d72,#ae684a)}
+  .rg-hair{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:75px;height:35px;border-radius:30px 30px 12px 12px;background:linear-gradient(180deg,#26202e,#111019)}
+  .rg-glasses{position:absolute;left:50%;top:25px;transform:translateX(-50%);width:58px;height:19px;display:flex;gap:3px}
+  .rg-glasses span{flex:1;border:2px solid #17131f;border-radius:6px;background:linear-gradient(145deg,#554b60,#1b1721)}
+  .rg-glasses i{position:absolute;left:27px;top:7px;width:6px;height:2px;background:#19141f}
+  .rg-body{position:absolute;left:50%;top:68px;transform:translateX(-50%);width:114px;height:125px;border-radius:30px 30px 20px 20px;background:linear-gradient(160deg,#6b3190,#32133f);box-shadow:0 24px 34px rgba(0,0,0,.28)}
+  .rg-shirt{position:absolute;left:50%;top:64px;transform:translateX(-50%);width:52px;height:42px;border-radius:16px 16px 8px 8px;background:#fff}
+  .rg-tie{position:absolute;left:50%;top:76px;transform:translateX(-50%);width:16px;height:47px;background:linear-gradient(180deg,#b94eff,#792bc0);clip-path:polygon(20% 0,80% 0,100% 52%,50% 100%,0 52%)}
+  .rg-arm{position:absolute;top:99px;width:92px;height:22px;border-radius:18px;background:#cd8d65}
+  .rg-arm.one{left:-45px;transform:rotate(22deg)} .rg-arm.two{right:-45px;transform:rotate(-25deg)}
+  .rg-hand{position:absolute;width:26px;height:19px;border-radius:50%;background:#d89d72}
+  .rg-hand.one{left:-54px;top:110px} .rg-hand.two{right:-55px;top:106px}
+
+  .rg-laptop{position:absolute;left:50%;top:322px;transform:translateX(-50%);width:210px;height:118px;animation:rgLaptopFloat 4.7s ease-in-out infinite}
+  @keyframes rgLaptopFloat{50%{transform:translate(-50%,-4px)}}
+  .rg-screen{position:absolute;left:17px;top:0;width:176px;height:91px;border:5px solid #18131f;border-radius:9px 9px 5px 5px;background:#09070e;box-shadow:0 16px 30px rgba(0,0,0,.34)}
+  .rg-screen::after{content:"CLAIMGUARD";position:absolute;left:10px;top:10px;color:#b993d7;font-size:6px;font-weight:900}
+  .rg-line{position:absolute;left:11px;height:5px;border-radius:99px;background:#31293b}
+  .rg-line.a{top:28px;width:130px} .rg-line.b{top:40px;width:104px}
+  .rg-line.c{top:52px;width:143px} .rg-line.d{top:65px;width:74px;background:linear-gradient(90deg,#7b38ff,#d834ce)}
+  .rg-base{position:absolute;left:0;bottom:4px;width:210px;height:17px;clip-path:polygon(7% 0,93% 0,100% 100%,0 100%);background:linear-gradient(180deg,#3d2d51,#241a30)}
+
+  .rg-hud{
+    position:absolute;z-index:25;padding:9px 11px;border-radius:11px;
+    background:rgba(11,7,18,.93);border:1px solid rgba(182,109,255,.22);box-shadow:0 12px 26px rgba(0,0,0,.25);
+  }
+  .rg-hud.one{left:4%;top:56%} .rg-hud.two{right:4%;top:52%}
+  .rg-hud .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--cg-green);margin-right:5px}
+  .rg-hud .title{font-size:7px;font-weight:900;letter-spacing:.05em;color:#ded6e8}
+  .rg-hud .sub{margin-top:3px;font-size:6px;color:#91869d}
+
+  .rg-invoice{
+    position:absolute;width:78px;height:108px;padding:11px 10px;border-radius:8px;
+    background:linear-gradient(180deg,#fff,#ebe6f1);box-shadow:0 18px 28px rgba(0,0,0,.22);
+  }
+  .rg-invoice::before{content:"INVOICE";display:block;margin-bottom:10px;color:#685d73;font-size:7px;font-weight:900}
+  .rg-invoice::after{content:"";display:block;width:34px;height:6px;border-radius:6px;margin-top:9px;background:linear-gradient(90deg,#9e45ff,#d833c7)}
+  .rg-il{display:block;width:100%;height:5px;border-radius:6px;background:#d9d1df;margin:6px 0}
+  .rg-il.w2{width:76%} .rg-il.w3{width:88%}
+  .rg-invoice.i1{left:9%;top:20%;transform:rotate(-9deg);animation:rgI1 5s ease-in-out infinite}
+  .rg-invoice.i2{right:9%;top:19%;transform:rotate(9deg);animation:rgI2 5.2s ease-in-out infinite}
+  @keyframes rgI1{50%{transform:rotate(-5deg) translateY(-8px)}}
+  @keyframes rgI2{50%{transform:rotate(5deg) translateY(-8px)}}
+
+  .rg-footer{position:absolute;left:44px;bottom:13px;color:#70677a;font-size:10px;z-index:30}
+
+  .rg-right{
+    min-width:0;padding:30px 24px;
+    display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(circle at 50% 0%,rgba(157,63,255,.08),transparent 27%),
+      linear-gradient(180deg,#09050f,#08050d);
+  }
+  .rg-form{
+    width:100%;max-width:660px;padding:28px 32px 24px;
+    border:1px solid rgba(255,255,255,.10);border-radius:24px;
+    background:linear-gradient(180deg,rgba(27,19,36,.78),rgba(11,8,17,.90));
+    box-shadow:0 28px 80px rgba(0,0,0,.30);
+    position:relative;
+  }
+  .rg-form::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;border-radius:24px 24px 0 0;background:linear-gradient(90deg,#823cff,#c742e7,#ef62bf)}
+  .rg-form .mobile-brand{display:none}
+  .rg-heading span{color:#bda5c8;font-size:10px;font-weight:900;letter-spacing:.15em}
+  .rg-heading h2{margin:9px 0 5px;font-size:34px;line-height:1.03;letter-spacing:-.05em}
+  .rg-heading p{margin:0;color:#9a8f9f;font-size:12px}
+  .rg-google{
+    width:100%;height:50px;margin-top:20px;border-radius:13px;
+    border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);
+    color:#f1ebf5;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px;
+    cursor:pointer;transition:.22s ease;
+  }
+  .rg-google:hover{transform:translateY(-2px);border-color:rgba(196,112,255,.28);box-shadow:0 12px 28px rgba(0,0,0,.18)}
+  .rg-google span{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:#fff;color:#4285f4;font-weight:900}
+  .rg-divider{display:flex;align-items:center;gap:14px;margin:18px 0;color:#746a7d;font-size:9px;font-weight:900}
+  .rg-divider::before,.rg-divider::after{content:"";height:1px;flex:1;background:rgba(255,255,255,.08)}
+  .rg-group{margin-bottom:13px}
+  .rg-group label{display:block;margin-bottom:7px;color:#d9d1df;font-size:11px;font-weight:800}
+  .rg-group input{width:100%;height:48px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.025);color:#fff;padding:0 14px;outline:none;transition:.22s ease}
+  .rg-group input::placeholder{color:#6f6777}
+  .rg-group input:hover{border-color:rgba(184,106,255,.18)}
+  .rg-group input:focus{border-color:rgba(175,89,255,.56);box-shadow:0 0 0 4px rgba(161,63,255,.09);background:rgba(255,255,255,.035)}
+  .rg-password{position:relative}
+  .rg-password input{padding-right:78px}
+  .rg-toggle{position:absolute;right:7px;top:7px;height:34px;min-width:50px;border-radius:9px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);color:#978c9f;font-size:10px;font-weight:800;cursor:pointer;transition:.2s ease}
+  .rg-toggle:hover{color:#fff;border-color:rgba(194,106,255,.25)}
+  .rg-terms{margin:4px 0 12px;color:#908698;font-size:10px}
+  .rg-terms label{display:flex;align-items:flex-start;gap:9px;line-height:1.45;cursor:pointer}
+  .rg-terms input{width:14px;height:14px;margin:1px 0 0;accent-color:#a044ff}
+  #registerMessage{min-height:0;margin:0 0 10px;color:#ff9fbd;font-size:11px}
+  #createAccountButton{
+    width:100%;height:52px;border:0;border-radius:13px;
+    background:linear-gradient(90deg,#8d3cff,#b54ce9,#cc2ddb);
+    color:#fff;font-size:13px;font-weight:900;cursor:pointer;
+    box-shadow:0 18px 34px rgba(133,49,239,.24);transition:.22s ease;
+  }
+  #createAccountButton:hover{transform:translateY(-2px);box-shadow:0 23px 42px rgba(145,50,255,.30)}
+  #createAccountButton:disabled{opacity:.65;cursor:not-allowed;transform:none}
+  .rg-signin{margin:18px 0 13px;text-align:center;color:#918694;font-size:11px}
+  .rg-signin a{color:#c58cff;text-decoration:none;font-weight:900}
+  .rg-security{min-height:45px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.018)}
+  .rg-security p{margin:0;color:#827889;font-size:9px;line-height:1.35}
+
+  .rg-sound{
+    position:fixed;right:18px;bottom:18px;z-index:1000;
+    width:42px;height:42px;border-radius:13px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(15,9,22,.82);color:#d8cce2;
+    backdrop-filter:blur(16px);
+    display:grid;place-items:center;
+    cursor:pointer;font-size:16px;
+    box-shadow:0 14px 34px rgba(0,0,0,.28);
+    transition:.22s ease;
+  }
+  .rg-sound:hover{transform:translateY(-3px);border-color:rgba(188,108,255,.30);color:#fff}
+  .rg-sound.is-on{box-shadow:0 0 0 1px rgba(173,91,255,.12),0 14px 34px rgba(117,43,236,.17)}
+
+  @media(max-width:1200px){
+    .rg-shell{grid-template-columns:minmax(0,56%) minmax(430px,44%)}
+    .rg-copy{width:50%}
+    .rg-scene{width:58%;right:-3%}
+    }
+  @media(max-width:980px){
+    .rg-shell{width:min(94vw,780px);grid-template-columns:1fr;min-height:auto}
+    .rg-left{min-height:720px;padding:34px 30px}
+    .rg-copy{width:52%}
+    .rg-scene{width:57%;right:-2%;top:52%}
+    .rg-right{padding:18px 16px 24px}
+  }
+  @media(max-width:720px){
+    .rg-topbar,.rg-shell{width:94vw}
+    .rg-topbar{min-height:52px;padding:0 16px}
+    .rg-toplinks{gap:14px}
+    .rg-left{min-height:auto;padding:28px 22px 24px}
+    .rg-copy{width:100%;margin-top:32px}
+    .rg-copy h1{font-size:46px}
+    .rg-scene{position:relative;right:auto;top:auto;transform:none;width:100%;height:430px;margin-top:6px}
+    .rg-footer{position:static;margin-top:10px}
+    .rg-form{padding:24px 18px 20px}
+    .rg-heading h2{font-size:30px}
+  }
+  </style>
 </head>
 
-
-<body class="auth-page">
-
-    <div class="auth-container">
-
-        <!-- =================================================
-             LEFT PANEL
-             ================================================= -->
-
-        <div class="auth-brand-panel">
-
-            <div class="auth-brand">
-
-                <div class="brand-icon">
-                    CG
-                </div>
-
-                <div>
-
-                    <h2>
-                        ClaimGuard
-                    </h2>
-
-                    <span>
-                        Invoice Intelligence
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="auth-message">
-
-                <span class="auth-label">
-                    GET STARTED
-                </span>
-
-
-                <h1>
-                    Build trust
-                    <br>
-                    into every invoice.
-                </h1>
-
-
-                <p>
-                    Create your ClaimGuard account to verify
-                    invoices, compare market prices, review
-                    anomalies and make informed payment decisions.
-                </p>
-
-
-                <div class="auth-features">
-
-                    <div>
-
-                        <strong>
-                            01
-                        </strong>
-
-                        <span>
-                            Invoice Verification
-                        </span>
-
-                    </div>
-
-
-                    <div>
-
-                        <strong>
-                            02
-                        </strong>
-
-                        <span>
-                            Market Price Intelligence
-                        </span>
-
-                    </div>
-
-
-                    <div>
-
-                        <strong>
-                            03
-                        </strong>
-
-                        <span>
-                            Human Review Workflow
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="auth-footer">
-                © 2026 ClaimGuard
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             RIGHT PANEL
-             ================================================= -->
-
-        <div class="auth-form-panel">
-
-            <div class="auth-form-box">
-
-                <div class="mobile-brand">
-
-                    <div class="brand-icon">
-                        CG
-                    </div>
-
-                    <div>
-
-                        <h2>
-                            ClaimGuard
-                        </h2>
-
-                        <span>
-                            Invoice Intelligence
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-heading">
-
-                    <span>
-                        CREATE ACCOUNT
-                    </span>
-
-                    <h2>
-                        Create your account
-                    </h2>
-
-                    <p>
-                        Get started with ClaimGuard.
-                    </p>
-
-                </div>
-
-
-                <!-- GOOGLE -->
-
-                <button
-                    type="button"
-                    class="google-btn"
-                    id="googleRegisterBtn"
-                >
-                    <span>G</span>
-                    Continue with Google
-                </button>
-
-
-                <div class="or-divider">
-
-                    <span>
-                        OR
-                    </span>
-
-                </div>
-
-
-                <!-- =================================================
-                     REGISTER FORM
-                     ================================================= -->
-
-                <form
-                    id="registerForm"
-                    novalidate
-                >
-
-                    <div class="input-group">
-
-                        <label for="fullName">
-                            Full Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="fullName"
-                            placeholder="Enter your full name"
-                            autocomplete="name"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="input-group">
-
-                        <label for="registerEmail">
-                            Email Address
-                        </label>
-
-                        <input
-                            type="email"
-                            id="registerEmail"
-                            placeholder="you@example.com"
-                            autocomplete="email"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="input-group">
-
-                        <label for="registerPassword">
-                            Password
-                        </label>
-
-                        <div class="password-wrapper">
-
-                            <input
-                                type="password"
-                                id="registerPassword"
-                                placeholder="Create a password"
-                                autocomplete="new-password"
-                                required
-                                minlength="8"
-                            >
-
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                id="toggleRegisterPassword"
-                            >
-                                Show
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="input-group">
-
-                        <label for="confirmPassword">
-                            Confirm Password
-                        </label>
-
-                        <div class="password-wrapper">
-
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                placeholder="Confirm your password"
-                                autocomplete="new-password"
-                                required
-                                minlength="8"
-                            >
-
-                            <button
-                                type="button"
-                                class="password-toggle"
-                                id="toggleConfirmPassword"
-                            >
-                                Show
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="register-terms">
-
-                        <label>
-
-                            <input
-                                type="checkbox"
-                                id="terms"
-                            >
-
-                            <span>
-                                I agree to the Terms of Service
-                                and Privacy Policy.
-                            </span>
-
-                        </label>
-
-                    </div>
-
-
-                    <div
-                        id="registerMessage"
-                        class="login-message"
-                    ></div>
-
-
-                    <button
-                        type="submit"
-                        class="login-submit"
-                        id="createAccountButton"
-                    >
-                        Create Account
-                    </button>
-
-                </form>
-
-
-                <p class="signup-link">
-
-                    Already have an account?
-
-                    <a href="login.html">
-                        Sign in
-                    </a>
-
-                </p>
-
-
-                <div class="security-note">
-
-                    <span>
-                        🔒
-                    </span>
-
-                    <p>
-                        Your account information is protected
-                        using secure authentication.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
+<body class="auth-page register-page">
+  <div class="rg-topbar">
+    <a href="index.html">← Back to overview</a>
+    <div class="rg-toplinks">
+      <a href="login.html">Sign in</a>
+      <a class="active" href="register.html">Create account</a>
     </div>
+  </div>
+
+  <main class="rg-shell">
+    <section class="rg-left">
+      <div class="rg-brand">
+        <div class="rg-brand-mark">CG</div>
+        <div>
+          <div class="rg-brand-name">ClaimGuard</div>
+          <div class="rg-brand-sub">INVOICE INTELLIGENCE</div>
+        </div>
+      </div>
+
+      <div class="rg-copy">
+        <div class="rg-kicker">GET STARTED</div>
+        <h1>Build trust<br>into every invoice.</h1>
+        <p>
+          Create your ClaimGuard account to verify invoices, compare market prices,
+          review anomalies and make informed payment decisions.
+        </p>
+      </div>
+
+      <div class="rg-scene" aria-hidden="true">
+        <div class="rg-orbit"></div>
+        <div class="rg-glow"></div>
+
+        <div class="rg-greeting">
+          <div class="rg-gcheck">✓</div>
+          <div class="rg-gtitle" id="registerWelcomeGreeting">Welcome, Sir!</div>
+          <div class="rg-gsub">Let’s build a trusted workspace.</div>
+        </div>
+
+        <div class="rg-invoice i1">
+          <span class="rg-il"></span><span class="rg-il w2"></span>
+          <span class="rg-il w3"></span><span class="rg-il"></span>
+        </div>
+        <div class="rg-invoice i2">
+          <span class="rg-il"></span><span class="rg-il w3"></span>
+          <span class="rg-il w2"></span><span class="rg-il"></span>
+        </div>
+
+        <div class="rg-hud one">
+          <div><span class="dot"></span><span class="title">PROFILE SETUP</span></div>
+          <div class="sub">Account details ready</div>
+        </div>
+        <div class="rg-hud two">
+          <div><span class="dot"></span><span class="title">VERIFY EMAIL</span></div>
+          <div class="sub">Secure onboarding</div>
+        </div>
+
+        <div class="rg-person">
+          <div class="rg-hair"></div>
+          <div class="rg-head">
+            <div class="rg-glasses"><span></span><span></span><i></i></div>
+          </div>
+          <div class="rg-body"></div>
+          <div class="rg-shirt"></div>
+          <div class="rg-tie"></div>
+          <div class="rg-arm one"></div>
+          <div class="rg-arm two"></div>
+          <div class="rg-hand one"></div>
+          <div class="rg-hand two"></div>
+        </div>
+
+        <div class="rg-laptop">
+          <div class="rg-screen">
+            <span class="rg-line a"></span><span class="rg-line b"></span>
+            <span class="rg-line c"></span><span class="rg-line d"></span>
+          </div>
+          <div class="rg-base"></div>
+        </div>
+      </div>
+
+      <div class="rg-footer">© 2026 ClaimGuard</div>
+    </section>
+
+    <section class="rg-right">
+      <div class="rg-form">
+        <div class="rg-heading">
+          <span>CREATE ACCOUNT</span>
+          <h2>Create your account</h2>
+          <p>Get started with ClaimGuard.</p>
+        </div>
+
+        <button type="button" class="rg-google google-btn" id="googleRegisterBtn">
+          <span>G</span>
+          Continue with Google
+        </button>
 
+        <div class="rg-divider"><span>OR</span></div>
 
-    <!-- =================================================
-         REGISTER PAGE SCRIPT
-         ================================================= -->
+        <form id="registerForm" novalidate>
+          <div class="rg-group input-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" placeholder="Enter your full name" autocomplete="name" required>
+          </div>
 
-    <script>
+          <div class="rg-group input-group">
+            <label for="registerEmail">Email Address</label>
+            <input type="email" id="registerEmail" placeholder="you@example.com" autocomplete="email" required>
+          </div>
 
-        const CLAIMGUARD_API =
-            "http://127.0.0.1:8000";
+          <div class="rg-group input-group">
+            <label for="registerPassword">Password</label>
+            <div class="rg-password password-wrapper">
+              <input type="password" id="registerPassword" placeholder="Create a password" autocomplete="new-password" required minlength="8">
+              <button type="button" class="rg-toggle password-toggle" id="toggleRegisterPassword">Show</button>
+            </div>
+          </div>
 
+          <div class="rg-group input-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="rg-password password-wrapper">
+              <input type="password" id="confirmPassword" placeholder="Confirm your password" autocomplete="new-password" required minlength="8">
+              <button type="button" class="rg-toggle password-toggle" id="toggleConfirmPassword">Show</button>
+            </div>
+          </div>
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            () => {
+          <div class="rg-terms register-terms">
+            <label>
+              <input type="checkbox" id="terms">
+              <span>I agree to the Terms of Service and Privacy Policy.</span>
+            </label>
+          </div>
 
-                const form =
-                    document.getElementById(
-                        "registerForm"
-                    );
+          <div id="registerMessage" class="login-message"></div>
 
+          <button type="submit" class="login-submit" id="createAccountButton">Create Account</button>
+        </form>
 
-                const button =
-                    document.getElementById(
-                        "createAccountButton"
-                    );
+        <p class="rg-signin signup-link">
+          Already have an account?
+          <a href="login.html">Sign in</a>
+        </p>
 
+        <div class="rg-security security-note">
+          <span>🔒</span>
+          <p>Your account information is protected using secure authentication.</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
-                const message =
-                    document.getElementById(
-                        "registerMessage"
-                    );
 
+  
+<!-- Background music source: YouTube video supplied by the user.
+     The page streams the video through YouTube; it does not download or bundle the recording. -->
+<div id="ytBackgroundMusic"
+     aria-hidden="true"
+     style="position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:.01;pointer-events:none;"></div>
 
-                const password =
-                    document.getElementById(
-                        "registerPassword"
-                    );
+  <button class="rg-sound" id="soundToggle" aria-label="Toggle interface sounds" title="Toggle interface sounds">🔇</button>
 
+  <script>
+  const CLAIMGUARD_API =
 
-                const confirmPassword =
-                    document.getElementById(
-                        "confirmPassword"
-                    );
+            "http://127.0.0.1:8000";
 
 
-                const terms =
-                    document.getElementById(
-                        "terms"
-                    );
 
 
-                // =================================================
-                // PASSWORD TOGGLE
-                // =================================================
 
-                const togglePassword =
-                    document.getElementById(
-                        "toggleRegisterPassword"
-                    );
+        document.addEventListener(
 
+            "DOMContentLoaded",
 
-                const toggleConfirm =
-                    document.getElementById(
-                        "toggleConfirmPassword"
-                    );
+            () => {
 
 
-                if (togglePassword) {
 
-                    togglePassword.addEventListener(
-                        "click",
-                        () => {
+                const form =
 
-                            const showing =
-                                password.type ===
-                                "text";
+                    document.getElementById(
 
+                        "registerForm"
 
-                            password.type =
-                                showing
-                                    ? "password"
-                                    : "text";
+                    );
 
 
-                            togglePassword.textContent =
-                                showing
-                                    ? "Show"
-                                    : "Hide";
 
-                        }
-                    );
 
-                }
 
+                const button =
 
-                if (toggleConfirm) {
+                    document.getElementById(
 
-                    toggleConfirm.addEventListener(
-                        "click",
-                        () => {
+                        "createAccountButton"
 
-                            const showing =
-                                confirmPassword.type ===
-                                "text";
+                    );
 
 
-                            confirmPassword.type =
-                                showing
-                                    ? "password"
-                                    : "text";
 
 
-                            toggleConfirm.textContent =
-                                showing
-                                    ? "Show"
-                                    : "Hide";
 
-                        }
-                    );
+                const message =
 
-                }
+                    document.getElementById(
 
+                        "registerMessage"
 
-                // =================================================
-                // REGISTER SUBMIT
-                // =================================================
+                    );
 
-                form.addEventListener(
-                    "submit",
-                    async (event) => {
 
-                        event.preventDefault();
 
 
-                        const fullName =
-                            document.getElementById(
-                                "fullName"
-                            )
-                            .value
-                            .trim();
 
+                const password =
 
-                        const email =
-                            document.getElementById(
-                                "registerEmail"
-                            )
-                            .value
-                            .trim();
+                    document.getElementById(
 
+                        "registerPassword"
 
-                        const passwordValue =
-                            password.value;
+                    );
 
 
-                        const confirmValue =
-                            confirmPassword.value;
 
 
-                        // -----------------------------------------
-                        // VALIDATION
-                        // -----------------------------------------
 
-                        if (
-                            !fullName ||
-                            !email ||
-                            !passwordValue ||
-                            !confirmValue
-                        ) {
+                const confirmPassword =
 
-                            showMessage(
-                                "Please complete all required fields."
-                            );
+                    document.getElementById(
 
-                            return;
-                        }
+                        "confirmPassword"
 
+                    );
 
-                        if (
-                            passwordValue.length < 8
-                        ) {
 
-                            showMessage(
-                                "Password must contain at least 8 characters."
-                            );
 
-                            return;
-                        }
 
 
-                        if (
-                            passwordValue !==
-                            confirmValue
-                        ) {
+                const terms =
 
-                            showMessage(
-                                "Passwords do not match."
-                            );
+                    document.getElementById(
 
-                            return;
-                        }
+                        "terms"
 
+                    );
 
-                        if (!terms.checked) {
 
-                            showMessage(
-                                "Please accept the Terms of Service and Privacy Policy."
-                            );
 
-                            return;
-                        }
 
 
-                        // -----------------------------------------
-                        // DISABLE BUTTON
-                        // -----------------------------------------
+                // =================================================
 
-                        button.disabled =
-                            true;
+                // PASSWORD TOGGLE
 
-                        button.textContent =
-                            "Creating account...";
+                // =================================================
 
 
-                        try {
 
-                            console.log(
-                                "Sending registration request..."
-                            );
+                const togglePassword =
 
+                    document.getElementById(
 
-                            const response =
-                                await fetch(
-                                    `${CLAIMGUARD_API}/api/auth/register`,
-                                    {
-                                        method:
-                                            "POST",
+                        "toggleRegisterPassword"
 
-                                        headers: {
-                                            "Content-Type":
-                                                "application/json"
-                                        },
+                    );
 
-                                        body:
-                                            JSON.stringify({
-                                                full_name:
-                                                    fullName,
 
-                                                email:
-                                                    email,
 
-                                                password:
-                                                    passwordValue
-                                            })
-                                    }
-                                );
 
 
-                            console.log(
-                                "Registration status:",
-                                response.status
-                            );
+                const toggleConfirm =
 
+                    document.getElementById(
 
-                            let data = {};
+                        "toggleConfirmPassword"
 
-                            try {
+                    );
 
-                                data =
-                                    await response.json();
 
-                            } catch {
 
-                                data = {};
 
-                            }
 
+                if (togglePassword) {
 
-                            console.log(
-                                "Registration response:",
-                                data
-                            );
 
 
-                            // -------------------------------------
-                            // ERROR
-                            // -------------------------------------
+                    togglePassword.addEventListener(
 
-                            if (!response.ok) {
+                        "click",
 
-                                throw new Error(
-                                    data.detail ||
-                                    "Registration failed."
-                                );
+                        () => {
 
-                            }
 
 
-                            // -------------------------------------
-                            // SAVE EMAIL
-                            // -------------------------------------
+                            const showing =
 
-                            localStorage.setItem(
-                                "claimguard_pending_verification_email",
-                                data.email
-                            );
+                                password.type ===
 
+                                "text";
 
-                            sessionStorage.setItem(
-                                "claimguard_verification_email",
-                                data.email
-                            );
 
 
-                            // -------------------------------------
-                            // SUCCESS
-                            // -------------------------------------
 
-                            console.log(
-                                "Registration successful."
-                            );
 
+                            password.type =
 
-                            console.log(
-                                "Redirecting to verification page..."
-                            );
+                                showing
 
+                                    ? "password"
 
-                            const verificationUrl =
-                                `verify-email.html?email=${encodeURIComponent(
-                                    data.email
-                                )}`;
+                                    : "text";
 
 
-                            // -------------------------------------
-                            // DIRECT REDIRECT
-                            // -------------------------------------
 
-                            window.location.replace(
-                                verificationUrl
-                            );
 
-                        } catch (error) {
 
-                            console.error(
-                                "Registration error:",
-                                error
-                            );
+                            togglePassword.textContent =
 
+                                showing
 
-                            showMessage(
-                                error.message ||
-                                "Unable to connect to ClaimGuard."
-                            );
+                                    ? "Show"
 
+                                    : "Hide";
 
-                            button.disabled =
-                                false;
 
-                            button.textContent =
-                                "Create Account";
 
-                        }
+                        }
 
-                    }
-                );
+                    );
 
 
-                // =================================================
-                // MESSAGE
-                // =================================================
 
-                function showMessage(
-                    text
-                ) {
+                }
 
-                    message.textContent =
-                        text;
 
-                    message.style.display =
-                        "block";
 
-                }
 
-            }
-        );
 
-    </script>
+                if (toggleConfirm) {
 
+
+
+                    toggleConfirm.addEventListener(
+
+                        "click",
+
+                        () => {
+
+
+
+                            const showing =
+
+                                confirmPassword.type ===
+
+                                "text";
+
+
+
+
+
+                            confirmPassword.type =
+
+                                showing
+
+                                    ? "password"
+
+                                    : "text";
+
+
+
+
+
+                            toggleConfirm.textContent =
+
+                                showing
+
+                                    ? "Show"
+
+                                    : "Hide";
+
+
+
+                        }
+
+                    );
+
+
+
+                }
+
+
+
+
+
+                // =================================================
+
+                // REGISTER SUBMIT
+
+                // =================================================
+
+
+
+                form.addEventListener(
+
+                    "submit",
+
+                    async (event) => {
+
+
+
+                        event.preventDefault();
+
+
+
+
+
+                        const fullName =
+
+                            document.getElementById(
+
+                                "fullName"
+
+                            )
+
+                            .value
+
+                            .trim();
+
+
+
+
+
+                        const email =
+
+                            document.getElementById(
+
+                                "registerEmail"
+
+                            )
+
+                            .value
+
+                            .trim();
+
+
+
+
+
+                        const passwordValue =
+
+                            password.value;
+
+
+
+
+
+                        const confirmValue =
+
+                            confirmPassword.value;
+
+
+
+
+
+                        // -----------------------------------------
+
+                        // VALIDATION
+
+                        // -----------------------------------------
+
+
+
+                        if (
+
+                            !fullName ||
+
+                            !email ||
+
+                            !passwordValue ||
+
+                            !confirmValue
+
+                        ) {
+
+
+
+                            showMessage(
+
+                                "Please complete all required fields."
+
+                            );
+
+
+
+                            return;
+
+                        }
+
+
+
+
+
+                        if (
+
+                            passwordValue.length < 8
+
+                        ) {
+
+
+
+                            showMessage(
+
+                                "Password must contain at least 8 characters."
+
+                            );
+
+
+
+                            return;
+
+                        }
+
+
+
+
+
+                        if (
+
+                            passwordValue !==
+
+                            confirmValue
+
+                        ) {
+
+
+
+                            showMessage(
+
+                                "Passwords do not match."
+
+                            );
+
+
+
+                            return;
+
+                        }
+
+
+
+
+
+                        if (!terms.checked) {
+
+
+
+                            showMessage(
+
+                                "Please accept the Terms of Service and Privacy Policy."
+
+                            );
+
+
+
+                            return;
+
+                        }
+
+
+
+
+
+                        // -----------------------------------------
+
+                        // DISABLE BUTTON
+
+                        // -----------------------------------------
+
+
+
+                        button.disabled =
+
+                            true;
+
+
+
+                        button.textContent =
+
+                            "Creating account...";
+
+
+
+
+
+                        try {
+
+
+
+                            console.log(
+
+                                "Sending registration request..."
+
+                            );
+
+
+
+
+
+                            const response =
+
+                                await fetch(
+
+                                    `${CLAIMGUARD_API}/api/auth/register`,
+
+                                    {
+
+                                        method:
+
+                                            "POST",
+
+
+
+                                        headers: {
+
+                                            "Content-Type":
+
+                                                "application/json"
+
+                                        },
+
+
+
+                                        body:
+
+                                            JSON.stringify({
+
+                                                full_name:
+
+                                                    fullName,
+
+
+
+                                                email:
+
+                                                    email,
+
+
+
+                                                password:
+
+                                                    passwordValue
+
+                                            })
+
+                                    }
+
+                                );
+
+
+
+
+
+                            console.log(
+
+                                "Registration status:",
+
+                                response.status
+
+                            );
+
+
+
+
+
+                            let data = {};
+
+
+
+                            try {
+
+
+
+                                data =
+
+                                    await response.json();
+
+
+
+                            } catch {
+
+
+
+                                data = {};
+
+
+
+                            }
+
+
+
+
+
+                            console.log(
+
+                                "Registration response:",
+
+                                data
+
+                            );
+
+
+
+
+
+                            // -------------------------------------
+
+                            // ERROR
+
+                            // -------------------------------------
+
+
+
+                            if (!response.ok) {
+
+
+
+                                throw new Error(
+
+                                    data.detail ||
+
+                                    "Registration failed."
+
+                                );
+
+
+
+                            }
+
+
+
+
+
+                            // -------------------------------------
+
+                            // SAVE EMAIL
+
+                            // -------------------------------------
+
+
+
+                            localStorage.setItem(
+
+                                "claimguard_pending_verification_email",
+
+                                data.email
+
+                            );
+
+
+
+
+
+                            sessionStorage.setItem(
+
+                                "claimguard_verification_email",
+
+                                data.email
+
+                            );
+
+
+
+
+
+                            // -------------------------------------
+
+                            // SUCCESS
+
+                            // -------------------------------------
+
+
+
+                            console.log(
+
+                                "Registration successful."
+
+                            );
+
+
+
+
+
+                            console.log(
+
+                                "Redirecting to verification page..."
+
+                            );
+
+
+
+
+
+                            const verificationUrl =
+
+                                `verify-email.html?email=${encodeURIComponent(
+
+                                    data.email
+
+                                )}`;
+
+
+
+
+
+                            // -------------------------------------
+
+                            // DIRECT REDIRECT
+
+                            // -------------------------------------
+
+
+
+                            window.location.replace(
+
+                                verificationUrl
+
+                            );
+
+
+
+                        } catch (error) {
+
+
+
+                            console.error(
+
+                                "Registration error:",
+
+                                error
+
+                            );
+
+
+
+
+
+                            showMessage(
+
+                                error.message ||
+
+                                "Unable to connect to ClaimGuard."
+
+                            );
+
+
+
+
+
+                            button.disabled =
+
+                                false;
+
+
+
+                            button.textContent =
+
+                                "Create Account";
+
+
+
+                        }
+
+
+
+                    }
+
+                );
+
+
+
+
+
+                // =================================================
+
+                // MESSAGE
+
+                // =================================================
+
+
+
+                function showMessage(
+
+                    text
+
+                ) {
+
+
+
+                    message.textContent =
+
+                        text;
+
+
+
+                    message.style.display =
+
+                        "block";
+
+
+
+                }
+
+
+
+            }
+
+        );
+  </script>
+
+  <script>
+  /* =========================
+     CLAIMGUARD SOUND EXPERIENCE
+     Hover/click SFX + optional background music.
+     Put a licensed copy of the requested track at:
+       assets/titanic-theme.mp3
+     The page cannot ship the copyrighted recording itself.
+     ========================= */
+  (() => {
+    let ctx = null;
+    let master = null;
+    let soundOn = true;
+    let musicReady = false;
+    let ytPlayer = null;
+    let ytReady = false;
+    let ytRequested = false;
+    const YOUTUBE_VIDEO_ID = "HZECMEVNhNo";
+
+    const soundBtn = document.getElementById("soundToggle");
+
+    function ensureAudio() {
+      if (!ctx) {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        master = ctx.createGain();
+        master.gain.value = 0.0001;
+        master.connect(ctx.destination);
+      }
+      if (ctx.state === "suspended") ctx.resume();
+    }
+
+    function hoverTone() {
+      if (!soundOn) return;
+      try {
+        ensureAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(740, now);
+        osc.frequency.exponentialRampToValueAtTime(1040, now + 0.075);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.035, now + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.10);
+        osc.connect(gain).connect(master);
+        osc.start(now);
+        osc.stop(now + 0.11);
+      } catch (e) {}
+    }
+
+    function clickTone() {
+      if (!soundOn) return;
+      try {
+        ensureAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(420, now);
+        osc.frequency.exponentialRampToValueAtTime(680, now + 0.06);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.055, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+        osc.connect(gain).connect(master);
+        osc.start(now);
+        osc.stop(now + 0.13);
+      } catch (e) {}
+    }
+
+    function onYouTubeAPIReady() {
+      if (!window.YT || !YT.Player || ytPlayer) return;
+
+      ytPlayer = new YT.Player("ytBackgroundMusic", {
+        width: "1",
+        height: "1",
+        videoId: YOUTUBE_VIDEO_ID,
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          loop: 1,
+          playlist: YOUTUBE_VIDEO_ID,
+          playsinline: 1,
+          rel: 0,
+          modestbranding: 1
+        },
+        events: {
+          onReady: (event) => {
+            ytReady = true;
+            event.target.setVolume(12);
+            if (ytRequested && soundOn) startMusic();
+          }
+        }
+      });
+    }
+
+    function loadYouTubeAPI() {
+      if (window.YT && window.YT.Player) {
+        onYouTubeAPIReady();
+        return;
+      }
+      if (document.getElementById("youtube-iframe-api")) return;
+
+      const script = document.createElement("script");
+      script.id = "youtube-iframe-api";
+      script.src = "https://www.youtube.com/iframe_api";
+      script.async = true;
+      document.head.appendChild(script);
+
+      const previous = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (typeof previous === "function") previous();
+        onYouTubeAPIReady();
+      };
+    }
+
+    async function startMusic() {
+      if (!soundOn) return;
+      ytRequested = true;
+
+      try {
+        ensureAudio();
+        if (!ytPlayer || !ytReady) {
+          loadYouTubeAPI();
+          return;
+        }
+        ytPlayer.setVolume(12);
+        ytPlayer.playVideo();
+        musicReady = true;
+      } catch (e) {
+        musicReady = false;
+      }
+    }
+
+    function stopMusic() {
+      try {
+        if (ytPlayer && ytReady) {
+          ytPlayer.pauseVideo();
+          ytPlayer.seekTo(0, true);
+        }
+      } catch (e) {}
+      ytRequested = false;
+      musicReady = false;
+    }
+
+    function setSoundState(on) {
+      soundOn = on;
+      soundBtn.textContent = on ? "🔊" : "🔇";
+      soundBtn.classList.toggle("is-on", on);
+
+      if (on) {
+        try {
+          ensureAudio();
+          master.gain.setTargetAtTime(0.72, ctx.currentTime, 0.14);
+        } catch (e) {}
+        startMusic();
+      } else {
+        if (master && ctx) master.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.08);
+        stopMusic();
+      }
+    }
+
+    // Load the YouTube player without starting audio automatically.
+    loadYouTubeAPI();
+
+    // Browsers generally require a user gesture before audible media can play.
+    document.addEventListener("pointerdown", () => {
+      if (!soundOn) return;
+      try {
+        ensureAudio();
+        master.gain.setTargetAtTime(0.72, ctx.currentTime, 0.14);
+      } catch (e) {}
+      startMusic();
+    }, {passive:true});
+
+    document.querySelectorAll("button,a").forEach(el => {
+      el.addEventListener("pointerenter", hoverTone, {passive:true});
+      el.addEventListener("click", clickTone, {passive:true});
+    });
+
+    soundBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setSoundState(!soundOn);
+      if (soundOn) clickTone();
+    });
+
+    soundBtn.classList.add("is-on");
+  })();
+  </script>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const el = document.getElementById("registerWelcomeGreeting");
+    if (!el) return;
+    const h = new Date().getHours();
+    let g = "Good Evening";
+    if (h >= 5 && h < 12) g = "Good Morning";
+    else if (h >= 12 && h < 17) g = "Good Afternoon";
+    else if (h >= 17 && h < 21) g = "Good Evening";
+    else g = "Good Night";
+    el.textContent = `${g}, Sir!`;
+  });
+  </script>
 </body>
-
 </html>

@@ -17,57 +17,837 @@
         href="css/style.css"
     >
 
+    <style>
+        :root{
+            --cg-black:#07040d;
+            --cg-black-2:#0c0612;
+            --cg-purple:#8e3cff;
+            --cg-purple-2:#b34be8;
+            --cg-pink:#d52fd0;
+            --cg-green:#35ddb0;
+            --cg-text:#faf7ff;
+            --cg-muted:#a39aaa;
+            --cg-dim:#756d7c;
+            --cg-border:rgba(255,255,255,.10);
+        }
+
+        *{box-sizing:border-box}
+        html,body{margin:0;min-height:100%}
+
+        body.auth-page.verify-page{
+            min-height:100vh;
+            overflow-x:hidden;
+            color:var(--cg-text);
+            font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+            background:
+                radial-gradient(circle at 10% 8%,rgba(121,61,255,.17),transparent 26%),
+                radial-gradient(circle at 91% 8%,rgba(212,46,190,.13),transparent 23%),
+                linear-gradient(135deg,#08040d 0%,#10061a 50%,#07040c 100%);
+        }
+
+        body.auth-page.verify-page::before{
+            content:"";
+            position:fixed;
+            inset:0;
+            pointer-events:none;
+            opacity:.22;
+            background:
+                linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);
+            background-size:44px 44px;
+        }
+
+        .verify-topbar{
+            width:min(1500px,calc(100vw - 60px));
+            min-height:58px;
+            margin:10px auto 0;
+            padding:0 26px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            position:relative;
+            z-index:50;
+            border:1px solid var(--cg-border);
+            border-radius:18px;
+            background:rgba(7,4,13,.74);
+            backdrop-filter:blur(18px);
+            box-shadow:0 20px 55px rgba(0,0,0,.22);
+        }
+
+        .verify-topbar a{
+            color:#d6cedc;
+            text-decoration:none;
+            font-size:12px;
+            font-weight:800;
+            transition:.2s ease;
+        }
+
+        .verify-topbar a:hover{
+            color:#fff;
+            transform:translateY(-1px);
+        }
+
+        .verify-top-links{
+            display:flex;
+            align-items:center;
+            gap:28px;
+        }
+
+        .verify-top-links .active{color:#c993ff}
+
+        .verify-shell{
+            width:min(1500px,calc(100vw - 60px));
+            min-height:calc(100vh - 106px);
+            margin:20px auto 28px;
+            display:grid;
+            grid-template-columns:minmax(0,58%) minmax(430px,42%);
+            position:relative;
+            overflow:hidden;
+            border:1px solid var(--cg-border);
+            border-radius:30px;
+            background:#0a0610;
+            box-shadow:0 30px 110px rgba(0,0,0,.42);
+        }
+
+        .verify-left{
+            min-width:0;
+            position:relative;
+            overflow:hidden;
+            padding:38px 44px 30px;
+            background:
+                radial-gradient(circle at 74% 45%,rgba(108,48,225,.15),transparent 28%),
+                radial-gradient(circle at 27% 75%,rgba(112,46,218,.08),transparent 23%),
+                linear-gradient(145deg,#0c0615 0%,#12071b 55%,#130619 100%);
+        }
+
+        .verify-left::after{
+            content:"";
+            position:absolute;
+            top:0;
+            right:0;
+            bottom:0;
+            width:1px;
+            background:linear-gradient(180deg,transparent,rgba(195,115,255,.18),transparent);
+        }
+
+        .verify-brand{
+            display:flex;
+            align-items:center;
+            gap:14px;
+            position:relative;
+            z-index:30;
+        }
+
+        .verify-brand-mark{
+            width:52px;
+            height:52px;
+            border-radius:16px;
+            display:grid;
+            place-items:center;
+            color:#fff;
+            font-weight:900;
+            background:linear-gradient(145deg,#9c45ff,#c72bdf);
+            box-shadow:0 15px 34px rgba(153,56,255,.25);
+        }
+
+        .verify-brand-name{
+            margin:0 0 3px;
+            font-size:19px;
+            letter-spacing:-.035em;
+        }
+
+        .verify-brand-sub{
+            font-size:10px;
+            letter-spacing:.12em;
+            color:#8a8090;
+            font-weight:800;
+        }
+
+        .verify-copy{
+            width:47%;
+            max-width:485px;
+            margin-top:54px;
+            position:relative;
+            z-index:22;
+        }
+
+        .verify-kicker{
+            display:inline-flex;
+            align-items:center;
+            gap:9px;
+            padding:8px 12px;
+            border:1px solid rgba(168,100,255,.24);
+            border-radius:999px;
+            color:#c9bce4;
+            background:rgba(125,67,255,.08);
+            font-size:10px;
+            letter-spacing:.14em;
+            font-weight:900;
+        }
+
+        .verify-kicker::before{
+            content:"";
+            width:7px;
+            height:7px;
+            border-radius:50%;
+            background:var(--cg-green);
+            box-shadow:
+                0 0 0 5px rgba(56,223,177,.08),
+                0 0 14px rgba(56,223,177,.38);
+        }
+
+        .verify-copy h1{
+            margin:19px 0 18px;
+            font-size:clamp(45px,4.4vw,70px);
+            line-height:.95;
+            letter-spacing:-.065em;
+            font-weight:900;
+        }
+
+        .verify-copy h1::after{
+            content:"";
+            display:block;
+            width:96px;
+            height:4px;
+            margin-top:19px;
+            border-radius:99px;
+            background:linear-gradient(90deg,#973eff,#d338ca,transparent);
+            box-shadow:0 0 24px rgba(153,62,255,.30);
+        }
+
+        .verify-copy>p{
+            margin:0;
+            max-width:435px;
+            color:#9e94a7;
+            font-size:13px;
+            line-height:1.75;
+        }
+
+        .verify-points{
+            display:grid;
+            gap:10px;
+            width:min(90%,450px);
+            margin-top:32px;
+            position:relative;
+            z-index:22;
+        }
+
+        .verify-point{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:10px 12px;
+            border:1px solid rgba(255,255,255,.075);
+            border-radius:13px;
+            background:rgba(255,255,255,.018);
+            transition:.22s ease;
+        }
+
+        .verify-point:hover{
+            transform:translateX(5px);
+            border-color:rgba(184,108,255,.25);
+            background:rgba(160,75,255,.055);
+        }
+
+        .verify-point strong{
+            width:29px;
+            height:29px;
+            border-radius:9px;
+            display:grid;
+            place-items:center;
+            flex:0 0 auto;
+            font-size:9px;
+            color:#d29eff;
+            background:rgba(152,64,255,.12);
+            border:1px solid rgba(169,92,255,.18);
+        }
+
+        .verify-point span{
+            color:#d8cfdf;
+            font-size:10px;
+            line-height:1.35;
+            font-weight:800;
+        }
+
+        /* ---------- visual scene ---------- */
+
+        .verify-scene{
+            position:absolute;
+            right:-1%;
+            top:50%;
+            width:56%;
+            max-width:650px;
+            height:540px;
+            transform:translateY(-48%);
+            pointer-events:none;
+            z-index:10;
+        }
+
+        .verify-orbit{
+            position:absolute;
+            left:50%;
+            top:52%;
+            width:420px;
+            height:420px;
+            transform:translate(-50%,-50%);
+            border:1px dashed rgba(170,106,255,.17);
+            border-radius:50%;
+        }
+
+        .verify-orbit::before,
+        .verify-orbit::after{
+            content:"";
+            position:absolute;
+            left:50%;
+            top:50%;
+            transform:translate(-50%,-50%);
+            border-radius:50%;
+            border:1px solid rgba(170,106,255,.10);
+        }
+
+        .verify-orbit::before{width:320px;height:320px}
+        .verify-orbit::after{width:240px;height:240px}
+
+        .verify-glow{
+            position:absolute;
+            left:50%;
+            top:57%;
+            width:270px;
+            height:190px;
+            transform:translate(-50%,-50%);
+            background:radial-gradient(circle,rgba(153,62,255,.25),transparent 70%);
+            filter:blur(18px);
+        }
+
+        .verify-status{
+            position:absolute;
+            z-index:22;
+            top:6px;
+            left:50%;
+            transform:translateX(-50%);
+            min-width:255px;
+            padding:13px 16px;
+            border-radius:15px;
+            border:1px solid rgba(203,130,255,.30);
+            background:rgba(15,8,24,.94);
+            backdrop-filter:blur(16px);
+            box-shadow:0 18px 44px rgba(0,0,0,.34);
+        }
+
+        .verify-status::after{
+            content:"";
+            position:absolute;
+            left:50%;
+            bottom:-8px;
+            width:15px;
+            height:15px;
+            transform:translateX(-50%) rotate(45deg);
+            background:#150a22;
+            border-right:1px solid rgba(203,130,255,.22);
+            border-bottom:1px solid rgba(203,130,255,.22);
+        }
+
+        .verify-status-icon{
+            float:left;
+            width:28px;
+            height:28px;
+            margin-right:10px;
+            border-radius:9px;
+            display:grid;
+            place-items:center;
+            color:#fff;
+            font-weight:900;
+            background:linear-gradient(145deg,#a343ff,#c92bdd);
+        }
+
+        .verify-status-title{
+            color:#fff;
+            font-size:12px;
+            font-weight:900;
+        }
+
+        .verify-status-sub{
+            margin-top:4px;
+            color:#8e8397;
+            font-size:9px;
+        }
+
+        .verify-envelope{
+            position:absolute;
+            left:50%;
+            top:105px;
+            width:160px;
+            height:120px;
+            transform:translateX(-50%);
+            border-radius:19px;
+            background:linear-gradient(145deg,#4f1f70,#2a1239);
+            border:1px solid rgba(223,165,255,.16);
+            box-shadow:0 30px 55px rgba(0,0,0,.30);
+            animation:envelopeFloat 4.6s ease-in-out infinite;
+        }
+
+        .verify-envelope::before{
+            content:"";
+            position:absolute;
+            inset:12px;
+            border-radius:13px;
+            background:linear-gradient(145deg,#181020,#0d0914);
+            border:1px solid rgba(255,255,255,.07);
+        }
+
+        .verify-envelope::after{
+            content:"";
+            position:absolute;
+            left:28px;
+            right:28px;
+            top:29px;
+            height:50px;
+            background:linear-gradient(135deg,transparent 49%,#a34cff 50%,transparent 51%),
+                       linear-gradient(225deg,transparent 49%,#7f38dc 50%,transparent 51%);
+            opacity:.72;
+        }
+
+        @keyframes envelopeFloat{
+            50%{transform:translate(-50%,-8px)}
+        }
+
+        .verify-seal{
+            position:absolute;
+            right:-17px;
+            bottom:-15px;
+            width:57px;
+            height:57px;
+            border-radius:50%;
+            display:grid;
+            place-items:center;
+            color:#07110d;
+            font-size:21px;
+            background:linear-gradient(145deg,#42edbd,#2dbf97);
+            border:6px solid #160b21;
+            box-shadow:0 14px 28px rgba(0,0,0,.28);
+            animation:sealPulse 2.4s ease-in-out infinite;
+        }
+
+        @keyframes sealPulse{
+            50%{box-shadow:0 0 0 7px rgba(53,221,176,.07),0 14px 28px rgba(0,0,0,.28)}
+        }
+
+        .verify-code-card{
+            position:absolute;
+            left:50%;
+            top:237px;
+            transform:translateX(-50%);
+            width:250px;
+            padding:13px;
+            border-radius:15px;
+            border:1px solid rgba(255,255,255,.09);
+            background:rgba(10,6,16,.92);
+            backdrop-filter:blur(12px);
+            box-shadow:0 20px 42px rgba(0,0,0,.30);
+        }
+
+        .verify-code-label{
+            color:#817688;
+            font-size:8px;
+            font-weight:900;
+            letter-spacing:.13em;
+        }
+
+        .verify-code-digits{
+            display:flex;
+            justify-content:center;
+            gap:7px;
+            margin-top:10px;
+        }
+
+        .verify-code-digits span{
+            width:28px;
+            height:34px;
+            display:grid;
+            place-items:center;
+            border-radius:8px;
+            color:#f4eaff;
+            background:rgba(154,64,255,.09);
+            border:1px solid rgba(175,91,255,.17);
+            font-size:13px;
+            font-weight:900;
+        }
+
+        .verify-mini-card{
+            position:absolute;
+            z-index:20;
+            min-width:138px;
+            padding:9px 11px;
+            border-radius:11px;
+            background:rgba(11,7,18,.93);
+            border:1px solid rgba(182,109,255,.22);
+            box-shadow:0 12px 26px rgba(0,0,0,.25);
+        }
+
+        .verify-mini-card.left{left:3%;top:56%}
+        .verify-mini-card.right{right:3%;top:54%}
+
+        .verify-mini-card .dot{
+            display:inline-block;
+            width:5px;
+            height:5px;
+            border-radius:50%;
+            background:var(--cg-green);
+            margin-right:5px;
+        }
+
+        .verify-mini-title{
+            color:#ded6e8;
+            font-size:7px;
+            letter-spacing:.05em;
+            font-weight:900;
+        }
+
+        .verify-mini-sub{
+            margin-top:3px;
+            color:#91869d;
+            font-size:6px;
+        }
+
+        /* ---------- right side ---------- */
+
+        .verify-right{
+            min-width:0;
+            min-height:100%;
+            padding:30px 24px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:
+                radial-gradient(circle at 50% 0%,rgba(157,63,255,.08),transparent 27%),
+                linear-gradient(180deg,#09050f,#08050d);
+        }
+
+        .verify-form{
+            width:100%;
+            max-width:650px;
+            padding:29px 32px 24px;
+            border:1px solid rgba(255,255,255,.10);
+            border-radius:24px;
+            background:linear-gradient(180deg,rgba(27,19,36,.78),rgba(11,8,17,.90));
+            box-shadow:0 28px 80px rgba(0,0,0,.30);
+            position:relative;
+        }
+
+        .verify-form::before{
+            content:"";
+            position:absolute;
+            left:0;
+            right:0;
+            top:0;
+            height:3px;
+            border-radius:24px 24px 0 0;
+            background:linear-gradient(90deg,#823cff,#c742e7,#ef62bf);
+        }
+
+        .verify-icon{
+            width:50px;
+            height:50px;
+            margin-bottom:16px;
+            display:grid;
+            place-items:center;
+            border-radius:15px;
+            color:#d3a1ff;
+            background:rgba(150,61,255,.10);
+            border:1px solid rgba(185,108,255,.20);
+            font-size:20px;
+            box-shadow:0 12px 28px rgba(0,0,0,.18);
+        }
+
+        .verify-heading>span{
+            color:#bda5c8;
+            font-size:10px;
+            font-weight:900;
+            letter-spacing:.15em;
+        }
+
+        .verify-heading h2{
+            margin:9px 0 5px;
+            color:#fbf8ff;
+            font-size:34px;
+            line-height:1.03;
+            letter-spacing:-.05em;
+        }
+
+        .verify-heading p{
+            margin:0 0 21px;
+            color:#9a8f9f;
+            font-size:12px;
+            line-height:1.55;
+        }
+
+        .verify-input-group{
+            margin-bottom:16px;
+        }
+
+        .verify-input-group label,
+        .otp-label{
+            display:block;
+            margin-bottom:7px;
+            color:#d9d1df;
+            font-size:11px;
+            font-weight:800;
+        }
+
+        .verify-input-group input{
+            width:100%;
+            height:48px;
+            border-radius:12px;
+            border:1px solid rgba(255,255,255,.10);
+            background:rgba(255,255,255,.025);
+            color:#fff;
+            padding:0 14px;
+            outline:none;
+            transition:.22s ease;
+        }
+
+        .verify-input-group input::placeholder{color:#6f6777}
+
+        .verify-input-group input:hover{
+            border-color:rgba(184,106,255,.18);
+        }
+
+        .verify-input-group input:focus{
+            border-color:rgba(175,89,255,.56);
+            box-shadow:0 0 0 4px rgba(161,63,255,.09);
+            background:rgba(255,255,255,.035);
+        }
+
+        .otp-label{
+            margin-top:2px;
+        }
+
+        .otp-container{
+            display:grid;
+            grid-template-columns:repeat(6,1fr);
+            gap:9px;
+            margin-bottom:18px;
+        }
+
+        .otp-input{
+            width:100%;
+            height:53px;
+            text-align:center;
+            border-radius:12px;
+            border:1px solid rgba(255,255,255,.10);
+            background:rgba(255,255,255,.025);
+            color:#fff;
+            font-size:19px;
+            font-weight:900;
+            outline:none;
+            transition:.20s ease;
+        }
+
+        .otp-input:hover{
+            border-color:rgba(184,106,255,.20);
+            transform:translateY(-1px);
+        }
+
+        .otp-input:focus{
+            border-color:rgba(175,89,255,.58);
+            box-shadow:0 0 0 4px rgba(161,63,255,.09);
+            transform:translateY(-2px);
+        }
+
+        .verify-submit{
+            width:100%;
+            height:52px;
+            border:0;
+            border-radius:13px;
+            background:linear-gradient(90deg,#8d3cff,#b54ce9,#cc2ddb);
+            color:#fff;
+            font-size:13px;
+            font-weight:900;
+            cursor:pointer;
+            box-shadow:0 18px 34px rgba(133,49,239,.24);
+            transition:.22s ease;
+        }
+
+        .verify-submit:hover{
+            transform:translateY(-2px);
+            box-shadow:0 23px 42px rgba(145,50,255,.30);
+        }
+
+        #verificationMessage{
+            min-height:0;
+            margin:11px 0 0;
+            color:#ff9fbd;
+            font-size:11px;
+        }
+
+        .resend-section{
+            margin-top:18px;
+            padding-top:17px;
+            border-top:1px solid rgba(255,255,255,.07);
+            text-align:center;
+        }
+
+        .resend-section p{
+            margin:0 0 8px;
+            color:#918694;
+            font-size:11px;
+        }
+
+        .resend-btn{
+            border:0;
+            padding:0;
+            background:transparent;
+            color:#c78eff;
+            font-size:11px;
+            font-weight:900;
+            cursor:pointer;
+            transition:.2s ease;
+        }
+
+        .resend-btn:hover{
+            color:#fff;
+            transform:translateY(-1px);
+        }
+
+        #resendTimer{
+            margin-left:7px;
+            color:#766d7c;
+            font-size:10px;
+        }
+
+        .verify-signup{
+            margin:17px 0 13px;
+            text-align:center;
+            color:#918694;
+            font-size:11px;
+        }
+
+        .verify-signup a{
+            color:#c58cff;
+            text-decoration:none;
+            font-weight:900;
+        }
+
+        .verify-signup a:hover{color:#fff}
+
+        .verify-security{
+            min-height:45px;
+            padding:10px 12px;
+            display:flex;
+            align-items:center;
+            gap:10px;
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:12px;
+            background:rgba(255,255,255,.018);
+        }
+
+        .verify-security>span{
+            font-size:13px;
+        }
+
+        .verify-security p{
+            margin:0;
+            color:#827889;
+            font-size:9px;
+            line-height:1.35;
+        }
+
+        .verify-footer{
+            position:absolute;
+            left:44px;
+            bottom:13px;
+            color:#70677a;
+            font-size:10px;
+            z-index:30;
+        }
+
+        @media(max-width:1200px){
+            .verify-shell{grid-template-columns:minmax(0,56%) minmax(430px,44%)}
+            .verify-copy{width:50%}
+            .verify-scene{width:59%;right:-4%}
+            .verify-points{width:88%}
+        }
+
+        @media(max-width:980px){
+            .verify-shell{
+                width:min(94vw,780px);
+                min-height:auto;
+                grid-template-columns:1fr;
+            }
+            .verify-left{min-height:720px;padding:34px 30px}
+            .verify-copy{width:54%}
+            .verify-scene{width:58%;right:-2%;top:53%}
+            .verify-right{padding:18px 16px 24px}
+        }
+
+        @media(max-width:720px){
+            .verify-topbar,.verify-shell{width:94vw}
+            .verify-topbar{min-height:52px;padding:0 16px}
+            .verify-top-links{gap:14px}
+            .verify-left{min-height:auto;padding:28px 22px 24px}
+            .verify-copy{width:100%;margin-top:32px}
+            .verify-copy h1{font-size:45px}
+            .verify-points{width:100%}
+            .verify-scene{
+                position:relative;
+                right:auto;
+                top:auto;
+                transform:none;
+                width:100%;
+                height:430px;
+                margin-top:8px;
+            }
+            .verify-footer{position:static;margin-top:10px}
+            .verify-form{padding:24px 18px 20px}
+            .verify-heading h2{font-size:30px}
+        }
+
+        @media(max-width:460px){
+            .otp-container{gap:6px}
+            .otp-input{height:49px;font-size:16px}
+            .verify-scene{height:380px}
+            .verify-envelope{transform:translateX(-50%) scale(.88)}
+            .verify-envelope{transform-origin:center}
+            .verify-code-card{transform:translateX(-50%) scale(.90);transform-origin:center}
+            .verify-orbit{width:290px;height:290px}
+        }
+    </style>
+
 </head>
 
+<body class="auth-page verify-page">
 
-<body class="auth-page">
+    <div class="verify-topbar">
+        <a href="index.html">← Back to overview</a>
+        <div class="verify-top-links">
+            <a href="login.html">Sign in</a>
+            <a class="active" href="register.html">Create account</a>
+        </div>
+    </div>
 
+    <main class="verify-shell">
 
-    <div class="auth-container">
+        <section class="verify-left">
 
-
-        <!-- =================================================
-             LEFT SIDE
-             ================================================= -->
-
-        <div class="auth-brand-panel">
-
-
-            <div class="auth-brand">
-
-                <div class="brand-icon">
-                    CG
-                </div>
-
+            <div class="verify-brand">
+                <div class="verify-brand-mark">CG</div>
 
                 <div>
-
-                    <h2>
-                        ClaimGuard
-                    </h2>
-
-                    <span>
-                        Invoice Intelligence
-                    </span>
-
+                    <div class="verify-brand-name">ClaimGuard</div>
+                    <div class="verify-brand-sub">INVOICE INTELLIGENCE</div>
                 </div>
-
             </div>
 
+            <div class="verify-copy">
 
-            <div class="auth-message">
-
-                <span class="auth-label">
+                <div class="verify-kicker">
                     ACCOUNT SECURITY
-                </span>
-
+                </div>
 
                 <h1>
-                    One more step
-                    <br>
+                    One more step<br>
                     to secure your account.
                 </h1>
-
 
                 <p>
                     Verify your email address to activate
@@ -75,99 +855,95 @@
                     to your secure workspace.
                 </p>
 
+                <div class="verify-points">
 
-                <div class="auth-features">
-
-                    <div>
+                    <div class="verify-point">
                         <strong>01</strong>
-                        <span>
-                            Secure account activation
-                        </span>
+                        <span>Secure account activation</span>
                     </div>
 
-
-                    <div>
+                    <div class="verify-point">
                         <strong>02</strong>
-                        <span>
-                            Email ownership verification
-                        </span>
+                        <span>Email ownership verification</span>
                     </div>
 
-
-                    <div>
+                    <div class="verify-point">
                         <strong>03</strong>
-                        <span>
-                            Protected access to invoices
-                        </span>
+                        <span>Protected access to invoices</span>
                     </div>
 
                 </div>
 
             </div>
 
+            <!-- Animated visual scene -->
+            <div class="verify-scene" aria-hidden="true">
 
-            <div class="auth-footer">
+                <div class="verify-orbit"></div>
+                <div class="verify-glow"></div>
+
+                <div class="verify-status">
+                    <div class="verify-status-icon">✓</div>
+                    <div class="verify-status-title">Secure verification</div>
+                    <div class="verify-status-sub">Your account is almost ready.</div>
+                </div>
+
+                <div class="verify-envelope">
+                    <div class="verify-seal">✓</div>
+                </div>
+
+                <div class="verify-code-card">
+                    <div class="verify-code-label">6-DIGIT VERIFICATION CODE</div>
+                    <div class="verify-code-digits">
+                        <span>•</span>
+                        <span>•</span>
+                        <span>•</span>
+                        <span>•</span>
+                        <span>•</span>
+                        <span>•</span>
+                    </div>
+                </div>
+
+                <div class="verify-mini-card left">
+                    <div>
+                        <span class="dot"></span>
+                        <span class="verify-mini-title">EMAIL OWNERSHIP</span>
+                    </div>
+                    <div class="verify-mini-sub">Awaiting verification</div>
+                </div>
+
+                <div class="verify-mini-card right">
+                    <div>
+                        <span class="dot"></span>
+                        <span class="verify-mini-title">ACCESS CONTROL</span>
+                    </div>
+                    <div class="verify-mini-sub">Protected workspace</div>
+                </div>
+
+            </div>
+
+            <div class="verify-footer">
                 © 2026 ClaimGuard
             </div>
 
-
-        </div>
-
-
-        <!-- =================================================
-             RIGHT SIDE
-             ================================================= -->
-
-        <div class="auth-form-panel">
+        </section>
 
 
-            <div class="auth-form-box">
+        <section class="verify-right">
 
+            <div class="verify-form">
 
-                <!-- MOBILE BRAND -->
+                <div class="verify-icon">✉</div>
 
-                <div class="mobile-brand">
-
-                    <div class="brand-icon">
-                        CG
-                    </div>
-
-
-                    <div>
-
-                        <h2>
-                            ClaimGuard
-                        </h2>
-
-                        <span>
-                            Invoice Intelligence
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- ICON -->
-
-                <div class="verification-icon">
-                    ✉
-                </div>
-
-
-                <!-- HEADING -->
-
-                <div class="form-heading verification-heading">
+                <div class="verify-heading">
 
                     <span>
                         VERIFY YOUR EMAIL
                     </span>
 
-
                     <h2>
                         Check your inbox
                     </h2>
-
 
                     <p>
                         Enter the 6-digit verification code
@@ -177,21 +953,13 @@
                 </div>
 
 
-                <!-- =================================================
-                     EMAIL
-                     ================================================= -->
-
                 <form id="verificationForm">
 
+                    <div class="verify-input-group input-group">
 
-                    <div class="input-group">
-
-                        <label
-                            for="verificationEmailInput"
-                        >
+                        <label for="verificationEmailInput">
                             Verification Email
                         </label>
-
 
                         <input
                             type="email"
@@ -204,16 +972,9 @@
                     </div>
 
 
-                    <!-- =================================================
-                         OTP
-                         ================================================= -->
-
                     <label class="otp-label">
-
                         Verification Code
-
                     </label>
-
 
                     <div class="otp-container">
 
@@ -225,6 +986,12 @@
                             autocomplete="one-time-code"
                         >
 
+                        <input
+                            type="text"
+                            maxlength="1"
+                            class="otp-input"
+                            inputmode="numeric"
+                        >
 
                         <input
                             type="text"
@@ -233,7 +1000,6 @@
                             inputmode="numeric"
                         >
 
-
                         <input
                             type="text"
                             maxlength="1"
@@ -241,22 +1007,12 @@
                             inputmode="numeric"
                         >
 
-
                         <input
                             type="text"
                             maxlength="1"
                             class="otp-input"
                             inputmode="numeric"
                         >
-
-
-                        <input
-                            type="text"
-                            maxlength="1"
-                            class="otp-input"
-                            inputmode="numeric"
-                        >
-
 
                         <input
                             type="text"
@@ -268,20 +1024,15 @@
                     </div>
 
 
-                    <!-- VERIFY -->
-
                     <button
                         type="submit"
-                        class="login-submit"
+                        class="login-submit verify-submit"
                     >
                         Verify Email
                     </button>
 
-
                 </form>
 
-
-                <!-- MESSAGE -->
 
                 <div
                     id="verificationMessage"
@@ -289,16 +1040,11 @@
                 ></div>
 
 
-                <!-- =================================================
-                     RESEND
-                     ================================================= -->
-
                 <div class="resend-section">
 
                     <p>
                         Didn't receive the code?
                     </p>
-
 
                     <button
                         type="button"
@@ -308,15 +1054,12 @@
                         Resend Code
                     </button>
 
-
                     <span id="resendTimer"></span>
 
                 </div>
 
 
-                <!-- BACK -->
-
-                <p class="signup-link">
+                <p class="signup-link verify-signup">
 
                     Wrong email?
 
@@ -327,14 +1070,11 @@
                 </p>
 
 
-                <!-- SECURITY -->
-
-                <div class="security-note">
+                <div class="security-note verify-security">
 
                     <span>
                         🔒
                     </span>
-
 
                     <p>
                         Never share your verification
@@ -343,14 +1083,11 @@
 
                 </div>
 
-
             </div>
 
+        </section>
 
-        </div>
-
-
-    </div>
+    </main>
 
 
     <script src="js/app.js"></script>

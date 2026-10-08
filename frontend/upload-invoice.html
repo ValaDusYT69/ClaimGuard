@@ -1031,6 +1031,82 @@
 
 
         // =====================================================
+        // ROLE RESTRICTION
+        // =====================================================
+        // Only Normal User accounts can access invoice creation.
+        // The backend enforces the same rule; this frontend guard
+        // prevents privileged users from seeing/using the upload page.
+
+        let uploadPageUser =
+            null;
+
+        try {
+
+            uploadPageUser =
+                JSON.parse(
+                    userData
+                );
+
+        } catch (error) {
+
+            uploadPageUser =
+                null;
+
+        }
+
+
+        function normalizeUploadRole(
+            value
+        ) {
+
+            return String(
+                value ??
+                ""
+            )
+                .trim()
+                .toLowerCase()
+                .replace(/[_\/\s]+/g, "-")
+                .replace(/-+/g, "-");
+
+        }
+
+
+        const uploadPageRole =
+            normalizeUploadRole(
+                uploadPageUser?.role
+            );
+
+
+        if (
+            uploadPageRole &&
+            uploadPageRole !== "user"
+        ) {
+
+            const restrictedDestination =
+                uploadPageRole === "admin"
+                    ? "admin-dashboard.html"
+                    : "reviewer-dashboard.html";
+
+            const uploadPage =
+                document.querySelector(
+                    ".upload-page"
+                );
+
+            if (uploadPage) {
+
+                uploadPage.style.display =
+                    "none";
+
+            }
+
+            window.location.replace(
+                restrictedDestination
+            );
+
+        }
+
+
+        // =====================================================
         // FILE SIZE FORMATTER
         // =====================================================
 

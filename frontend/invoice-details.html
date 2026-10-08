@@ -1356,6 +1356,1051 @@
 
     </style>
 
+
+<style id="cg-invoice-details-premium-v1">
+/* =========================================================
+   CLAIMGUARD INVOICE DETAILS — PREMIUM BLUE/PURPLE REVIEW THEME
+   Visual/decorative layer only. Original JS remains intact.
+   ========================================================= */
+
+:root{
+    --id-bg:#f4f5fb;
+    --id-surface:#ffffff;
+    --id-surface-soft:#fafaff;
+    --id-ink:#211c2d;
+    --id-ink-2:#4b4357;
+    --id-muted:#746b7e;
+    --id-dim:#958d9d;
+    --id-line:#dddbea;
+    --id-blue:#3568d8;
+    --id-blue-2:#5b72e6;
+    --id-purple:#8d4dde;
+    --id-purple-2:#b64fd3;
+    --id-green:#248d73;
+    --id-orange:#c97817;
+    --id-red:#b63b52;
+}
+
+html,body{
+    min-height:100%;
+}
+
+body.theme-reviewer{
+    min-height:100vh !important;
+    color:var(--id-ink) !important;
+    background:
+        radial-gradient(circle at 8% 3%,rgba(67,107,224,.10),transparent 25%),
+        radial-gradient(circle at 93% 4%,rgba(177,79,211,.09),transparent 24%),
+        linear-gradient(135deg,#f7f7fc 0%,#f0f1f9 53%,#faf9fd 100%) !important;
+    overflow-x:hidden !important;
+}
+
+body.theme-reviewer::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    opacity:.16;
+    background:
+        linear-gradient(rgba(54,69,111,.023) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(54,69,111,.018) 1px,transparent 1px);
+    background-size:46px 46px;
+}
+
+/* ===================== NAV ===================== */
+
+body.theme-reviewer .navbar{
+    width:min(1500px,calc(100vw - 56px)) !important;
+    min-height:64px !important;
+    margin:12px auto 12px !important;
+    padding:0 18px 0 20px !important;
+    position:relative !important;
+    z-index:30 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:20px !important;
+    background:rgba(255,255,255,.91) !important;
+    border:1px solid var(--id-line) !important;
+    border-radius:18px !important;
+    box-shadow:0 12px 34px rgba(52,55,80,.07) !important;
+    backdrop-filter:blur(16px) !important;
+}
+
+body.theme-reviewer .brand{
+    display:flex !important;
+    align-items:center !important;
+    gap:12px !important;
+}
+
+body.theme-reviewer .brand-icon{
+    width:44px !important;
+    height:44px !important;
+    border-radius:13px !important;
+    display:grid !important;
+    place-items:center !important;
+    color:#fff !important;
+    background:linear-gradient(145deg,#3b6ed8,#8e4cdf) !important;
+    box-shadow:0 10px 23px rgba(70,88,214,.18) !important;
+}
+
+body.theme-reviewer .brand-text h2{
+    color:#2b2536 !important;
+    margin:0 0 2px !important;
+}
+
+body.theme-reviewer .brand-text span{
+    color:#837b8e !important;
+}
+
+body.theme-reviewer .nav-utility{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:9px !important;
+    flex-wrap:nowrap !important;
+}
+
+body.theme-reviewer .search-box{
+    width:250px !important;
+    height:38px !important;
+    border:1px solid #ddd8e8 !important;
+    border-radius:11px !important;
+    background:#fff !important;
+}
+
+body.theme-reviewer .search-box input{
+    color:#342b3d !important;
+}
+
+body.theme-reviewer .search-box input::placeholder{
+    color:#9a92a3 !important;
+}
+
+body.theme-reviewer .notification-pill{
+    min-width:32px !important;
+    height:32px !important;
+    color:#65468c !important;
+    background:#f0eafb !important;
+    border-color:#dccced !important;
+}
+
+body.theme-reviewer .nav-login{
+    min-width:100px !important;
+    height:38px !important;
+    padding:0 16px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    color:#fff !important;
+    background:linear-gradient(135deg,#386bd8,#8d4dde) !important;
+    border:1px solid rgba(70,77,170,.20) !important;
+    border-radius:11px !important;
+    box-shadow:0 10px 22px rgba(70,82,193,.18) !important;
+    font-size:10px !important;
+    font-weight:900 !important;
+    text-decoration:none !important;
+    transition:.2s ease !important;
+}
+
+body.theme-reviewer .nav-login:hover{
+    transform:translateY(-2px) !important;
+    box-shadow:0 15px 28px rgba(70,82,193,.27) !important;
+}
+
+/* ===================== PAGE ===================== */
+
+body.theme-reviewer .invoice-details-page{
+    min-height:calc(100vh - 90px) !important;
+    width:min(1500px,calc(100vw - 56px)) !important;
+    margin:0 auto !important;
+    padding:22px 0 50px !important;
+    position:relative !important;
+    z-index:2 !important;
+    background:transparent !important;
+}
+
+body.theme-reviewer .invoice-details-container{
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+}
+
+/* ===================== HERO ===================== */
+
+body.theme-reviewer .role-banner{
+    width:100% !important;
+    min-height:270px !important;
+    margin:0 0 22px !important;
+    position:relative !important;
+    overflow:hidden !important;
+    border:1px solid #d9d7e5 !important;
+    border-radius:26px !important;
+    background:
+        radial-gradient(circle at 83% 45%,rgba(79,107,222,.12),transparent 25%),
+        radial-gradient(circle at 72% 35%,rgba(181,78,210,.08),transparent 24%),
+        linear-gradient(135deg,#ffffff 0%,#f6f6fc 56%,#fcfbfe 100%) !important;
+    box-shadow:0 18px 50px rgba(47,54,83,.075) !important;
+}
+
+body.theme-reviewer .role-banner::before{
+    content:"" !important;
+    position:absolute !important;
+    left:0 !important;
+    top:0 !important;
+    bottom:0 !important;
+    width:4px !important;
+    background:linear-gradient(180deg,#386bd8,#9a4cdd) !important;
+}
+
+body.theme-reviewer .role-banner-inner{
+    min-height:270px !important;
+    width:100% !important;
+    padding:38px 450px 38px 38px !important;
+    position:relative !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+}
+
+body.theme-reviewer .role-banner-copy{
+    position:relative !important;
+    z-index:15 !important;
+    max-width:740px !important;
+}
+
+body.theme-reviewer .role-banner-label{
+    color:#536aa2 !important;
+    font-size:9px !important;
+    font-weight:900 !important;
+    letter-spacing:.14em !important;
+}
+
+body.theme-reviewer .role-banner h1{
+    margin:13px 0 9px !important;
+    color:#251f31 !important;
+    font-size:clamp(38px,4vw,58px) !important;
+    line-height:1 !important;
+    letter-spacing:-.055em !important;
+    font-weight:900 !important;
+}
+
+body.theme-reviewer .role-banner p{
+    max-width:700px !important;
+    margin:0 !important;
+    color:#625a6d !important;
+    font-size:12px !important;
+    line-height:1.7 !important;
+}
+
+body.theme-reviewer .role-banner-actions{
+    position:absolute !important;
+    top:22px !important;
+    right:26px !important;
+    z-index:20 !important;
+    display:flex !important;
+    gap:10px !important;
+    align-items:center !important;
+}
+
+body.theme-reviewer .inline-action{
+    min-height:39px !important;
+    padding:0 15px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    color:#fff !important;
+    border-radius:10px !important;
+    background:linear-gradient(90deg,#386bd8,#8d4dde) !important;
+    box-shadow:0 10px 22px rgba(70,82,193,.18) !important;
+    text-decoration:none !important;
+    font-size:9px !important;
+    font-weight:900 !important;
+}
+
+body.theme-reviewer .back-link{
+    color:#6c6476 !important;
+    text-decoration:none !important;
+    font-size:10px !important;
+    font-weight:800 !important;
+}
+
+body.theme-reviewer .back-link:hover{
+    color:#31273b !important;
+}
+
+/* HERO REVIEWER ANIMATION */
+.cg-invoice-hero{
+    position:absolute;
+    right:26px;
+    bottom:7px;
+    width:365px;
+    height:220px;
+    z-index:8;
+    pointer-events:none;
+}
+
+.cg-invoice-orbit{
+    position:absolute;
+    left:52%;
+    top:55%;
+    width:202px;
+    height:202px;
+    transform:translate(-50%,-50%);
+    border:1px dashed rgba(76,102,177,.22);
+    border-radius:50%;
+    animation:cgiOrbit 22s linear infinite;
+}
+
+.cg-invoice-orbit::before,
+.cg-invoice-orbit::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    border:1px solid rgba(112,103,179,.12);
+}
+
+.cg-invoice-orbit::before{width:153px;height:153px}
+.cg-invoice-orbit::after{width:110px;height:110px}
+
+@keyframes cgiOrbit{
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+
+.cg-invoice-glow{
+    position:absolute;
+    left:52%;
+    top:61%;
+    width:175px;
+    height:100px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(68,102,214,.12),transparent 70%);
+    filter:blur(12px);
+}
+
+.cg-invoice-person{
+    position:absolute;
+    left:52%;
+    top:29px;
+    width:96px;
+    height:128px;
+    transform:translateX(-50%);
+    animation:cgiPerson 4.4s ease-in-out infinite;
+}
+
+@keyframes cgiPerson{
+    50%{transform:translate(-50%,-5px)}
+}
+
+.cg-invoice-person .head{
+    position:absolute;
+    left:50%;
+    top:0;
+    width:36px;
+    height:36px;
+    transform:translateX(-50%);
+    border-radius:13px;
+    background:linear-gradient(180deg,#ca906c,#a9654a);
+}
+
+.cg-invoice-person .hair{
+    position:absolute;
+    left:50%;
+    top:-3px;
+    width:41px;
+    height:18px;
+    transform:translateX(-50%);
+    border-radius:18px 18px 8px 8px;
+    background:#2d2732;
+    z-index:2;
+}
+
+.cg-invoice-person .glasses{
+    position:absolute;
+    left:50%;
+    top:13px;
+    width:33px;
+    height:10px;
+    transform:translateX(-50%);
+    display:flex;
+    gap:2px;
+    z-index:4;
+}
+
+.cg-invoice-person .glasses span{
+    flex:1;
+    border:1.5px solid #261f2e;
+    border-radius:4px;
+    background:#5a5362;
+}
+
+.cg-invoice-person .body{
+    position:absolute;
+    left:50%;
+    top:35px;
+    width:62px;
+    height:74px;
+    transform:translateX(-50%);
+    border-radius:18px 18px 11px 11px;
+    background:linear-gradient(160deg,#466bbd,#664094);
+    box-shadow:0 13px 21px rgba(55,55,88,.11);
+}
+
+.cg-invoice-person .shirt{
+    position:absolute;
+    left:50%;
+    top:36px;
+    width:28px;
+    height:22px;
+    transform:translateX(-50%);
+    border-radius:8px 8px 4px 4px;
+    background:#fff;
+    z-index:5;
+}
+
+.cg-invoice-person .tie{
+    position:absolute;
+    left:50%;
+    top:42px;
+    width:8px;
+    height:24px;
+    transform:translateX(-50%);
+    background:linear-gradient(180deg,#6f79e6,#9349da);
+    clip-path:polygon(20% 0,80% 0,100% 55%,50% 100%,0 55%);
+    z-index:6;
+}
+
+.cg-invoice-person .arm{
+    position:absolute;
+    top:57px;
+    width:53px;
+    height:11px;
+    border-radius:11px;
+    background:#ca906c;
+    z-index:2;
+}
+
+.cg-invoice-person .arm.left{left:-2px;transform:rotate(19deg)}
+.cg-invoice-person .arm.right{right:-2px;transform:rotate(-22deg)}
+
+.cg-invoice-person .hand{
+    position:absolute;
+    width:14px;
+    height:11px;
+    border-radius:50%;
+    background:#d49a73;
+    z-index:4;
+}
+
+.cg-invoice-person .hand.left{left:-7px;top:67px}
+.cg-invoice-person .hand.right{right:-7px;top:69px}
+
+.cg-invoice-laptop{
+    position:absolute;
+    left:52%;
+    top:124px;
+    width:122px;
+    height:65px;
+    transform:translateX(-50%);
+    animation:cgiLaptop 4.4s ease-in-out infinite;
+}
+
+@keyframes cgiLaptop{
+    50%{transform:translate(-50%,-3px)}
+}
+
+.cg-invoice-laptop .screen{
+    position:absolute;
+    left:9px;
+    top:0;
+    width:104px;
+    height:52px;
+    border:4px solid #c8c8dd;
+    border-radius:7px;
+    background:#20202d;
+}
+
+.cg-invoice-laptop .screen::after{
+    content:"CLAIMGUARD";
+    position:absolute;
+    left:8px;
+    top:7px;
+    color:#b7a7ee;
+    font-size:4px;
+    font-weight:900;
+}
+
+.cg-invoice-laptop .line{
+    position:absolute;
+    left:8px;
+    height:3px;
+    border-radius:4px;
+    background:#4f5063;
+}
+
+.cg-invoice-laptop .line.a{top:19px;width:71px}
+.cg-invoice-laptop .line.b{top:27px;width:56px}
+.cg-invoice-laptop .line.c{top:35px;width:78px}
+.cg-invoice-laptop .line.d{
+    top:43px;
+    width:37px;
+    background:linear-gradient(90deg,#4b74df,#ad4ed2);
+}
+
+.cg-invoice-laptop .base{
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:122px;
+    height:9px;
+    clip-path:polygon(8% 0,92% 0,100% 100%,0 100%);
+    background:linear-gradient(180deg,#bdbbd1,#918ea9);
+}
+
+.cg-invoice-doc{
+    position:absolute;
+    width:48px;
+    height:66px;
+    padding:7px;
+    border-radius:6px;
+    background:#fff;
+    border:1px solid #ddd9e6;
+    box-shadow:0 10px 18px rgba(54,54,87,.08);
+}
+
+.cg-invoice-doc::before{
+    content:"INVOICE";
+    display:block;
+    color:#777087;
+    font-size:4px;
+    font-weight:900;
+    margin-bottom:6px;
+}
+
+.cg-invoice-doc::after{
+    content:"";
+    display:block;
+    width:22px;
+    height:4px;
+    margin-top:6px;
+    border-radius:4px;
+    background:linear-gradient(90deg,#4c70de,#ad4ed1);
+}
+
+.cg-invoice-doc span{
+    display:block;
+    width:100%;
+    height:3px;
+    margin:4px 0;
+    border-radius:4px;
+    background:#ddd9e5;
+}
+
+.cg-invoice-doc.a{
+    left:30px;
+    top:42px;
+    transform:rotate(-10deg);
+    animation:cgiDocA 4.8s ease-in-out infinite;
+}
+
+.cg-invoice-doc.b{
+    right:28px;
+    top:36px;
+    transform:rotate(9deg);
+    animation:cgiDocB 5s ease-in-out infinite;
+}
+
+@keyframes cgiDocA{
+    50%{transform:rotate(-7deg) translateY(-7px)}
+}
+
+@keyframes cgiDocB{
+    50%{transform:rotate(6deg) translateY(-7px)}
+}
+
+.cg-invoice-chip{
+    position:absolute;
+    min-width:128px;
+    padding:8px 10px;
+    border-radius:10px;
+    background:rgba(255,255,255,.94);
+    border:1px solid #ddd8e5;
+    box-shadow:0 10px 20px rgba(54,54,87,.07);
+}
+
+.cg-invoice-chip .dot{
+    display:inline-block;
+    width:5px;
+    height:5px;
+    margin-right:5px;
+    border-radius:50%;
+    background:#2db08b;
+}
+
+.cg-invoice-chip .title{
+    color:#4e4658;
+    font-size:6px;
+    font-weight:900;
+}
+
+.cg-invoice-chip .sub{
+    margin-top:3px;
+    color:#8a8191;
+    font-size:5px;
+}
+
+.cg-invoice-chip.left{left:0;top:118px}
+.cg-invoice-chip.right{right:0;top:112px}
+
+/* ===================== DETAILS ===================== */
+
+body.theme-reviewer .details-header{
+    margin:0 0 22px !important;
+    padding:0 4px !important;
+}
+
+body.theme-reviewer .details-header .auth-label{
+    display:inline-flex !important;
+    align-items:center !important;
+    padding:8px 12px !important;
+    color:#4f659c !important;
+    background:#eef1fb !important;
+    border:1px solid #d5dcf2 !important;
+    border-radius:999px !important;
+    font-size:9px !important;
+    font-weight:900 !important;
+    letter-spacing:.14em !important;
+}
+
+body.theme-reviewer .details-header h1{
+    color:#241e30 !important;
+    margin-top:12px !important;
+    font-size:42px !important;
+    letter-spacing:-.05em !important;
+}
+
+body.theme-reviewer .details-header p{
+    color:#6e6578 !important;
+    font-size:12px !important;
+    line-height:1.7 !important;
+}
+
+/* Main grid */
+body.theme-reviewer .invoice-grid{
+    display:grid !important;
+    grid-template-columns:minmax(0,1.28fr) minmax(340px,.72fr) !important;
+    gap:18px !important;
+    align-items:start !important;
+}
+
+body.theme-reviewer .invoice-grid > div{
+    min-width:0 !important;
+}
+
+/* Panels */
+body.theme-reviewer .details-panel{
+    background:rgba(255,255,255,.97) !important;
+    border:1px solid var(--id-line) !important;
+    border-radius:20px !important;
+    overflow:hidden !important;
+    box-shadow:0 15px 40px rgba(50,54,80,.055) !important;
+    transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease !important;
+}
+
+body.theme-reviewer .details-panel:hover{
+    border-color:#d3d3e5 !important;
+    box-shadow:0 19px 48px rgba(50,54,80,.075) !important;
+}
+
+body.theme-reviewer .panel-top{
+    padding:20px 22px !important;
+    border-bottom:1px solid #eceaf1 !important;
+    background:linear-gradient(180deg,#fff,#fcfbfe) !important;
+}
+
+body.theme-reviewer .panel-top span{
+    color:#5a6fa4 !important;
+}
+
+body.theme-reviewer .panel-top h2{
+    color:#2f2837 !important;
+}
+
+/* Summary */
+body.theme-reviewer .panel-body{
+    padding:22px !important;
+}
+
+body.theme-reviewer .invoice-summary{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:11px !important;
+}
+
+body.theme-reviewer .summary-item{
+    padding:14px !important;
+    border:1px solid #e6e1eb !important;
+    border-radius:12px !important;
+    background:#fbfafd !important;
+    transition:.18s ease !important;
+}
+
+body.theme-reviewer .summary-item:hover{
+    border-color:#d7cde3 !important;
+    background:#faf7fc !important;
+    transform:translateY(-2px) !important;
+}
+
+body.theme-reviewer .summary-item span{
+    color:#776e80 !important;
+}
+
+body.theme-reviewer .summary-item strong{
+    color:#30273a !important;
+}
+
+/* Verification */
+body.theme-reviewer .verification-box,
+body.theme-reviewer .risk-score-card,
+body.theme-reviewer .risk-level-card,
+body.theme-reviewer .market-stat,
+body.theme-reviewer .market-delta,
+body.theme-reviewer .market-source-card,
+body.theme-reviewer .risk-expandable,
+body.theme-reviewer .ai-model-panel,
+body.theme-reviewer .review-audit-item,
+body.theme-reviewer .review-decision-state,
+body.theme-reviewer .review-decision-record{
+    border-color:#e4e0ea !important;
+    background:#fbfafd !important;
+}
+
+body.theme-reviewer .verification-message,
+body.theme-reviewer .market-intro,
+body.theme-reviewer .review-audit-item span,
+body.theme-reviewer .review-decision-hint,
+body.theme-reviewer .risk-methodology{
+    color:#756b7e !important;
+}
+
+/* Keep semantic status colors light */
+body.theme-reviewer .status-success,
+body.theme-reviewer .market-status-ready,
+body.theme-reviewer .risk-level-low,
+body.theme-reviewer .check-pass{
+    background:#eaf8f3 !important;
+    color:#1f7b62 !important;
+}
+
+body.theme-reviewer .status-warning,
+body.theme-reviewer .market-status-limited,
+body.theme-reviewer .risk-level-medium,
+body.theme-reviewer .check-pending{
+    background:#fff6e8 !important;
+    color:#9a6819 !important;
+}
+
+body.theme-reviewer .status-error,
+body.theme-reviewer .risk-level-high,
+body.theme-reviewer .check-fail{
+    background:#fff0f2 !important;
+    color:#a33a4d !important;
+}
+
+body.theme-reviewer .status-neutral,
+body.theme-reviewer .market-status-unavailable,
+body.theme-reviewer .risk-level-none{
+    background:#eef3ff !important;
+    color:#3659a6 !important;
+}
+
+/* Risk / market cards */
+body.theme-reviewer .risk-score-card strong,
+body.theme-reviewer .risk-level-card strong,
+body.theme-reviewer .market-stat strong,
+body.theme-reviewer .market-source-price strong{
+    color:#2c2435 !important;
+}
+
+body.theme-reviewer .risk-summary-message{
+    border-left-color:#5577dc !important;
+    background:#f5f7fe !important;
+    color:#55506a !important;
+}
+
+body.theme-reviewer .ai-model-panel{
+    border-color:#d7e1fa !important;
+    background:#f7f9ff !important;
+}
+
+body.theme-reviewer .ai-model-title{
+    color:#313045 !important;
+}
+
+body.theme-reviewer .ai-model-badge{
+    background:#eef3ff !important;
+    color:#3b5fae !important;
+}
+
+body.theme-reviewer .market-reference-note,
+body.theme-reviewer .market-vendor-relation{
+    background:#f2f6ff !important;
+    border-color:#d9e2fa !important;
+    color:#35569c !important;
+}
+
+body.theme-reviewer .market-badge-marketplace{
+    background:#f4efff !important;
+    color:#7040af !important;
+}
+
+body.theme-reviewer .market-badge-retailer{
+    background:#ecf8f3 !important;
+    color:#1e7b62 !important;
+}
+
+body.theme-reviewer .market-badge-official{
+    background:#eef3ff !important;
+    color:#345dab !important;
+}
+
+body.theme-reviewer .market-badge-vendor{
+    background:#fff6ea !important;
+    color:#9a6819 !important;
+}
+
+body.theme-reviewer .market-badge-web{
+    background:#f3f4f7 !important;
+    color:#5d6474 !important;
+}
+
+body.theme-reviewer .market-source-details,
+body.theme-reviewer .market-expandable-body{
+    background:#f8f7fb !important;
+    border-top-color:#e7e3ea !important;
+}
+
+body.theme-reviewer .market-detail-item,
+body.theme-reviewer .market-diagnostic-item,
+body.theme-reviewer .anomaly-item,
+body.theme-reviewer .anomaly-evidence-item,
+body.theme-reviewer .risk-breakdown-item,
+body.theme-reviewer .risk-evidence-item{
+    border-color:#e5e1ea !important;
+    background:#fff !important;
+}
+
+body.theme-reviewer .market-source-title,
+body.theme-reviewer .anomaly-type,
+body.theme-reviewer .risk-breakdown-item strong,
+body.theme-reviewer .risk-evidence-item strong,
+body.theme-reviewer .market-detail-item strong,
+body.theme-reviewer .market-diagnostic-item strong{
+    color:#30283a !important;
+}
+
+body.theme-reviewer .market-source-meta,
+body.theme-reviewer .market-source-price span,
+body.theme-reviewer .market-stat span,
+body.theme-reviewer .market-detail-item span,
+body.theme-reviewer .market-diagnostic-item span,
+body.theme-reviewer .anomaly-message,
+body.theme-reviewer .anomaly-evidence-item span,
+body.theme-reviewer .market-methodology{
+    color:#786e80 !important;
+}
+
+/* Review action styling */
+body.theme-reviewer .review-decision-button{
+    transition:.2s ease !important;
+}
+
+body.theme-reviewer .review-approve{
+    background:#eaf8f3 !important;
+    border-color:#bfe5d7 !important;
+    color:#1d795f !important;
+}
+
+body.theme-reviewer .review-reject{
+    background:#fff0f2 !important;
+    border-color:#efc8d0 !important;
+    color:#a43b4e !important;
+}
+
+body.theme-reviewer .review-verify{
+    background:#eef3ff !important;
+    border-color:#cad7f5 !important;
+    color:#345eac !important;
+}
+
+body.theme-reviewer .review-decision-button:hover{
+    transform:translateY(-2px) !important;
+    filter:brightness(.985) !important;
+}
+
+body.theme-reviewer .verification-response-panel{
+    border-left-color:#c77a1b !important;
+}
+
+body.theme-reviewer .verification-response-state{
+    background:#fff7ec !important;
+    border-color:#f2dcc0 !important;
+    color:#925f18 !important;
+}
+
+body.theme-reviewer .verification-response-note,
+body.theme-reviewer .review-note-input{
+    border-color:#d9d2e1 !important;
+    background:#fff !important;
+    color:#30273a !important;
+}
+
+body.theme-reviewer .verification-response-note:focus,
+body.theme-reviewer .review-note-input:focus{
+    border-color:#8f5bd3 !important;
+    box-shadow:0 0 0 3px rgba(91,80,204,.08) !important;
+}
+
+body.theme-reviewer .verification-response-button{
+    background:#fff7ec !important;
+    border-color:#f1d5ad !important;
+    color:#925f18 !important;
+}
+
+body.theme-reviewer .review-decision-message.success{
+    background:#eaf8f3 !important;
+    border-color:#bfe5d7 !important;
+    color:#1d795f !important;
+}
+
+body.theme-reviewer .review-decision-message.error{
+    background:#fff0f2 !important;
+    border-color:#efc8d0 !important;
+    color:#a43b4e !important;
+}
+
+/* Actions */
+body.theme-reviewer .back-button{
+    color:#4e4658 !important;
+    background:#fff !important;
+    border-color:#dcd6e3 !important;
+    border-radius:11px !important;
+}
+
+body.theme-reviewer .back-button:hover{
+    color:#315ca9 !important;
+    border-color:#b9c9ea !important;
+}
+
+body.theme-reviewer .report-download-button,
+body.theme-reviewer .action-row .btn-primary{
+    background:linear-gradient(90deg,#386bd8,#8d4dde) !important;
+    border:0 !important;
+    color:#fff !important;
+    border-radius:11px !important;
+    box-shadow:0 11px 23px rgba(70,82,193,.17) !important;
+    transition:.2s ease !important;
+}
+
+body.theme-reviewer .report-download-button:hover,
+body.theme-reviewer .action-row .btn-primary:hover{
+    transform:translateY(-2px) !important;
+    box-shadow:0 16px 30px rgba(70,82,193,.25) !important;
+}
+
+/* Loading / error */
+body.theme-reviewer .loading-state{
+    color:#71687c !important;
+}
+
+body.theme-reviewer .error-state{
+    background:#fff1f3 !important;
+    border-color:#efc9d0 !important;
+    color:#a43a4d !important;
+}
+
+/* ===================== RESPONSIVE ===================== */
+
+@media(max-width:1180px){
+    body.theme-reviewer .invoice-details-page,
+    body.theme-reviewer .navbar{
+        width:94vw !important;
+    }
+
+    body.theme-reviewer .role-banner-inner{
+        padding-right:370px !important;
+    }
+
+    .cg-invoice-hero{
+        width:340px !important;
+        right:8px !important;
+        transform:scale(.92) !important;
+        transform-origin:right bottom !important;
+    }
+}
+
+@media(max-width:900px){
+    body.theme-reviewer .invoice-grid{
+        grid-template-columns:1fr !important;
+    }
+
+    body.theme-reviewer .role-banner{
+        min-height:390px !important;
+    }
+
+    body.theme-reviewer .role-banner-inner{
+        min-height:390px !important;
+        padding:28px 24px 220px !important;
+    }
+
+    .cg-invoice-hero{
+        right:50% !important;
+        bottom:3px !important;
+        width:340px !important;
+        height:205px !important;
+        transform:translateX(50%) scale(.86) !important;
+        transform-origin:center bottom !important;
+    }
+}
+
+@media(max-width:650px){
+    body.theme-reviewer .navbar{
+        padding:0 12px !important;
+    }
+
+    body.theme-reviewer .search-box{
+        width:42px !important;
+        min-width:42px !important;
+        padding:0 11px !important;
+    }
+
+    body.theme-reviewer .search-box input{
+        display:none !important;
+    }
+
+    body.theme-reviewer .role-banner-inner{
+        min-height:365px !important;
+        padding:24px 20px 205px !important;
+    }
+
+    body.theme-reviewer .role-banner h1{
+        font-size:35px !important;
+    }
+
+    body.theme-reviewer .invoice-summary{
+        grid-template-columns:1fr !important;
+    }
+
+    .cg-invoice-hero{
+        transform:translateX(50%) scale(.76) !important;
+    }
+}
+</style>
+
 </head>
 
 
@@ -1415,7 +2460,76 @@
                         <a href="user-dashboard.html" class="back-link">← Dashboard</a>
                     </div>
                 </div>
-            </section>
+            
+
+                <div class="cg-invoice-hero" aria-hidden="true">
+
+                    <div class="cg-invoice-orbit"></div>
+                    <div class="cg-invoice-glow"></div>
+
+                    <div class="cg-invoice-doc a">
+                        <span></span>
+                        <span></span>
+                        <span style="width:72%;"></span>
+                    </div>
+
+                    <div class="cg-invoice-doc b">
+                        <span></span>
+                        <span></span>
+                        <span style="width:82%;"></span>
+                    </div>
+
+                    <div class="cg-invoice-chip left">
+                        <span class="dot"></span>
+                        <span class="title">RISK REVIEW</span>
+                        <div class="sub">Evidence ready</div>
+                    </div>
+
+                    <div class="cg-invoice-chip right">
+                        <span class="dot"></span>
+                        <span class="title">MARKET CHECK</span>
+                        <div class="sub">Sources matched</div>
+                    </div>
+
+                    <div class="cg-invoice-person">
+
+                        <div class="hair"></div>
+
+                        <div class="head">
+                            <div class="glasses">
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+
+                        <div class="body"></div>
+                        <div class="shirt"></div>
+                        <div class="tie"></div>
+
+                        <div class="arm left"></div>
+                        <div class="arm right"></div>
+
+                        <div class="hand left"></div>
+                        <div class="hand right"></div>
+
+                    </div>
+
+                    <div class="cg-invoice-laptop">
+
+                        <div class="screen">
+                            <span class="line a"></span>
+                            <span class="line b"></span>
+                            <span class="line c"></span>
+                            <span class="line d"></span>
+                        </div>
+
+                        <div class="base"></div>
+
+                    </div>
+
+                </div>
+
+</section>
 
             <section class="details-header">
 
@@ -2367,6 +3481,52 @@
 
             return String(
                 value
+            );
+
+        }
+
+
+        function formatDate(
+            value
+        ) {
+
+            if (
+                !value
+            ) {
+
+                return "—";
+
+            }
+
+
+            const parsed =
+                new Date(
+                    value
+                );
+
+
+            if (
+                Number.isNaN(
+                    parsed.getTime()
+                )
+            ) {
+
+                return String(
+                    value
+                );
+
+            }
+
+
+            return parsed.toLocaleString(
+                "en-US",
+                {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
             );
 
         }

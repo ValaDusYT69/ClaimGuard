@@ -1,0 +1,29 @@
+# API and configuration
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+python-multipart
+email-validator
+PyJWT
+pwdlib[argon2]
+
+# Database
+SQLAlchemy==2.1.6
+alembic==1.20.1
+psycopg[binary]==3.3.8
+
+# Invoice extraction and document processing
+pytesseract==0.3.13
+Pillow==11.3.0
+pypdf==6.1.1
+PyMuPDF==1.26.5
+opencv-python==4.12.0.88
+numpy==2.2.6
+openpyxl==3.1.5
+
+# Optional historical anomaly model (deterministic risk rules still work without it)
+scikit-learn
+
+# PDF reports
+reportlab

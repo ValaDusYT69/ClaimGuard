@@ -1,0 +1,5119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Dashboard | ClaimGuard</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <style>
+
+        /* =====================================================
+           DASHBOARD DATA UI
+           ===================================================== */
+
+        .dashboard-stat-card strong {
+            display: block;
+        }
+
+        .dashboard-stat-card .stat-meta {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+            opacity: 0.68;
+        }
+
+        .dashboard-panel-wide {
+            grid-column: 1 / -1;
+        }
+
+        .dashboard-loading,
+        .dashboard-error,
+        .dashboard-empty {
+            padding: 28px 22px;
+            text-align: center;
+            border-radius: 14px;
+            border: 1px solid rgba(127, 127, 127, 0.18);
+        }
+
+        .dashboard-error {
+            margin-top: 10px;
+        }
+
+        .invoice-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .invoice-table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(127, 127, 127, 0.15);
+            vertical-align: middle;
+            font-size: 13px;
+        }
+
+        .invoice-table th {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+
+        .invoice-table td strong {
+            display: block;
+        }
+
+        .invoice-secondary {
+            display: block;
+            margin-top: 3px;
+            font-size: 11px;
+            opacity: 0.6;
+        }
+
+        .dashboard-status,
+        .dashboard-risk {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 9px;
+            border-radius: 999px;
+            font-size: 10px;
+            line-height: 1.1;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .dashboard-status.status-success,
+        .dashboard-risk.risk-low {
+            background: rgba(46, 160, 67, 0.12);
+            border: 1px solid rgba(46, 160, 67, 0.25);
+        }
+
+        .dashboard-status.status-warning,
+        .dashboard-risk.risk-medium {
+            background: rgba(214, 158, 46, 0.14);
+            border: 1px solid rgba(214, 158, 46, 0.28);
+        }
+
+        .dashboard-status.status-error,
+        .dashboard-risk.risk-high {
+            background: rgba(209, 67, 67, 0.12);
+            border: 1px solid rgba(209, 67, 67, 0.25);
+        }
+
+        .dashboard-status.status-neutral,
+        .dashboard-risk.risk-none {
+            background: rgba(127, 127, 127, 0.10);
+            border: 1px solid rgba(127, 127, 127, 0.18);
+        }
+
+        .risk-score {
+            display: block;
+            margin-top: 5px;
+            font-size: 11px;
+            opacity: 0.65;
+        }
+
+        .finance-review {
+            display: block;
+            margin-top: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .finance-review.pending,
+        .finance-review.requested {
+            color: #b45309;
+        }
+
+        .finance-review.approved {
+            color: #15803d;
+        }
+
+        .finance-review.rejected {
+            color: #b91c1c;
+        }
+
+        .finance-review-detail {
+            display: block;
+            margin-top: 3px;
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+
+        .finance-notification {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(127,127,127,0.12);
+        }
+
+        .finance-notification:last-child {
+            border-bottom: none;
+        }
+
+
+        .notification-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+
+        .notification-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 7px;
+            border-radius: 999px;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+
+        .notification-mark-read {
+            min-height: 32px;
+            padding: 0 10px;
+            border-radius: 8px;
+            border: 1px solid #dbe3ee;
+            background: #ffffff;
+            color: #334155;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+
+        .notification-mark-read:hover {
+            border-color: #94a3b8;
+        }
+
+
+        .notification-unread {
+            background: rgba(37, 99, 235, 0.045);
+            border-radius: 10px;
+            padding-left: 9px;
+            padding-right: 9px;
+        }
+
+
+        .notification-read {
+            opacity: 0.72;
+        }
+
+
+        .notification-open {
+            display: inline-flex;
+            margin-top: 7px;
+            color: #2563eb;
+            font-size: 10px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+
+        .notification-open:hover {
+            text-decoration: underline;
+        }
+
+        .finance-notification-dot {
+            width: 9px;
+            height: 9px;
+            margin-top: 6px;
+            border-radius: 50%;
+            flex: 0 0 auto;
+            background: currentColor;
+        }
+
+        .finance-notification-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .finance-notification-text strong {
+            display: block;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .finance-notification-text span {
+            display: block;
+            margin-top: 3px;
+            font-size: 10px;
+            line-height: 1.45;
+            opacity: 0.65;
+        }
+
+        .invoice-action-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            border: 1px solid rgba(127, 127, 127, 0.20);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .invoice-report-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(127, 127, 127, 0.22);
+            background: #fff;
+            color: #5f3a83;
+            cursor: pointer;
+            font: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .invoice-report-button:disabled {
+            cursor: wait;
+            opacity: .58;
+        }
+
+        .market-coverage-label {
+            display: inline-block;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #6f6579;
+        }
+
+        .activity-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(127, 127, 127, 0.12);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-dot {
+            width: 9px;
+            height: 9px;
+            margin-top: 6px;
+            border-radius: 50%;
+            flex: 0 0 auto;
+            background: currentColor;
+        }
+
+        .activity-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-text strong {
+            display: block;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .activity-text span {
+            display: block;
+            margin-top: 3px;
+            font-size: 11px;
+            opacity: 0.62;
+        }
+
+        .dashboard-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .dashboard-toolbar-meta {
+            font-size: 12px;
+            opacity: 0.65;
+        }
+
+        .dashboard-refresh-button {
+            border: 1px solid rgba(127, 127, 127, 0.20);
+            background: transparent;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 800px) {
+
+            .dashboard-panel-wide {
+                grid-column: auto;
+            }
+
+            .invoice-table {
+                min-width: 680px;
+            }
+
+        }
+
+    </style>
+
+
+<style id="claimguard-user-dashboard-light-theme">
+/* =========================================================
+   CLAIMGUARD USER DASHBOARD — LIGHT-TONE VISUAL UPDATE
+   Decoration/layout only. Original JS is untouched.
+   ========================================================= */
+
+:root{
+    --cg-u-bg:#f4f1f8;
+    --cg-u-surface:#fffdfd;
+    --cg-u-surface-2:#f7f4fa;
+    --cg-u-ink:#241b2e;
+    --cg-u-ink-2:#3f354b;
+    --cg-u-muted:#6f6579;
+    --cg-u-border:#e4ddea;
+    --cg-u-purple:#8a43dc;
+    --cg-u-purple-2:#b64fd3;
+    --cg-u-pink:#d15bc8;
+    --cg-u-green:#27ae87;
+    --cg-u-blue:#5d7fe0;
+    --cg-u-red:#d95b6b;
+    --cg-u-shadow:0 18px 50px rgba(45,30,60,.10);
+}
+
+html,body{
+    min-height:100%;
+}
+
+body.theme-user{
+    color:var(--cg-u-ink) !important;
+    background:
+        radial-gradient(circle at 7% 5%,rgba(137,84,226,.11),transparent 24%),
+        radial-gradient(circle at 92% 8%,rgba(209,91,200,.08),transparent 22%),
+        linear-gradient(135deg,#f7f4fa 0%,#f1edf6 55%,#f8f6fa 100%) !important;
+    overflow-x:hidden !important;
+}
+
+body.theme-user::before{
+    opacity:.26 !important;
+    background:
+        linear-gradient(rgba(73,51,89,.026) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(73,51,89,.022) 1px,transparent 1px) !important;
+    background-size:42px 42px !important;
+}
+
+/* Top navigation */
+body.theme-user .navbar{
+    width:min(1500px,calc(100vw - 56px)) !important;
+    min-height:66px !important;
+    margin:14px auto 0 !important;
+    padding:0 20px 0 22px !important;
+    background:rgba(255,253,255,.88) !important;
+    border:1px solid var(--cg-u-border) !important;
+    border-radius:18px !important;
+    box-shadow:0 14px 38px rgba(55,35,72,.08) !important;
+    backdrop-filter:blur(18px) !important;
+}
+
+body.theme-user .brand-icon{
+    background:linear-gradient(145deg,#8c45dd,#c23fd1) !important;
+    box-shadow:0 10px 22px rgba(141,67,220,.20) !important;
+}
+
+body.theme-user .brand-text h2{
+    color:var(--cg-u-ink) !important;
+}
+
+body.theme-user .brand-text span{
+    color:#82778c !important;
+}
+
+body.theme-user .search-box{
+    border:1px solid #e2dbe8 !important;
+    background:#fff !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.7) !important;
+}
+
+body.theme-user .search-box span{
+    color:#7c7288 !important;
+}
+
+body.theme-user .search-box input{
+    color:var(--cg-u-ink) !important;
+}
+
+body.theme-user .search-box input::placeholder{
+    color:#9a90a2 !important;
+}
+
+body.theme-user .notification-pill{
+    color:#5d3b77 !important;
+    background:#f2eafb !important;
+    border-color:#dccaea !important;
+}
+
+body.theme-user .nav-login{
+    color:#4f455a !important;
+    background:#fff !important;
+    border-color:#e2dbe8 !important;
+}
+
+body.theme-user .nav-login:hover{
+    color:#2c2237 !important;
+    border-color:#cdb6df !important;
+    background:#faf7fd !important;
+}
+
+/* Main */
+body.theme-user .dashboard-page{
+    width:min(1500px,calc(100vw - 56px)) !important;
+    margin:18px auto 40px !important;
+}
+
+/* Existing hero stays single; make it light and readable. */
+body.theme-user .dashboard-header{
+    position:relative !important;
+    overflow:hidden !important;
+    min-height:250px !important;
+    padding:30px 370px 30px 32px !important;
+    margin-bottom:16px !important;
+    color:var(--cg-u-ink) !important;
+    background:
+        radial-gradient(circle at 88% 42%,rgba(155,92,224,.11),transparent 24%),
+        linear-gradient(135deg,#fffefe 0%,#f6f1fb 100%) !important;
+    border:1px solid #ded4e7 !important;
+    border-radius:24px !important;
+    box-shadow:var(--cg-u-shadow) !important;
+}
+
+body.theme-user .dashboard-header::before{
+    content:"" !important;
+    position:absolute !important;
+    left:0 !important;
+    top:0 !important;
+    bottom:0 !important;
+    width:4px !important;
+    background:linear-gradient(180deg,var(--cg-u-purple),var(--cg-u-pink)) !important;
+}
+
+body.theme-user .dashboard-header::after{
+    content:"" !important;
+    position:absolute !important;
+    left:20% !important;
+    right:0 !important;
+    bottom:0 !important;
+    height:1px !important;
+    background:linear-gradient(90deg,transparent,rgba(134,91,163,.14),transparent) !important;
+}
+
+body.theme-user .dashboard-header .auth-label{
+    color:#6e4b89 !important;
+    background:#f1e9f8 !important;
+    border-color:#dfcfea !important;
+}
+
+body.theme-user .dashboard-header h1{
+    color:#231a2d !important;
+    letter-spacing:-.055em !important;
+}
+
+body.theme-user .dashboard-header h1 span{
+    color:#8a43dc !important;
+}
+
+body.theme-user .dashboard-header p{
+    color:#61576b !important;
+    max-width:680px !important;
+}
+
+body.theme-user .dashboard-header .btn-primary{
+    position:relative !important;
+    z-index:5 !important;
+    background:linear-gradient(90deg,#8b43dc,#b24ed3) !important;
+    color:#fff !important;
+}
+
+/* Animated user illustration */
+.user-hero-visual{
+    position:absolute;
+    right:30px;
+    top:50%;
+    width:330px;
+    height:205px;
+    transform:translateY(-50%);
+    z-index:4;
+    pointer-events:none;
+}
+
+.user-hero-visual .orbit{
+    position:absolute;
+    width:190px;
+    height:190px;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    border:1px dashed rgba(126,88,165,.24);
+    border-radius:50%;
+    animation:userOrbitSpin 22s linear infinite;
+}
+
+.user-hero-visual .orbit::before,
+.user-hero-visual .orbit::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    border:1px solid rgba(130,94,165,.13);
+}
+
+.user-hero-visual .orbit::before{width:146px;height:146px}
+.user-hero-visual .orbit::after{width:105px;height:105px}
+
+@keyframes userOrbitSpin{
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+
+.user-hero-visual .glow{
+    position:absolute;
+    left:50%;
+    top:54%;
+    width:155px;
+    height:100px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(143,72,214,.15),transparent 70%);
+    filter:blur(12px);
+}
+
+.user-hero-person{
+    position:absolute;
+    left:50%;
+    top:34px;
+    width:94px;
+    height:122px;
+    transform:translateX(-50%);
+    animation:userPersonFloat 4.2s ease-in-out infinite;
+}
+
+@keyframes userPersonFloat{
+    50%{transform:translate(-50%,-5px)}
+}
+
+.user-hero-person .head{
+    position:absolute;
+    left:50%;
+    top:0;
+    width:35px;
+    height:35px;
+    transform:translateX(-50%);
+    border-radius:12px 12px 14px 14px;
+    background:linear-gradient(180deg,#c98f6b,#a86549);
+}
+
+.user-hero-person .hair{
+    position:absolute;
+    left:50%;
+    top:-3px;
+    width:39px;
+    height:18px;
+    transform:translateX(-50%);
+    border-radius:17px 17px 8px 8px;
+    background:#292333;
+}
+
+.user-hero-person .glasses{
+    position:absolute;
+    left:50%;
+    top:13px;
+    width:31px;
+    height:10px;
+    transform:translateX(-50%);
+    display:flex;
+    gap:2px;
+    z-index:2;
+}
+
+.user-hero-person .glasses span{
+    flex:1;
+    border-radius:4px;
+    border:1.5px solid #211a29;
+    background:#574e61;
+}
+
+.user-hero-person .body{
+    position:absolute;
+    left:50%;
+    top:34px;
+    width:60px;
+    height:70px;
+    transform:translateX(-50%);
+    border-radius:18px 18px 11px 11px;
+    background:linear-gradient(160deg,#7a4391,#4e285e);
+    box-shadow:0 12px 20px rgba(57,37,72,.15);
+}
+
+.user-hero-person .shirt{
+    position:absolute;
+    left:50%;
+    top:35px;
+    width:27px;
+    height:21px;
+    transform:translateX(-50%);
+    border-radius:8px 8px 4px 4px;
+    background:#fff;
+    z-index:2;
+}
+
+.user-hero-person .tie{
+    position:absolute;
+    left:50%;
+    top:41px;
+    width:8px;
+    height:23px;
+    transform:translateX(-50%);
+    background:linear-gradient(180deg,#a34ce3,#7131a6);
+    clip-path:polygon(20% 0,80% 0,100% 55%,50% 100%,0 55%);
+    z-index:3;
+}
+
+.user-hero-person .arm{
+    position:absolute;
+    top:57px;
+    width:50px;
+    height:11px;
+    border-radius:11px;
+    background:#c98f6b;
+    z-index:1;
+}
+
+.user-hero-person .arm.left{
+    left:0;
+    transform:rotate(22deg);
+}
+
+.user-hero-person .arm.right{
+    right:0;
+    transform:rotate(-22deg);
+}
+
+.user-hero-person .hand{
+    position:absolute;
+    width:14px;
+    height:11px;
+    border-radius:50%;
+    background:#d39a73;
+    z-index:2;
+}
+
+.user-hero-person .hand.left{left:-5px;top:68px}
+.user-hero-person .hand.right{right:-5px;top:68px}
+
+.user-hero-laptop{
+    position:absolute;
+    left:50%;
+    top:124px;
+    width:118px;
+    height:63px;
+    transform:translateX(-50%);
+    animation:userLaptopFloat 4.2s ease-in-out infinite;
+}
+
+@keyframes userLaptopFloat{
+    50%{transform:translate(-50%,-3px)}
+}
+
+.user-hero-laptop .screen{
+    position:absolute;
+    left:8px;
+    top:0;
+    width:102px;
+    height:51px;
+    border:4px solid #d7cddf;
+    border-radius:6px;
+    background:#21182a;
+    box-shadow:0 10px 18px rgba(58,39,73,.14);
+}
+
+.user-hero-laptop .screen::after{
+    content:"CLAIMGUARD";
+    position:absolute;
+    left:8px;
+    top:7px;
+    color:#d5a5ef;
+    font-size:4px;
+    font-weight:900;
+    letter-spacing:.08em;
+}
+
+.user-hero-laptop .line{
+    position:absolute;
+    left:8px;
+    height:3px;
+    border-radius:99px;
+    background:#51435e;
+}
+
+.user-hero-laptop .line.a{top:19px;width:70px}
+.user-hero-laptop .line.b{top:27px;width:56px}
+.user-hero-laptop .line.c{top:35px;width:78px}
+.user-hero-laptop .line.d{
+    top:43px;width:37px;
+    background:linear-gradient(90deg,#9a4be4,#ce50c7);
+}
+
+.user-hero-laptop .base{
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:118px;
+    height:9px;
+    clip-path:polygon(8% 0,92% 0,100% 100%,0 100%);
+    background:linear-gradient(180deg,#c4b4ce,#9d8cab);
+}
+
+.hero-doc{
+    position:absolute;
+    width:47px;
+    height:65px;
+    padding:7px;
+    border-radius:5px;
+    background:#fff;
+    border:1px solid #ddd4e2;
+    box-shadow:0 10px 20px rgba(58,39,73,.10);
+}
+
+.hero-doc::before{
+    content:"INVOICE";
+    display:block;
+    color:#796d83;
+    font-size:4px;
+    font-weight:900;
+    margin-bottom:6px;
+}
+
+.hero-doc::after{
+    content:"";
+    display:block;
+    width:21px;
+    height:4px;
+    margin-top:6px;
+    border-radius:4px;
+    background:linear-gradient(90deg,#9746df,#d355c6);
+}
+
+.hero-doc span{
+    display:block;
+    width:100%;
+    height:3px;
+    margin:4px 0;
+    border-radius:4px;
+    background:#ddd5e2;
+}
+
+.hero-doc.doc-a{
+    left:18px;
+    top:36px;
+    transform:rotate(-9deg);
+    animation:userDocA 4.8s ease-in-out infinite;
+}
+
+.hero-doc.doc-b{
+    right:18px;
+    top:30px;
+    transform:rotate(9deg);
+    animation:userDocB 5.0s ease-in-out infinite;
+}
+
+@keyframes userDocA{
+    50%{transform:rotate(-6deg) translateY(-6px)}
+}
+
+@keyframes userDocB{
+    50%{transform:rotate(6deg) translateY(-7px)}
+}
+
+.hero-chip{
+    position:absolute;
+    z-index:8;
+    padding:7px 9px;
+    border-radius:8px;
+    background:rgba(255,255,255,.92);
+    border:1px solid #dfd6e5;
+    box-shadow:0 10px 20px rgba(58,39,73,.08);
+}
+
+.hero-chip .dot{
+    display:inline-block;
+    width:5px;
+    height:5px;
+    margin-right:4px;
+    border-radius:50%;
+    background:#2bb28a;
+}
+
+.hero-chip .title{
+    color:#4f4658;
+    font-size:5px;
+    font-weight:900;
+    letter-spacing:.05em;
+}
+
+.hero-chip .sub{
+    margin-top:2px;
+    color:#8a8191;
+    font-size:4px;
+}
+
+.hero-chip.left{left:7px;top:112px}
+.hero-chip.right{right:7px;top:107px}
+
+/* Stats */
+body.theme-user .dashboard-stats{
+    margin-top:0 !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:12px !important;
+}
+
+body.theme-user .dashboard-stat-card{
+    min-height:126px !important;
+    padding:18px !important;
+    color:var(--cg-u-ink) !important;
+    background:rgba(255,255,255,.92) !important;
+    border:1px solid var(--cg-u-border) !important;
+    border-radius:18px !important;
+    box-shadow:0 14px 40px rgba(54,36,69,.075) !important;
+}
+
+body.theme-user .dashboard-stat-card::after{
+    background:radial-gradient(circle,rgba(141,72,213,.10),transparent 68%) !important;
+}
+
+body.theme-user .dashboard-stat-card:hover{
+    transform:translateY(-4px) !important;
+    border-color:#cfbee0 !important;
+}
+
+body.theme-user .dashboard-stat-card>span:first-child{
+    color:#70667a !important;
+}
+
+body.theme-user .dashboard-stat-card strong{
+    color:#2a2133 !important;
+}
+
+body.theme-user .dashboard-stat-card .stat-meta{
+    color:#7b7184 !important;
+}
+
+/* Panels */
+body.theme-user .dashboard-content{
+    grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr) !important;
+    gap:14px !important;
+    margin-top:14px !important;
+}
+
+body.theme-user .dashboard-panel{
+    padding:20px !important;
+    color:var(--cg-u-ink) !important;
+    background:rgba(255,255,255,.94) !important;
+    border:1px solid var(--cg-u-border) !important;
+    border-radius:20px !important;
+    box-shadow:0 16px 42px rgba(54,36,69,.07) !important;
+}
+
+body.theme-user .dashboard-panel:hover{
+    border-color:#d3c4df !important;
+}
+
+body.theme-user .panel-header h2{
+    color:#292032 !important;
+}
+
+body.theme-user .panel-header>div>span{
+    color:#80619c !important;
+}
+
+/* Table */
+body.theme-user .invoice-table th{
+    color:#776d80 !important;
+    border-bottom-color:#ece6ef !important;
+}
+
+body.theme-user .invoice-table td{
+    color:#4c4355 !important;
+    border-bottom-color:#eee8f1 !important;
+}
+
+body.theme-user .invoice-table tbody tr:hover{
+    background:#faf7fc !important;
+}
+
+body.theme-user .invoice-table td strong{
+    color:#33283c !important;
+}
+
+body.theme-user .invoice-secondary{
+    color:#81778b !important;
+}
+
+body.theme-user .invoice-action-link{
+    color:#7545a1 !important;
+    background:#f7f0fb !important;
+    border-color:#dfcfea !important;
+}
+
+body.theme-user .invoice-action-link:hover{
+    color:#5b2d87 !important;
+    border-color:#cdb3df !important;
+    background:#f3ebf8 !important;
+}
+
+body.theme-user .invoice-report-button{
+    color:#7545a1 !important;
+    background:#fff !important;
+    border-color:#dfcfea !important;
+}
+body.theme-user .invoice-report-button:hover{
+    color:#5b2d87 !important;
+    border-color:#cdb3df !important;
+    background:#f7f0fb !important;
+}
+
+/* Statuses stay semantic but are light */
+body.theme-user .dashboard-status.status-success,
+body.theme-user .dashboard-risk.risk-low{
+    color:#17785e !important;
+    background:#e9f8f3 !important;
+    border-color:#bee5d7 !important;
+}
+
+body.theme-user .dashboard-status.status-warning,
+body.theme-user .dashboard-risk.risk-medium{
+    color:#9a6a18 !important;
+    background:#fff7e7 !important;
+    border-color:#f1ddb2 !important;
+}
+
+body.theme-user .dashboard-status.status-error,
+body.theme-user .dashboard-risk.risk-high{
+    color:#a3384b !important;
+    background:#fff0f2 !important;
+    border-color:#efc5cc !important;
+}
+
+body.theme-user .dashboard-status.status-neutral,
+body.theme-user .dashboard-risk.risk-none{
+    color:#655c6d !important;
+    background:#f4f1f5 !important;
+    border-color:#ddd7e0 !important;
+}
+
+body.theme-user .risk-score,
+body.theme-user .finance-review-detail{
+    color:#7b7184 !important;
+}
+
+body.theme-user .finance-review.pending,
+body.theme-user .finance-review.requested{color:#9a6a18 !important}
+body.theme-user .finance-review.approved{color:#17785e !important}
+body.theme-user .finance-review.rejected{color:#a3384b !important}
+
+/* Activity + notification cards */
+body.theme-user .activity-item,
+body.theme-user .finance-notification{
+    border-bottom-color:#ece6ef !important;
+}
+
+body.theme-user .activity-dot,
+body.theme-user .finance-notification-dot{
+    background:#8b4bd9 !important;
+    box-shadow:0 0 10px rgba(139,75,217,.18) !important;
+}
+
+body.theme-user .activity-text strong,
+body.theme-user .finance-notification-text strong{
+    color:#44394d !important;
+}
+
+body.theme-user .activity-text span,
+body.theme-user .finance-notification-text span{
+    color:#82788a !important;
+}
+
+body.theme-user .notification-unread{
+    background:#faf5ff !important;
+}
+
+body.theme-user .notification-read{opacity:.68 !important}
+
+body.theme-user .notification-open{
+    color:#7a49a4 !important;
+}
+
+body.theme-user .notification-badge{
+    color:#fff !important;
+    background:#8d4bdc !important;
+    border-color:#cfaee8 !important;
+}
+
+body.theme-user .notification-mark-read{
+    color:#62586d !important;
+    background:#fff !important;
+    border-color:#e0d8e5 !important;
+}
+
+body.theme-user .notification-mark-read:hover{
+    color:#3e3448 !important;
+    border-color:#cbb7d8 !important;
+    background:#faf7fc !important;
+}
+
+/* States */
+body.theme-user .dashboard-loading,
+body.theme-user .dashboard-error,
+body.theme-user .dashboard-empty{
+    color:#514757 !important;
+    background:#fbf9fc !important;
+    border-color:#e4ddea !important;
+}
+
+body.theme-user .dashboard-error{
+    color:#a3384b !important;
+    background:#fff3f5 !important;
+    border-color:#efcbd1 !important;
+}
+
+body.theme-user .dashboard-empty h3{color:#30263a !important}
+body.theme-user .dashboard-empty p{color:#817789 !important}
+
+/* Original dashboard header responsive */
+@media(max-width:1180px){
+    body.theme-user .dashboard-page,
+    body.theme-user .navbar{
+        width:min(94vw,1200px) !important;
+    }
+
+    body.theme-user .dashboard-stats{
+        grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    }
+
+    body.theme-user .dashboard-content{
+        grid-template-columns:1fr !important;
+    }
+
+    body.theme-user .dashboard-panel-wide{
+        grid-column:auto !important;
+    }
+
+    body.theme-user .dashboard-header{
+        padding-right:320px !important;
+    }
+
+    .user-hero-visual{
+        right:8px;
+        width:300px;
+        transform:translateY(-50%) scale(.92);
+        transform-origin:right center;
+    }
+}
+
+@media(max-width:800px){
+    body.theme-user .navbar{
+        min-height:62px !important;
+        padding:0 14px !important;
+    }
+
+    body.theme-user .dashboard-header{
+        min-height:auto !important;
+        padding:25px 24px 245px !important;
+    }
+
+    .user-hero-visual{
+        right:50%;
+        top:auto;
+        bottom:12px;
+        width:330px;
+        height:205px;
+        transform:translateX(50%) scale(.90);
+        transform-origin:center bottom;
+    }
+
+    body.theme-user .dashboard-stats{
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    }
+}
+
+@media(max-width:560px){
+    body.theme-user .navbar,
+    body.theme-user .dashboard-page{
+        width:94vw !important;
+    }
+
+    body.theme-user .search-box{
+        width:42px !important;
+        padding:0 11px !important;
+    }
+
+    body.theme-user .search-box input{display:none !important}
+
+    body.theme-user .brand-text span{display:none !important}
+
+    body.theme-user .dashboard-header{
+        padding:23px 20px 225px !important;
+    }
+
+    body.theme-user .dashboard-header h1{
+        font-size:38px !important;
+    }
+
+    .user-hero-visual{
+        transform:translateX(50%) scale(.78);
+    }
+
+    body.theme-user .dashboard-stats{
+        grid-template-columns:1fr !important;
+    }
+
+    body.theme-user .dashboard-panel{
+        padding:16px !important;
+    }
+}
+</style>
+
+
+<style id="claimguard-user-dashboard-layout-fix">
+/* =========================================================
+   FINAL USER DASHBOARD POLISH
+   VISUAL / POSITIONING ONLY.
+   No API, auth, function, ID, event listener or redirect
+   logic is changed.
+   ========================================================= */
+
+/* ---------- top navigation: keep search, badge, logout
+   in one clean horizontal row ---------- */
+body.theme-user .navbar{
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+}
+
+body.theme-user .brand{
+    flex:0 0 auto !important;
+}
+
+body.theme-user .nav-utility{
+    margin-left:auto !important;
+    flex:0 0 auto !important;
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+    white-space:nowrap !important;
+}
+
+body.theme-user .search-box{
+    width:clamp(230px,24vw,330px) !important;
+    flex:0 1 330px !important;
+}
+
+body.theme-user .notification-pill{
+    flex:0 0 auto !important;
+}
+
+body.theme-user .nav-login{
+    flex:0 0 auto !important;
+    min-width:82px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-decoration:none !important;
+}
+
+/* ---------- brand area ----------
+   The role identity sits directly after the ClaimGuard
+   brand rather than creating a detached dark block. */
+body.theme-user .brand{
+    gap:14px !important;
+}
+
+body.theme-user .brand-text{
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+}
+
+body.theme-user .brand-text h2{
+    margin:0 !important;
+    line-height:1.05 !important;
+}
+
+body.theme-user .brand-text span{
+    margin-top:4px !important;
+}
+
+/* A compact user-role caption visually lives with the
+   ClaimGuard brand. It is created without touching JS. */
+body.theme-user .brand-text::after{
+    content:"USER DASHBOARD" !important;
+    display:block !important;
+    margin-top:5px !important;
+    color:#7b5b96 !important;
+    font-size:7px !important;
+    font-weight:900 !important;
+    letter-spacing:.14em !important;
+}
+
+/* ---------- the large welcome hero should remain the
+   real personalized dashboard greeting ---------- */
+body.theme-user .dashboard-header{
+    min-height:244px !important;
+    padding:30px 370px 30px 32px !important;
+    background:
+        radial-gradient(circle at 84% 40%,rgba(164,92,220,.09),transparent 25%),
+        linear-gradient(135deg,#fffefe 0%,#f7f3fb 100%) !important;
+}
+
+body.theme-user .dashboard-header h1{
+    color:#241b2d !important;
+    font-weight:900 !important;
+}
+
+body.theme-user .dashboard-header h1 span{
+    color:#8a43dc !important;
+}
+
+body.theme-user .dashboard-header p{
+    color:#5e5567 !important;
+}
+
+/* ---------- animation: slightly larger visual footprint
+   and centered in its own lane so it reads immediately ---------- */
+.user-hero-visual{
+    right:22px !important;
+    width:348px !important;
+    height:215px !important;
+    transform:translateY(-50%) !important;
+}
+
+.user-hero-visual .orbit{
+    width:198px !important;
+    height:198px !important;
+}
+
+.user-hero-visual .orbit::before{
+    width:151px !important;
+    height:151px !important;
+}
+
+.user-hero-visual .orbit::after{
+    width:108px !important;
+    height:108px !important;
+}
+
+.user-hero-person{
+    top:31px !important;
+}
+
+.user-hero-laptop{
+    top:125px !important;
+}
+
+.hero-doc.doc-a{
+    left:14px !important;
+}
+
+.hero-doc.doc-b{
+    right:14px !important;
+}
+
+.hero-chip.left{
+    left:4px !important;
+}
+
+.hero-chip.right{
+    right:4px !important;
+}
+
+/* ---------- stats + content readability ---------- */
+body.theme-user .dashboard-stat-card>span:first-child{
+    color:#5e536a !important;
+    font-weight:800 !important;
+}
+
+body.theme-user .dashboard-stat-card strong{
+    color:#241b30 !important;
+    font-weight:900 !important;
+}
+
+body.theme-user .dashboard-stat-card .stat-meta{
+    color:#756b7e !important;
+}
+
+body.theme-user .panel-header>div>span{
+    color:#77588f !important;
+}
+
+body.theme-user .panel-header h2{
+    color:#2d2335 !important;
+}
+
+body.theme-user .invoice-table th{
+    color:#6c6175 !important;
+}
+
+body.theme-user .invoice-table td,
+body.theme-user .activity-text strong,
+body.theme-user .finance-notification-text strong{
+    color:#403646 !important;
+}
+
+/* ---------- search / logout finish ---------- */
+body.theme-user .search-box,
+body.theme-user .nav-login{
+    box-shadow:0 5px 18px rgba(66,42,84,.05) !important;
+}
+
+body.theme-user .nav-login{
+    color:#4d4257 !important;
+    background:linear-gradient(180deg,#ffffff,#faf7fc) !important;
+}
+
+body.theme-user .nav-login:hover{
+    color:#2d2137 !important;
+    border-color:#cdb8db !important;
+    background:#ffffff !important;
+}
+
+/* ---------- responsive ---------- */
+@media(max-width:1120px){
+    body.theme-user .search-box{
+        width:220px !important;
+        flex-basis:220px !important;
+    }
+
+    body.theme-user .dashboard-header{
+        padding-right:330px !important;
+    }
+
+    .user-hero-visual{
+        right:12px !important;
+        transform:translateY(-50%) scale(.93) !important;
+        transform-origin:right center !important;
+    }
+}
+
+@media(max-width:800px){
+    body.theme-user .nav-utility{
+        gap:7px !important;
+    }
+
+    body.theme-user .search-box{
+        width:170px !important;
+        flex-basis:170px !important;
+    }
+
+    body.theme-user .dashboard-header{
+        padding:25px 24px 245px !important;
+    }
+
+    .user-hero-visual{
+        right:50% !important;
+        top:auto !important;
+        bottom:12px !important;
+        width:330px !important;
+        height:205px !important;
+        transform:translateX(50%) scale(.90) !important;
+        transform-origin:center bottom !important;
+    }
+}
+
+@media(max-width:560px){
+    body.theme-user .brand-text::after{
+        display:none !important;
+    }
+
+    body.theme-user .nav-utility{
+        gap:6px !important;
+    }
+
+    body.theme-user .search-box{
+        width:42px !important;
+        flex-basis:42px !important;
+        padding:0 11px !important;
+    }
+
+    body.theme-user .search-box input{
+        display:none !important;
+    }
+
+    body.theme-user .nav-login{
+        min-width:68px !important;
+        padding:0 9px !important;
+    }
+
+    body.theme-user .dashboard-header{
+        padding:23px 20px 225px !important;
+    }
+}
+</style>
+
+
+<style id="claimguard-user-dashboard-v5-final-polish">
+/* =========================================================
+   USER DASHBOARD V5 — FINAL HEADER / HERO POLISH
+   Visual-only override. Original JS is untouched.
+   ========================================================= */
+
+/* Remove the redundant first role banner so the original
+   USER DASHBOARD hero becomes the single primary banner. */
+body.theme-user .role-banner{
+    display:none !important;
+}
+
+/* Keep the top utility bar, but remove the large brand block.
+   Search + logout remain side by side. */
+body.theme-user .navbar{
+    width:min(1500px,calc(100vw - 56px)) !important;
+    min-height:58px !important;
+    padding:0 12px 0 0 !important;
+    margin:12px auto 4px !important;
+    background:transparent !important;
+    border-color:transparent !important;
+    box-shadow:none !important;
+    backdrop-filter:none !important;
+}
+
+body.theme-user .navbar .brand{
+    display:none !important;
+}
+
+body.theme-user .nav-utility{
+    margin-left:auto !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:9px !important;
+    flex-wrap:nowrap !important;
+}
+
+body.theme-user .search-box{
+    width:260px !important;
+    height:38px !important;
+    flex:0 0 260px !important;
+    background:rgba(255,255,255,.92) !important;
+    border:1px solid #ded4e8 !important;
+    border-radius:11px !important;
+    box-shadow:0 8px 22px rgba(66,42,84,.06) !important;
+}
+
+body.theme-user .notification-pill{
+    display:none !important;
+}
+
+body.theme-user .nav-login{
+    min-width:88px !important;
+    height:38px !important;
+    padding:0 16px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    border:1px solid rgba(125,64,174,.24) !important;
+    border-radius:11px !important;
+    color:#fff !important;
+    background:linear-gradient(135deg,#8a43dc,#b84ad0) !important;
+    box-shadow:0 10px 22px rgba(139,67,220,.22) !important;
+    font-weight:900 !important;
+    text-decoration:none !important;
+    transition:transform .2s ease,box-shadow .2s ease,filter .2s ease !important;
+}
+
+body.theme-user .nav-login:hover{
+    transform:translateY(-2px) !important;
+    filter:saturate(1.08) !important;
+    box-shadow:0 15px 28px rgba(139,67,220,.30) !important;
+}
+
+/* Main page starts close to utility row. */
+body.theme-user .dashboard-page{
+    width:min(1500px,calc(100vw - 56px)) !important;
+    margin:4px auto 40px !important;
+}
+
+/* The original USER DASHBOARD hero is now the primary hero.
+   Make it match the purple light-tone look of the rest of the
+   page instead of the old blue treatment. */
+body.theme-user .dashboard-header{
+    min-height:250px !important;
+    margin:0 0 16px !important;
+    padding:32px 410px 32px 32px !important;
+    position:relative !important;
+    overflow:hidden !important;
+    color:#2a2033 !important;
+    background:
+        radial-gradient(circle at 86% 45%,rgba(173,93,221,.15),transparent 25%),
+        radial-gradient(circle at 60% 100%,rgba(120,67,213,.07),transparent 25%),
+        linear-gradient(135deg,#ffffff 0%,#f5eefb 54%,#f8f5fb 100%) !important;
+    border:1px solid #d9cbe3 !important;
+    border-radius:24px !important;
+    box-shadow:0 18px 50px rgba(51,34,66,.09) !important;
+}
+
+body.theme-user .dashboard-header::before{
+    content:"" !important;
+    position:absolute !important;
+    left:0 !important;
+    top:0 !important;
+    bottom:0 !important;
+    width:4px !important;
+    background:linear-gradient(180deg,#8b43dc,#c84fcf) !important;
+}
+
+body.theme-user .dashboard-header .auth-label{
+    display:inline-flex !important;
+    align-items:center !important;
+    gap:8px !important;
+    color:#714895 !important;
+    background:#f0e5f8 !important;
+    border:1px solid #dcc9e8 !important;
+    padding:8px 12px !important;
+    border-radius:999px !important;
+}
+
+body.theme-user .dashboard-header h1{
+    margin:18px 0 8px !important;
+    color:#271d31 !important;
+    font-size:clamp(38px,4vw,58px) !important;
+    line-height:1 !important;
+    letter-spacing:-.058em !important;
+    font-weight:900 !important;
+}
+
+body.theme-user .dashboard-header h1 span{
+    color:#8d44dc !important;
+}
+
+body.theme-user .dashboard-header p{
+    max-width:720px !important;
+    margin:0 !important;
+    color:#5e5368 !important;
+    font-size:12px !important;
+    line-height:1.7 !important;
+}
+
+body.theme-user .dashboard-header .btn-primary{
+    background:linear-gradient(90deg,#8b43dc,#b64bd2) !important;
+    color:#fff !important;
+    box-shadow:0 14px 28px rgba(139,67,220,.22) !important;
+}
+
+body.theme-user .dashboard-header .btn-primary:hover{
+    transform:translateY(-2px) !important;
+    box-shadow:0 18px 34px rgba(139,67,220,.30) !important;
+}
+
+/* Existing hero visual stays attached to this banner. */
+.user-hero-visual{
+    right:26px !important;
+    width:360px !important;
+    height:220px !important;
+    z-index:8 !important;
+}
+
+.user-hero-visual .orbit{
+    width:202px !important;
+    height:202px !important;
+}
+
+.user-hero-visual .orbit::before{
+    width:154px !important;
+    height:154px !important;
+}
+
+.user-hero-visual .orbit::after{
+    width:110px !important;
+    height:110px !important;
+}
+
+/* Keep illustration away from title copy. */
+.user-hero-person{top:31px !important}
+.user-hero-laptop{top:126px !important}
+.hero-doc.doc-a{left:12px !important}
+.hero-doc.doc-b{right:12px !important}
+.hero-chip.left{left:3px !important}
+.hero-chip.right{right:3px !important}
+
+/* Content below hero remains dark-text/light-surface. */
+body.theme-user .dashboard-stats{
+    margin-top:0 !important;
+}
+
+body.theme-user .dashboard-stat-card{
+    background:rgba(255,255,255,.95) !important;
+    border-color:#e0d7e7 !important;
+    box-shadow:0 14px 40px rgba(54,36,69,.065) !important;
+}
+
+body.theme-user .dashboard-stat-card strong{
+    color:#281e31 !important;
+}
+
+body.theme-user .dashboard-panel{
+    background:rgba(255,255,255,.96) !important;
+    border-color:#e0d7e7 !important;
+    box-shadow:0 16px 42px rgba(54,36,69,.065) !important;
+}
+
+body.theme-user .panel-header h2{
+    color:#2c2235 !important;
+}
+
+/* ---------- responsive ---------- */
+@media(max-width:1120px){
+    body.theme-user .search-box{
+        width:225px !important;
+        flex-basis:225px !important;
+    }
+
+    body.theme-user .dashboard-header{
+        padding-right:330px !important;
+    }
+
+    .user-hero-visual{
+        right:10px !important;
+        transform:translateY(-50%) scale(.92) !important;
+        transform-origin:right center !important;
+    }
+}
+
+@media(max-width:800px){
+    body.theme-user .navbar{
+        min-height:54px !important;
+        padding-right:0 !important;
+        margin-bottom:4px !important;
+    }
+
+    body.theme-user .nav-utility{
+        width:100% !important;
+    }
+
+    body.theme-user .search-box{
+        width:100% !important;
+        flex:1 1 auto !important;
+    }
+
+    body.theme-user .nav-login{
+        flex:0 0 auto !important;
+    }
+
+    body.theme-user .dashboard-header{
+        min-height:470px !important;
+        padding:25px 24px 235px !important;
+    }
+
+    .user-hero-visual{
+        right:50% !important;
+        top:auto !important;
+        bottom:8px !important;
+        width:330px !important;
+        height:205px !important;
+        transform:translateX(50%) scale(.90) !important;
+        transform-origin:center bottom !important;
+    }
+}
+
+@media(max-width:560px){
+    body.theme-user .dashboard-page,
+    body.theme-user .navbar{
+        width:94vw !important;
+    }
+
+    body.theme-user .search-box{
+        flex-basis:auto !important;
+    }
+
+    body.theme-user .dashboard-header{
+        min-height:455px !important;
+        padding:23px 20px 225px !important;
+    }
+
+    body.theme-user .dashboard-header h1{
+        font-size:38px !important;
+    }
+
+    body.theme-user .nav-login{
+        min-width:72px !important;
+        padding:0 10px !important;
+    }
+
+    .user-hero-visual{
+        transform:translateX(50%) scale(.78) !important;
+    }
+}
+</style>
+
+
+<style id="cg-user-dashboard-last-small-fix">
+/* ONLY: round the existing white hero container. */
+body.theme-user .dashboard-header{
+    border-radius:30px !important;
+}
+
+/* ONLY: rounded purple name chip; JS supplies the actual logged-in name. */
+body.theme-user .dashboard-header h1 #userName{
+    display:inline-flex !important;
+    align-items:center !important;
+    vertical-align:middle !important;
+    margin-left:7px !important;
+    padding:7px 16px 9px !important;
+    border-radius:999px !important;
+    color:#fff !important;
+    background:linear-gradient(135deg,#8b43dc,#b64bd2) !important;
+    box-shadow:0 10px 22px rgba(139,67,220,.18) !important;
+    font-size:.70em !important;
+    line-height:1 !important;
+    letter-spacing:-.035em !important;
+    white-space:nowrap !important;
+}
+</style>
+
+
+<style id="cg-user-dashboard-name-and-hero-polish">
+/* ONLY the requested visual polish:
+   - round the large white welcome box more
+   - make the dynamic name pill lighter and easier to read
+   Everything else stays unchanged. */
+
+body.theme-user .dashboard-header{
+    border-radius:34px !important;
+}
+
+body.theme-user .dashboard-header h1 #userName{
+    background:linear-gradient(135deg,#a85be2,#c565d5) !important;
+    color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.18) !important;
+    box-shadow:
+        0 10px 22px rgba(139,67,220,.14),
+        inset 0 1px 0 rgba(255,255,255,.18) !important;
+    text-shadow:0 1px 1px rgba(58,20,79,.12) !important;
+}
+</style>
+
+</head>
+
+
+<body class="theme-user">
+
+    <header class="navbar">
+
+        <div class="brand">
+            <div class="brand-icon">CG</div>
+            <div class="brand-text">
+                <h2>ClaimGuard</h2>
+                <span>Invoice Intelligence</span>
+            </div>
+        </div>
+
+        <div class="nav-utility">
+            <div class="search-box" aria-label="Search invoices">
+                <span>⌕</span>
+                <input type="search" id="userSearch" placeholder="Search invoices..." />
+            </div>
+            <span class="notification-pill" id="userNotificationCount">2</span>
+            <button type="button" class="nav-login" id="logoutButton">Logout</button>
+        </div>
+
+    </header>
+
+    <main class="dashboard-page">
+
+        <section class="role-banner">
+            <div class="role-banner-inner">
+                <div class="role-banner-copy">
+                    <span class="role-banner-label">User workspace</span>
+                    <h1>Welcome back, <span id="userNameLegacy">User</span></h1>
+                    <p>Track your submissions, verification updates, review activity, and invoice outcomes from one secure workspace.</p>
+                </div>
+                <div class="role-banner-actions">
+                    <a href="upload-invoice.html" class="btn-primary">Upload Invoice</a>
+                    <a href="index.html" class="back-link">← Overview</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-header">
+
+            <div>
+
+                <span class="auth-label">
+                    USER DASHBOARD
+                </span>
+
+                <h1>
+                    Welcome back,
+                    <span id="userName">
+                        User
+                    </span>
+                </h1>
+
+                <p>
+                    Manage your invoices, verification results,
+                    risk analysis and review decisions.
+                </p>
+
+            </div>
+
+
+            <a
+                href="upload-invoice.html"
+                class="btn-primary"
+            >
+                Upload Invoice
+            </a>
+
+
+
+            <div class="user-hero-visual" aria-hidden="true">
+
+                <div class="orbit"></div>
+                <div class="glow"></div>
+
+                <div class="hero-doc doc-a">
+                    <span></span>
+                    <span></span>
+                    <span style="width:72%;"></span>
+                </div>
+
+                <div class="hero-doc doc-b">
+                    <span></span>
+                    <span></span>
+                    <span style="width:82%;"></span>
+                </div>
+
+                <div class="hero-chip left">
+                    <span class="dot"></span>
+                    <span class="title">INVOICE REVIEW</span>
+                    <div class="sub">Risk scan ready</div>
+                </div>
+
+                <div class="hero-chip right">
+                    <span class="dot"></span>
+                    <span class="title">MARKET CHECK</span>
+                    <div class="sub">Price matched</div>
+                </div>
+
+                <div class="user-hero-person">
+
+                    <div class="hair"></div>
+
+                    <div class="head">
+                        <div class="glasses">
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+
+                    <div class="body"></div>
+                    <div class="shirt"></div>
+                    <div class="tie"></div>
+
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+
+                    <div class="hand left"></div>
+                    <div class="hand right"></div>
+
+                </div>
+
+                <div class="user-hero-laptop">
+
+                    <div class="screen">
+                        <span class="line a"></span>
+                        <span class="line b"></span>
+                        <span class="line c"></span>
+                        <span class="line d"></span>
+                    </div>
+
+                    <div class="base"></div>
+
+                </div>
+
+            </div>
+
+</section>
+
+
+        <!-- =================================================
+             REAL-TIME STATS
+             ================================================= -->
+
+        <section class="dashboard-stats">
+
+            <div class="dashboard-stat-card">
+
+                <span>
+                    Total Invoices
+                </span>
+
+                <strong id="totalInvoices">
+                    —
+                </strong>
+
+                <span class="stat-meta">
+                    Uploaded by you
+                </span>
+
+            </div>
+
+
+            <div class="dashboard-stat-card">
+
+                <span>
+                    Pending Review
+                </span>
+
+                <strong id="pendingReview">
+                    —
+                </strong>
+
+                <span class="stat-meta">
+                    Awaiting decision
+                </span>
+
+            </div>
+
+
+            <div class="dashboard-stat-card">
+
+                <span>
+                    High Risk
+                </span>
+
+                <strong id="highRiskInvoices">
+                    —
+                </strong>
+
+                <span class="stat-meta">
+                    Risk score ≥ 70
+                </span>
+
+            </div>
+
+
+            <div class="dashboard-stat-card">
+
+                <span>
+                    Approved
+                </span>
+
+                <strong id="approvedInvoices">
+                    —
+                </strong>
+
+                <span class="stat-meta">
+                    Final decisions
+                </span>
+
+            </div>
+
+
+            <div class="dashboard-stat-card">
+
+                <span>
+                    Rejected
+                </span>
+
+                <strong id="rejectedInvoices">
+                    —
+                </strong>
+
+                <span class="stat-meta">
+                    Final decisions
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ERROR / LOADING
+             ================================================= -->
+
+        <section
+            id="dashboardMessage"
+            class="dashboard-error"
+            style="display:none;"
+        ></section>
+
+
+        <!-- =================================================
+             CONTENT
+             ================================================= -->
+
+        <section class="dashboard-content">
+
+            <!-- =================================================
+                 RECENT INVOICES
+                 ================================================= -->
+
+            <div class="dashboard-panel dashboard-panel-wide">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span>
+                            RECENT INVOICES
+                        </span>
+
+                        <h2>
+                            Your invoices
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="invoiceLoading"
+                    class="dashboard-loading"
+                >
+                    Loading your invoices...
+                </div>
+
+
+                <div
+                    id="invoiceEmpty"
+                    class="dashboard-empty"
+                    style="display:none;"
+                >
+
+                    <h3>
+                        No invoices yet
+                    </h3>
+
+                    <p>
+                        Upload your first invoice to begin
+                        verification, market analysis and risk scoring.
+                    </p>
+
+                    <a
+                        href="upload-invoice.html"
+                        class="btn-primary"
+                    >
+                        Upload Your First Invoice
+                    </a>
+
+                </div>
+
+
+                <div
+                    id="invoiceTableContainer"
+                    class="invoice-table-wrap"
+                    style="display:none;"
+                >
+
+                    <div class="dashboard-toolbar">
+
+                        <span
+                            id="invoiceCountLabel"
+                            class="dashboard-toolbar-meta"
+                        >
+                            0 invoices
+                        </span>
+
+                        <button
+                            type="button"
+                            id="refreshDashboardButton"
+                            class="dashboard-refresh-button"
+                        >
+                            Refresh
+                        </button>
+
+                    </div>
+
+
+                    <table class="invoice-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Invoice
+                                </th>
+
+                                <th>
+                                    Vendor
+                                </th>
+
+                                <th>
+                                    Amount
+                                </th>
+
+                                <th>
+                                    Risk
+                                </th>
+
+                                <th>
+                                    Market Coverage
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Finance Review
+                                </th>
+
+                                <th>
+                                    Uploaded
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="invoiceTableBody"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RECENT ACTIVITY
+                 ================================================= -->
+
+            <div class="dashboard-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span>
+                            RECENT ACTIVITY
+                        </span>
+
+                        <h2>
+                            Your latest activity
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="activityLoading"
+                    class="dashboard-loading"
+                >
+                    Preparing activity...
+                </div>
+
+
+                <div
+                    id="activityEmpty"
+                    class="dashboard-empty small"
+                    style="display:none;"
+                >
+
+                    <p>
+                        No recent activity.
+                    </p>
+
+                </div>
+
+
+                <div
+                    id="activityList"
+                    class="activity-list"
+                    style="display:none;"
+                ></div>
+
+            </div>
+
+
+            <!-- =================================================
+                 FINANCE REVIEW NOTIFICATIONS
+                 ================================================= -->
+
+            <div class="dashboard-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span>
+                            FINANCE REVIEW
+                        </span>
+
+                        <h2>
+                            Review notifications
+                        </h2>
+
+                    </div>
+
+
+                    <div class="notification-header-actions">
+
+                        <span
+                            id="notificationUnreadBadge"
+                            class="notification-badge"
+                        >
+                            0
+                        </span>
+
+
+                        <button
+                            type="button"
+                            id="markNotificationsReadButton"
+                            class="notification-mark-read"
+                        >
+                            Mark All Read
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="financeReviewNotifications"
+                    class="activity-list"
+                >
+                    Loading Finance/Reviewer notifications...
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 ANALYSIS SUMMARY
+                 ================================================= -->
+
+
+            <div class="dashboard-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <span>
+                            RISK SUMMARY
+                        </span>
+
+                        <h2>
+                            Detection overview
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="riskSummary"
+                    class="dashboard-empty small"
+                >
+                    Loading risk summary...
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script>
+
+        const API_BASE_URL =
+            "http://127.0.0.1:8000";
+
+        let activeDashboardJobPoller = false;
+
+        const accessToken =
+            localStorage.getItem(
+                "claimguard_access_token"
+            );
+
+
+        const userData =
+            localStorage.getItem(
+                "claimguard_user"
+            );
+
+
+        // =====================================================
+        // AUTH CHECK
+        // =====================================================
+
+        if (
+            !accessToken ||
+            !userData
+        ) {
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        // =====================================================
+        // ELEMENTS
+        // =====================================================
+
+        const userNameElement =
+            document.getElementById(
+                "userName"
+            );
+
+
+        const logoutButton =
+            document.getElementById(
+                "logoutButton"
+            );
+
+
+        const totalInvoicesElement =
+            document.getElementById(
+                "totalInvoices"
+            );
+
+
+        const pendingReviewElement =
+            document.getElementById(
+                "pendingReview"
+            );
+
+
+        const highRiskElement =
+            document.getElementById(
+                "highRiskInvoices"
+            );
+
+
+        const approvedElement =
+            document.getElementById(
+                "approvedInvoices"
+            );
+
+
+        const rejectedElement =
+            document.getElementById(
+                "rejectedInvoices"
+            );
+
+
+        const dashboardMessage =
+            document.getElementById(
+                "dashboardMessage"
+            );
+
+
+        const invoiceLoading =
+            document.getElementById(
+                "invoiceLoading"
+            );
+
+
+        const invoiceEmpty =
+            document.getElementById(
+                "invoiceEmpty"
+            );
+
+
+        const invoiceTableContainer =
+            document.getElementById(
+                "invoiceTableContainer"
+            );
+
+
+        const invoiceTableBody =
+            document.getElementById(
+                "invoiceTableBody"
+            );
+
+
+        const invoiceCountLabel =
+            document.getElementById(
+                "invoiceCountLabel"
+            );
+
+
+        const refreshDashboardButton =
+            document.getElementById(
+                "refreshDashboardButton"
+            );
+
+
+        const activityLoading =
+            document.getElementById(
+                "activityLoading"
+            );
+
+
+        const activityEmpty =
+            document.getElementById(
+                "activityEmpty"
+            );
+
+
+        const activityList =
+            document.getElementById(
+                "activityList"
+            );
+
+
+        const riskSummary =
+            document.getElementById(
+                "riskSummary"
+            );
+
+
+
+
+        const financeReviewNotifications =
+            document.getElementById(
+                "financeReviewNotifications"
+            );
+
+// =====================================================
+        // USER
+        // =====================================================
+
+        let currentUser =
+            null;
+
+        try {
+
+            currentUser =
+                JSON.parse(
+                    userData
+                );
+
+        } catch (error) {
+
+            currentUser =
+                null;
+
+        }
+
+
+        function normalizeDashboardRole(
+            value
+        ) {
+
+            return String(
+                value ??
+                ""
+            )
+                .trim()
+                .toLowerCase()
+                .replace(/[_\/\s]+/g, "-")
+                .replace(/-+/g, "-");
+
+        }
+
+
+        const dashboardRole =
+            normalizeDashboardRole(
+                currentUser?.role
+            );
+
+
+        if (
+            currentUser &&
+            dashboardRole === "user"
+        ) {
+
+            userNameElement.textContent =
+                currentUser.full_name
+                ||
+                currentUser.name
+                ||
+                currentUser.email
+                ||
+                "User";
+
+        }
+
+        async function validateServerSession() {
+            const response = await fetch(
+                `${API_BASE_URL}/api/auth/me`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${accessToken}`,
+                        "Accept": "application/json"
+                    },
+                    cache: "no-store"
+                }
+            );
+            const payload = await response.json().catch(() => ({}));
+
+            if (response.status === 401) {
+                localStorage.removeItem("claimguard_access_token");
+                localStorage.removeItem("claimguard_user");
+                window.location.href = "login.html";
+                return false;
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    payload?.detail || "Unable to validate the active session."
+                );
+            }
+
+            currentUser = payload?.user || null;
+            localStorage.setItem(
+                "claimguard_user",
+                JSON.stringify(currentUser)
+            );
+
+            const serverRole = normalizeDashboardRole(currentUser?.role);
+            if (serverRole === "admin") {
+                window.location.replace("admin-dashboard.html");
+                return false;
+            }
+            if (serverRole !== "user") {
+                window.location.replace("reviewer-dashboard.html");
+                return false;
+            }
+
+            userNameElement.textContent =
+                currentUser.full_name
+                || currentUser.email
+                || "User";
+            return true;
+        }
+
+
+        // =====================================================
+        // HELPERS
+        // =====================================================
+
+        function escapeHtml(
+            value
+        ) {
+
+            const text =
+                String(
+                    value ??
+                    ""
+                );
+
+            return text
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
+
+
+        function numberValue(
+            value
+        ) {
+
+            if (
+                value ===
+                null ||
+                value ===
+                undefined ||
+                value ===
+                ""
+            ) {
+
+                return null;
+
+            }
+
+
+            const number =
+                Number(
+                    value
+                );
+
+
+            return Number.isFinite(
+                number
+            )
+                ? number
+                : null;
+
+        }
+
+
+        function formatMoney(
+            value,
+            currency
+        ) {
+
+            const number =
+                numberValue(
+                    value
+                );
+
+
+            if (
+                number ===
+                null
+            ) {
+
+                return "—";
+
+            }
+
+
+            const code =
+                currency
+                ||
+                "BDT";
+
+
+            try {
+
+                return new Intl.NumberFormat(
+                    "en-US",
+                    {
+                        style: "currency",
+                        currency: code,
+                        maximumFractionDigits: 2
+                    }
+                ).format(
+                    number
+                );
+
+            } catch (error) {
+
+                return `${code} ${number.toLocaleString("en-US")}`;
+
+            }
+
+        }
+
+
+        function formatDate(
+            value
+        ) {
+
+            if (
+                !value
+            ) {
+
+                return "—";
+
+            }
+
+
+            const date =
+                new Date(
+                    value
+                );
+
+
+            if (
+                Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                return String(
+                    value
+                );
+
+            }
+
+
+            return date.toLocaleString(
+                "en-US",
+                {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+        }
+
+
+        function getRiskScore(
+            invoice
+        ) {
+
+            const directScore =
+                numberValue(
+                    invoice?.risk_score
+                );
+
+
+            if (
+                directScore !==
+                null
+            ) {
+
+                return directScore;
+
+            }
+
+
+            const analysisScore =
+                numberValue(
+                    invoice?.risk_analysis?.risk_score
+                );
+
+
+            return analysisScore;
+
+        }
+
+
+        function getRiskLevel(
+            invoice
+        ) {
+
+            const storedLevel =
+                invoice?.risk_level
+                ||
+                invoice?.risk_analysis?.risk_level;
+
+
+            if (
+                storedLevel
+            ) {
+
+                return String(
+                    storedLevel
+                ).toLowerCase();
+
+            }
+
+
+            const score =
+                getRiskScore(
+                    invoice
+                );
+
+
+            if (
+                score ===
+                null
+            ) {
+
+                return "none";
+
+            }
+
+
+            if (
+                score >= 70
+            ) {
+
+                return "high";
+
+            }
+
+
+            if (
+                score >= 40
+            ) {
+
+                return "medium";
+
+            }
+
+
+            return "low";
+
+        }
+
+
+        function riskLabel(
+            level
+        ) {
+
+            const labels = {
+
+                high: "High Risk",
+
+                medium: "Medium Risk",
+
+                low: "Low Risk",
+
+                none: "Not Scored"
+
+            };
+
+
+            return (
+                labels[
+                    level
+                ]
+                ||
+                "Not Scored"
+            );
+
+        }
+
+
+        function getStatusLabel(
+            status
+        ) {
+
+            const labels = {
+
+                verified_document:
+                    "Verified Document",
+
+                possible_duplicate:
+                    "Possible Duplicate",
+
+                verification_failed:
+                    "Verification Failed",
+
+                verification_required:
+                    "Verification Required",
+
+                verification_error:
+                    "Verification Error",
+
+                no_text_found:
+                    "No Text Found",
+
+                extraction_failed:
+                    "Extraction Failed",
+
+                processing_failed:
+                    "Processing Interrupted",
+
+                pending_review:
+                    "Pending Finance Review",
+
+                approved:
+                    "Finance Approved",
+
+                rejected:
+                    "Finance Rejected",
+
+                extracted:
+                    "Extracted",
+
+                uploaded:
+                    "Uploaded"
+
+            };
+
+
+            return (
+                labels[
+                    status
+                ]
+                ||
+                String(
+                    status
+                    ||
+                    "Unknown"
+                )
+                .replaceAll(
+                    "_",
+                    " "
+                )
+                .replace(
+                    /\b\w/g,
+                    character =>
+                        character.toUpperCase()
+                )
+            );
+
+        }
+
+
+        function getStatusClass(
+            status
+        ) {
+
+            if (
+                status ===
+                "verified_document"
+                ||
+                status ===
+                "approved"
+            ) {
+
+                return "status-success";
+
+            }
+
+
+            if (
+                status ===
+                "possible_duplicate"
+                ||
+                status ===
+                "verification_required"
+                ||
+                status ===
+                "pending_review"
+            ) {
+
+                return "status-warning";
+
+            }
+
+
+            if (
+                status ===
+                "verification_failed"
+                ||
+                status ===
+                "verification_error"
+                ||
+                status ===
+                "extraction_failed"
+                ||
+                status ===
+                "processing_failed"
+                ||
+                status ===
+                "rejected"
+            ) {
+
+                return "status-error";
+
+            }
+
+
+            return "status-neutral";
+
+        }
+
+
+        function getDecision(
+            invoice
+        ) {
+
+            const decision =
+                invoice?.decision;
+
+
+            if (
+                decision ===
+                null ||
+                decision ===
+                undefined
+            ) {
+
+                return null;
+
+            }
+
+
+            if (
+                typeof decision ===
+                "string"
+            ) {
+
+                return decision
+                    .toLowerCase();
+
+            }
+
+
+            if (
+                typeof decision ===
+                "object"
+            ) {
+
+                return String(
+                    decision.status
+                    ||
+                    decision.decision
+                    ||
+                    decision.action
+                    ||
+                    ""
+                )
+                .toLowerCase();
+
+            }
+
+
+            return null;
+
+        }
+
+
+        function getDecisionObject(
+            invoice
+        ) {
+
+            const decision =
+                invoice?.decision;
+
+            return (
+                decision
+                &&
+                typeof decision ===
+                "object"
+            )
+                ? decision
+                : null;
+
+        }
+
+
+        function getFinanceReviewState(
+            invoice
+        ) {
+
+            const decision =
+                getDecisionObject(
+                    invoice
+                );
+
+            if (
+                decision?.decision ===
+                "approved"
+            ) {
+                return "approved";
+            }
+
+            if (
+                decision?.decision ===
+                "rejected"
+            ) {
+                return "rejected";
+            }
+
+            if (
+                decision?.decision ===
+                "request_verification"
+            ) {
+                return "requested";
+            }
+
+            if (
+                invoice?.status ===
+                "pending_review"
+            ) {
+                return "pending";
+            }
+
+            return "none";
+
+        }
+
+
+        function getFinanceReviewLabel(
+            invoice
+        ) {
+
+            const labels = {
+                approved:
+                    "Finance Reviewed: Approved",
+                rejected:
+                    "Finance Reviewed: Rejected",
+                requested:
+                    "Finance Review: Verification Requested",
+                pending:
+                    "Finance Review Pending",
+                none:
+                    ""
+            };
+
+            return (
+                labels[
+                    getFinanceReviewState(
+                        invoice
+                    )
+                ]
+                ||
+                ""
+            );
+
+        }
+
+
+        function getFinanceReviewDetail(
+            invoice
+        ) {
+
+            const decision =
+                getDecisionObject(
+                    invoice
+                );
+
+            if (
+                !decision
+            ) {
+                return "";
+            }
+
+            const parts = [];
+
+            if (
+                decision.reviewer_name
+            ) {
+                parts.push(
+                    `Reviewed by ${decision.reviewer_name}`
+                );
+            } else if (
+                decision.reviewer_email
+            ) {
+                parts.push(
+                    `Reviewed by ${decision.reviewer_email}`
+                );
+            }
+
+            if (
+                decision.decided_at
+            ) {
+                parts.push(
+                    formatDate(
+                        decision.decided_at
+                    )
+                );
+            }
+
+            if (
+                decision.note
+            ) {
+                parts.push(
+                    `Note: ${decision.note}`
+                );
+            }
+
+            return parts.join(
+                " • "
+            );
+
+        }
+
+
+        function isApproved(
+            invoice
+        ) {
+
+            const decision =
+                getDecision(
+                    invoice
+                );
+
+
+            return (
+                decision ===
+                "approved"
+                ||
+                decision ===
+                "approve"
+                ||
+                decision ===
+                "accepted"
+            );
+
+        }
+
+
+        function isRejected(
+            invoice
+        ) {
+
+            const decision =
+                getDecision(
+                    invoice
+                );
+
+
+            return (
+                decision ===
+                "rejected"
+                ||
+                decision ===
+                "reject"
+            );
+
+        }
+
+
+        function isPending(
+            invoice
+        ) {
+
+            return !isApproved(
+                invoice
+            )
+            &&
+            !isRejected(
+                invoice
+            );
+
+        }
+
+
+        function getVendorName(
+            invoice
+        ) {
+
+            return (
+                invoice?.extracted_data?.vendor_name
+                ||
+                invoice?.vendor_name
+                ||
+                "Unknown vendor"
+            );
+
+        }
+
+
+        function getInvoiceNumber(
+            invoice
+        ) {
+
+            return (
+                invoice?.extracted_data?.invoice_number
+                ||
+                invoice?.invoice_number
+                ||
+                invoice?.invoice_id
+                ||
+                "—"
+            );
+
+        }
+
+
+        function getTotal(
+            invoice
+        ) {
+
+            return (
+                invoice?.extracted_data?.total
+                ??
+                invoice?.extracted_data?.grand_total
+                ??
+                invoice?.extracted_data?.total_amount
+                ??
+                invoice?.total
+                ??
+                invoice?.total_amount
+            );
+
+        }
+
+
+        function getCurrency(
+            invoice
+        ) {
+
+            return (
+                invoice?.extracted_data?.currency
+                ||
+                "BDT"
+            );
+
+        }
+
+
+        function getAnomalyCount(
+            invoice
+        ) {
+
+            const anomalies =
+                invoice?.anomalies;
+
+
+            if (
+                Array.isArray(
+                    anomalies
+                )
+            ) {
+
+                return anomalies.length;
+
+            }
+
+
+            const riskAnomalies =
+                invoice?.risk_analysis?.anomalies;
+
+
+            if (
+                Array.isArray(
+                    riskAnomalies
+                )
+            ) {
+
+                return riskAnomalies.length;
+
+            }
+
+
+            return 0;
+
+        }
+
+
+        // =====================================================
+        // MESSAGE
+        // =====================================================
+
+        function showDashboardMessage(
+            message
+        ) {
+
+            dashboardMessage.textContent =
+                message;
+
+            dashboardMessage.style.display =
+                "block";
+
+        }
+
+
+        function hideDashboardMessage() {
+
+            dashboardMessage.style.display =
+                "none";
+
+            dashboardMessage.textContent =
+                "";
+
+        }
+
+
+        function getMarketCoverageLabel(invoice) {
+            const extracted = invoice?.extracted_data && typeof invoice.extracted_data === "object"
+                ? invoice.extracted_data
+                : {};
+            const lineItems = Array.isArray(extracted.line_items) ? extracted.line_items : [];
+            if (!lineItems.length) return "No product rows";
+
+            const market = invoice?.market_analysis && typeof invoice.market_analysis === "object"
+                ? invoice.market_analysis
+                : {};
+            const analyses = Array.isArray(market.product_analyses) ? market.product_analyses : [];
+            if (!analyses.length) {
+                const state = String(market.status || "").toLowerCase();
+                return state === "provider_error" ? "Search failed" : "Not scanned";
+            }
+
+            const comparable = analyses.filter(entry => {
+                const productMarket = entry?.market && typeof entry.market === "object" ? entry.market : entry;
+                const comparison = productMarket?.price_comparison && typeof productMarket.price_comparison === "object"
+                    ? productMarket.price_comparison
+                    : {};
+                return comparison.is_comparable === true || String(comparison.status || "").toLowerCase() === "comparable";
+            }).length;
+            return `${Math.min(comparable, lineItems.length)}/${lineItems.length} comparable`;
+        }
+
+
+        // =====================================================
+        // RENDER STATS
+        // =====================================================
+
+        function renderStats(
+            invoices
+        ) {
+
+            const total =
+                invoices.length;
+
+
+            const pending =
+                invoices.filter(
+                    isPending
+                ).length;
+
+
+            const highRisk =
+                invoices.filter(
+                    invoice =>
+                        getRiskLevel(
+                            invoice
+                        ) ===
+                        "high"
+                ).length;
+
+
+            const approved =
+                invoices.filter(
+                    isApproved
+                ).length;
+
+
+            const rejected =
+                invoices.filter(
+                    isRejected
+                ).length;
+
+
+            totalInvoicesElement.textContent =
+                total;
+
+
+            pendingReviewElement.textContent =
+                pending;
+
+
+            highRiskElement.textContent =
+                highRisk;
+
+
+            approvedElement.textContent =
+                approved;
+
+
+            rejectedElement.textContent =
+                rejected;
+
+        }
+
+
+        // =====================================================
+        // RENDER INVOICES
+        // =====================================================
+
+        function renderInvoices(
+            invoices
+        ) {
+
+            invoiceLoading.style.display =
+                "none";
+
+
+            if (
+                !invoices.length
+            ) {
+
+                invoiceEmpty.style.display =
+                    "block";
+
+                invoiceTableContainer.style.display =
+                    "none";
+
+                invoiceCountLabel.textContent =
+                    "0 invoices";
+
+                return;
+
+            }
+
+            invoiceEmpty.style.display =
+                "none";
+
+            invoiceTableContainer.style.display =
+                "block";
+
+
+            invoiceCountLabel.textContent =
+                `${invoices.length} invoice${invoices.length === 1 ? "" : "s"}`;
+
+
+            invoiceTableBody.innerHTML =
+                invoices
+                    .slice(
+                        0,
+                        20
+                    )
+                    .map(
+                        invoice => {
+
+                            const invoiceId =
+                                invoice?.invoice_id
+                                ||
+                                "";
+
+
+                            const invoiceNumber =
+                                getInvoiceNumber(
+                                    invoice
+                                );
+
+
+                            const vendor =
+                                getVendorName(
+                                    invoice
+                                );
+
+
+                            const total =
+                                getTotal(
+                                    invoice
+                                );
+
+
+                            const currency =
+                                getCurrency(
+                                    invoice
+                                );
+
+
+                            const riskLevel =
+                                getRiskLevel(
+                                    invoice
+                                );
+
+
+                            const riskScore =
+                                getRiskScore(
+                                    invoice
+                                );
+
+
+                            const status =
+                                invoice?.status
+                                ||
+                                "unknown";
+
+
+                            const actionUrl =
+                                `invoice-details.html?invoice_id=${encodeURIComponent(invoiceId)}`;
+
+
+                            return `
+
+                                <tr>
+
+                                    <td>
+
+                                        <strong>
+                                            ${escapeHtml(invoiceNumber)}
+                                        </strong>
+
+                                        <span class="invoice-secondary">
+                                            ${escapeHtml(invoiceId)}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            ${escapeHtml(vendor)}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            ${escapeHtml(formatMoney(total, currency))}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="dashboard-risk risk-${escapeHtml(riskLevel)}"
+                                        >
+                                            ${escapeHtml(riskLabel(riskLevel))}
+                                        </span>
+
+                                        <span class="risk-score">
+                                            ${
+                                                riskScore === null
+                                                    ? "Score unavailable"
+                                                    : `Score: ${riskScore}/100`
+                                            }
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+                                        <span class="market-coverage-label">
+                                            ${escapeHtml(getMarketCoverageLabel(invoice))}
+                                        </span>
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="dashboard-status ${escapeHtml(getStatusClass(status))}"
+                                        >
+                                            ${escapeHtml(getStatusLabel(status))}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        ${
+                                            getFinanceReviewLabel(
+                                                invoice
+                                            )
+                                                ? `
+                                                    <span
+                                                        class="finance-review ${getFinanceReviewState(
+                                                            invoice
+                                                        )}"
+                                                    >
+                                                        ${escapeHtml(
+                                                            getFinanceReviewLabel(
+                                                                invoice
+                                                            )
+                                                        )}
+                                                    </span>
+
+                                                    ${
+                                                        getFinanceReviewDetail(
+                                                            invoice
+                                                        )
+                                                            ? `
+                                                                <span class="finance-review-detail">
+                                                                    ${escapeHtml(
+                                                                        getFinanceReviewDetail(
+                                                                            invoice
+                                                                        )
+                                                                    )}
+                                                                </span>
+                                                              `
+                                                            : ""
+                                                    }
+                                                  `
+                                                : "—"
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        ${escapeHtml(
+                                            formatDate(
+                                                invoice?.uploaded_at
+                                            )
+                                        )}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <a
+                                            href="${actionUrl}"
+                                            class="invoice-action-link"
+                                        >
+                                            View
+                                        </a>
+                                        <button
+                                            type="button"
+                                            class="invoice-report-button"
+                                            data-report-invoice-id="${escapeHtml(invoiceId)}"
+                                        >
+                                            PDF
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+                            `;
+
+                        }
+                    )
+                    .join(
+                        ""
+                    );
+
+        }
+
+        async function resumeActiveProcessingJobs(invoices) {
+            if (activeDashboardJobPoller) return;
+            const activeJobs = invoices
+                .filter(invoice =>
+                    invoice?.processing_job_id
+                    && ["queued", "running"].includes(
+                        String(invoice.processing_status || invoice.status || "").toLowerCase()
+                    )
+                )
+                .map(invoice => invoice.processing_job_id)
+                .slice(0, 20);
+            if (!activeJobs.length) return;
+
+            activeDashboardJobPoller = true;
+            let shouldRefresh = false;
+            try {
+                while (!shouldRefresh) {
+                    for (const jobId of activeJobs) {
+                        const response = await fetch(
+                            `${API_BASE_URL}/api/invoices/processing-jobs/${encodeURIComponent(jobId)}`,
+                            { headers: { "Authorization": `Bearer ${accessToken}`, "Accept": "application/json" } }
+                        );
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            throw new Error(data?.detail || "Unable to resume invoice processing status.");
+                        }
+                        if (["completed", "failed"].includes(data?.job?.status)) {
+                            if (
+                                data.job.status === "completed"
+                                && !sessionStorage.getItem(`claimguard-job-notified-${data.job.job_id}`)
+                            ) {
+                                sessionStorage.setItem(`claimguard-job-notified-${data.job.job_id}`, "1");
+                                if ("Notification" in window && Notification.permission === "granted") {
+                                    new Notification("ClaimGuard analysis complete", {
+                                        body: "Your invoice processing and market review have finished."
+                                    });
+                                }
+                            }
+                            shouldRefresh = true;
+                            break;
+                        }
+                    }
+                    if (!shouldRefresh) {
+                        await new Promise(resolve => setTimeout(resolve, 3000));
+                    }
+                }
+            } catch (error) {
+                console.error("Invoice processing status polling failed:", error);
+            } finally {
+                activeDashboardJobPoller = false;
+            }
+            if (shouldRefresh) await loadDashboard();
+        }
+
+
+        // =====================================================
+        // RENDER ACTIVITY
+        // =====================================================
+
+        function buildActivities(
+            invoices
+        ) {
+
+            const activities =
+                [];
+
+
+            invoices
+                .slice(
+                    0,
+                    8
+                )
+                .forEach(
+                    invoice => {
+
+                        const invoiceId =
+                            invoice?.invoice_id
+                            ||
+                            getInvoiceNumber(
+                                invoice
+                            );
+
+
+                        const vendor =
+                            getVendorName(
+                                invoice
+                            );
+
+
+                        const riskLevel =
+                            getRiskLevel(
+                                invoice
+                            );
+
+
+                        const anomalyCount =
+                            getAnomalyCount(
+                                invoice
+                            );
+
+
+                        const status =
+                            invoice?.status
+                            ||
+                            "unknown";
+
+
+                        activities.push(
+                            {
+
+                                text:
+                                    `Invoice ${invoiceId} was uploaded for ${vendor}.`,
+
+                                meta:
+                                    formatDate(
+                                        invoice?.uploaded_at
+                                    ),
+
+                                tone:
+                                    "currentColor"
+
+                            }
+                        );
+
+
+                        if (
+                            anomalyCount >
+                            0
+                        ) {
+
+                            activities.push(
+                                {
+
+                                    text:
+                                        `${anomalyCount} anomaly signal${anomalyCount === 1 ? "" : "s"} recorded for invoice ${invoiceId}.`,
+
+                                    meta:
+                                        riskLevel === "none"
+                                            ? "Risk analysis generated"
+                                            : `${riskLabel(riskLevel)} • ${formatDate(invoice?.uploaded_at)}`,
+
+                                    tone:
+                                        "currentColor"
+
+                                }
+                            );
+
+                        }
+
+
+                        if (
+                            status ===
+                            "verification_required"
+                        ) {
+
+                            activities.push(
+                                {
+
+                                    text:
+                                        `Invoice ${invoiceId} requires additional verification.`,
+
+                                    meta:
+                                        "Document verification",
+
+                                    tone:
+                                        "currentColor"
+
+                                }
+                            );
+
+                        }
+
+
+                        if (
+                            status ===
+                            "possible_duplicate"
+                        ) {
+
+                            activities.push(
+                                {
+
+                                    text:
+                                        `Possible duplicate verification code detected for invoice ${invoiceId}.`,
+
+                                    meta:
+                                        "Verification warning",
+
+                                    tone:
+                                        "currentColor"
+
+                                }
+                            );
+
+                        }
+
+
+                        if (
+                            isApproved(
+                                invoice
+                            )
+                        ) {
+
+                            activities.push(
+                                {
+
+                                    text:
+                                        `Invoice ${invoiceId} was approved.`,
+
+                                    meta:
+                                        "Review decision",
+
+                                    tone:
+                                        "currentColor"
+
+                                }
+                            );
+
+                        }
+
+
+                        if (
+                            isRejected(
+                                invoice
+                            )
+                        ) {
+
+                            activities.push(
+                                {
+
+                                    text:
+                                        `Invoice ${invoiceId} was rejected.`,
+
+                                    meta:
+                                        "Review decision",
+
+                                    tone:
+                                        "currentColor"
+
+                                }
+                            );
+
+                        }
+
+                    }
+                );
+
+
+            return activities
+                .slice(
+                    0,
+                    10
+                );
+
+        }
+
+
+        function renderActivity(
+            invoices
+        ) {
+
+            activityLoading.style.display =
+                "none";
+
+
+            const activities =
+                buildActivities(
+                    invoices
+                );
+
+
+            if (
+                !activities.length
+            ) {
+
+                activityEmpty.style.display =
+                    "block";
+
+                activityList.style.display =
+                    "none";
+
+                return;
+
+            }
+
+
+            activityEmpty.style.display =
+                "none";
+
+            activityList.style.display =
+                "grid";
+
+
+            activityList.innerHTML =
+                activities
+                    .map(
+                        activity => `
+
+                            <div class="activity-item">
+
+                                <span
+                                    class="activity-dot"
+                                    style="opacity:0.65;"
+                                ></span>
+
+                                <div class="activity-text">
+
+                                    <strong>
+                                        ${escapeHtml(activity.text)}
+                                    </strong>
+
+                                    <span>
+                                        ${escapeHtml(activity.meta)}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        `
+                    )
+                    .join(
+                        ""
+                    );
+
+        }
+
+
+        // =====================================================
+        // RENDER RISK SUMMARY
+        // =====================================================
+
+        function renderRiskSummary(
+            invoices
+        ) {
+
+            if (
+                !invoices.length
+            ) {
+
+                riskSummary.innerHTML =
+                    `
+                        <p>
+                            Upload an invoice to see risk and anomaly statistics.
+                        </p>
+                    `;
+
+                return;
+
+            }
+
+
+            const scoredInvoices =
+                invoices.filter(
+                    invoice =>
+                        getRiskScore(
+                            invoice
+                        ) !==
+                        null
+                );
+
+
+            const high =
+                invoices.filter(
+                    invoice =>
+                        getRiskLevel(
+                            invoice
+                        ) ===
+                        "high"
+                ).length;
+
+
+            const medium =
+                invoices.filter(
+                    invoice =>
+                        getRiskLevel(
+                            invoice
+                        ) ===
+                        "medium"
+                ).length;
+
+
+            const low =
+                invoices.filter(
+                    invoice =>
+                        getRiskLevel(
+                            invoice
+                        ) ===
+                        "low"
+                ).length;
+
+
+            const anomalyTotal =
+                invoices.reduce(
+                    (
+                        total,
+                        invoice
+                    ) =>
+                        total +
+                        getAnomalyCount(
+                            invoice
+                        ),
+                    0
+                );
+
+
+            const averageRisk =
+                scoredInvoices.length
+                    ? (
+                        scoredInvoices.reduce(
+                            (
+                                total,
+                                invoice
+                            ) =>
+                                total +
+                                getRiskScore(
+                                    invoice
+                                ),
+                            0
+                        )
+                        /
+                        scoredInvoices.length
+                    ).toFixed(
+                        1
+                    )
+                    : null;
+
+
+            riskSummary.innerHTML =
+                `
+
+                    <div
+                        style="
+                            display:grid;
+                            grid-template-columns:repeat(2,minmax(0,1fr));
+                            gap:12px;
+                            text-align:left;
+                        "
+                    >
+
+                        <div>
+                            <strong>
+                                ${high}
+                            </strong>
+
+                            <span
+                                class="invoice-secondary"
+                            >
+                                High risk
+                            </span>
+                        </div>
+
+
+                        <div>
+                            <strong>
+                                ${medium}
+                            </strong>
+
+                            <span
+                                class="invoice-secondary"
+                            >
+                                Medium risk
+                            </span>
+                        </div>
+
+
+                        <div>
+                            <strong>
+                                ${low}
+                            </strong>
+
+                            <span
+                                class="invoice-secondary"
+                            >
+                                Low risk
+                            </span>
+                        </div>
+
+
+                        <div>
+                            <strong>
+                                ${anomalyTotal}
+                            </strong>
+
+                            <span
+                                class="invoice-secondary"
+                            >
+                                Anomaly signals
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <p
+                        style="
+                            margin:16px 0 0;
+                            padding-top:14px;
+                            border-top:1px solid rgba(127,127,127,0.15);
+                        "
+                    >
+                        ${
+                            averageRisk === null
+                                ? "Average risk score is not available yet."
+                                : `Average scored risk: ${averageRisk}/100`
+                        }
+                    </p>
+
+                `;
+
+        }
+
+
+        // =====================================================
+        // RENDER FINANCE REVIEW NOTIFICATIONS
+        // =====================================================
+
+        // =====================================================
+        // NOTIFICATION CENTER
+        // =====================================================
+
+        const NOTIFICATION_READ_KEY =
+            "claimguard_read_notifications";
+
+
+        function getReadNotificationIds() {
+
+            try {
+
+                const raw =
+                    localStorage.getItem(
+                        NOTIFICATION_READ_KEY
+                    );
+
+                const parsed =
+                    JSON.parse(
+                        raw
+                        ||
+                        "[]"
+                    );
+
+                return new Set(
+                    Array.isArray(
+                        parsed
+                    )
+                        ? parsed
+                        : []
+                );
+
+            } catch (
+                error
+            ) {
+
+                return new Set();
+
+            }
+
+        }
+
+
+        function saveReadNotificationIds(
+            ids
+        ) {
+
+            localStorage.setItem(
+                NOTIFICATION_READ_KEY,
+                JSON.stringify(
+                    Array.from(
+                        ids
+                    ).slice(
+                        0,
+                        300
+                    )
+                )
+            );
+
+        }
+
+
+        function notificationClass(
+            type
+        ) {
+
+            const normalized =
+                String(
+                    type
+                    ||
+                    ""
+                ).toLowerCase();
+
+            if (
+                normalized
+                ===
+                "finance_approved"
+            ) {
+
+                return "approved";
+
+            }
+
+            if (
+                normalized
+                ===
+                "finance_rejected"
+            ) {
+
+                return "rejected";
+
+            }
+
+            if (
+                normalized
+                ===
+                "verification_requested"
+            ) {
+
+                return "requested";
+
+            }
+
+            return "pending";
+
+        }
+
+
+        function renderNotificationCenter(
+            notifications
+        ) {
+
+            const items =
+                Array.isArray(
+                    notifications
+                )
+                    ? notifications
+                    : [];
+
+            const readIds =
+                getReadNotificationIds();
+
+
+            const unreadItems =
+                items.filter(
+                    item =>
+                        !readIds.has(
+                            String(
+                                item?.notification_id
+                                ||
+                                ""
+                            )
+                        )
+                );
+
+
+            notificationUnreadBadge.textContent =
+                String(
+                    unreadItems.length
+                );
+
+
+            if (
+                !items.length
+            ) {
+
+                financeReviewNotifications.innerHTML =
+                    `
+                        <div class="dashboard-empty small">
+                            <p>
+                                No ClaimGuard notifications yet.
+                            </p>
+                        </div>
+                    `;
+
+                return;
+
+            }
+
+
+            financeReviewNotifications.innerHTML =
+                items
+                    .slice(
+                        0,
+                        12
+                    )
+                    .map(
+                        notification => {
+
+                            const id =
+                                String(
+                                    notification?.notification_id
+                                    ||
+                                    ""
+                                );
+
+                            const isUnread =
+                                !readIds.has(
+                                    id
+                                );
+
+                            const stateClass =
+                                notificationClass(
+                                    notification?.type
+                                );
+
+                            const invoiceId =
+                                encodeURIComponent(
+                                    String(
+                                        notification?.invoice_id
+                                        ||
+                                        ""
+                                    )
+                                );
+
+                            return `
+                                <div
+                                    class="finance-notification ${
+                                        escapeHtml(
+                                            stateClass
+                                        )
+                                    } ${
+                                        isUnread
+                                            ? "notification-unread"
+                                            : "notification-read"
+                                    }"
+                                    data-notification-id="${
+                                        escapeHtml(
+                                            id
+                                        )
+                                    }"
+                                >
+
+                                    <span
+                                        class="finance-notification-dot"
+                                    ></span>
+
+
+                                    <div
+                                        class="finance-notification-text"
+                                    >
+
+                                        <strong>
+                                            ${escapeHtml(
+                                                notification?.title
+                                            )}
+                                        </strong>
+
+
+                                        <span>
+                                            ${escapeHtml(
+                                                notification?.message
+                                            )}
+                                        </span>
+
+
+                                        <span>
+                                            ${escapeHtml(
+                                                formatDate(
+                                                    notification?.timestamp
+                                                )
+                                            )}
+                                        </span>
+
+
+                                        <a
+                                            class="notification-open"
+                                            href="${
+                                                notification?.action
+                                                ||
+                                                "invoice-details.html"
+                                            }?invoice_id=${invoiceId}"
+                                            data-notification-open
+                                        >
+                                            Open Invoice
+                                        </a>
+
+                                    </div>
+
+                                </div>
+                            `;
+
+                        }
+                    )
+                    .join("");
+
+        }
+
+
+        async function loadNotificationCenter() {
+
+            if (
+                !financeReviewNotifications
+            ) {
+
+                return;
+
+            }
+
+
+            financeReviewNotifications.innerHTML =
+                `
+                    <div class="dashboard-empty small">
+                        <p>
+                            Loading ClaimGuard notifications...
+                        </p>
+                    </div>
+                `;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/invoices/notifications`,
+                        {
+                            method:
+                                "GET",
+
+                            headers:
+                                {
+                                    "Authorization":
+                                        `Bearer ${accessToken}`,
+
+                                    "Accept":
+                                        "application/json"
+                                }
+                        }
+                    );
+
+
+                if (
+                    response.status ===
+                    401
+                ) {
+
+                    localStorage.removeItem(
+                        "claimguard_access_token"
+                    );
+
+                    localStorage.removeItem(
+                        "claimguard_user"
+                    );
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+
+                }
+
+
+                let data =
+                    null;
+
+                try {
+
+                    data =
+                        await response.json();
+
+                } catch (
+                    error
+                ) {
+
+                    data =
+                        null;
+
+                }
+
+
+                if (
+                    !response.ok
+                ) {
+
+                    throw new Error(
+                        data?.detail
+                        ||
+                        "Could not load notifications."
+                    );
+
+                }
+
+
+                renderNotificationCenter(
+                    data?.notifications
+                );
+
+            } catch (
+                error
+            ) {
+
+                financeReviewNotifications.innerHTML =
+                    `
+                        <div class="dashboard-empty small">
+                            <p>
+                                ${
+                                    escapeHtml(
+                                        error?.message
+                                        ||
+                                        "Notifications could not be loaded."
+                                    )
+                                }
+                            </p>
+                        </div>
+                    `;
+
+                notificationUnreadBadge.textContent =
+                    "0";
+
+            }
+
+        }
+
+
+        function markAllNotificationsRead() {
+
+            const notifications =
+                financeReviewNotifications.querySelectorAll(
+                    "[data-notification-id]"
+                );
+
+            const readIds =
+                getReadNotificationIds();
+
+
+            notifications.forEach(
+                item => {
+
+                    const id =
+                        item.getAttribute(
+                            "data-notification-id"
+                        );
+
+                    if (
+                        id
+                    ) {
+
+                        readIds.add(
+                            id
+                        );
+
+                    }
+
+                }
+            );
+
+
+            saveReadNotificationIds(
+                readIds
+            );
+
+            notifications.forEach(
+                item => {
+
+                    item.classList.remove(
+                        "notification-unread"
+                    );
+
+                    item.classList.add(
+                        "notification-read"
+                    );
+
+                }
+            );
+
+
+            notificationUnreadBadge.textContent =
+                "0";
+
+        }
+
+
+        // Notification elements.
+        const notificationUnreadBadge =
+            document.getElementById(
+                "notificationUnreadBadge"
+            );
+
+
+        const markNotificationsReadButton =
+            document.getElementById(
+                "markNotificationsReadButton"
+            );
+
+
+        if (
+            markNotificationsReadButton
+        ) {
+
+            markNotificationsReadButton.addEventListener(
+                "click",
+                markAllNotificationsRead
+            );
+
+        }
+
+
+        // =====================================================
+        // LOAD INVOICES
+        // =====================================================
+
+        async function loadDashboard() {
+
+            hideDashboardMessage();
+
+
+            invoiceLoading.style.display =
+                "block";
+
+            invoiceEmpty.style.display =
+                "none";
+
+            invoiceTableContainer.style.display =
+                "none";
+
+
+            activityLoading.style.display =
+                "block";
+
+            activityEmpty.style.display =
+                "none";
+
+            activityList.style.display =
+                "none";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/invoices/my`,
+                        {
+
+                            method:
+                                "GET",
+
+                            headers:
+                                {
+                                    "Authorization":
+                                        `Bearer ${accessToken}`,
+
+                                    "Accept":
+                                        "application/json",
+
+                                    "Cache-Control":
+                                        "no-cache"
+
+                                },
+
+                            cache: "no-store"
+
+                        }
+                    );
+
+
+                if (
+                    response.status ===
+                    401
+                ) {
+
+                    localStorage.removeItem(
+                        "claimguard_access_token"
+                    );
+
+                    localStorage.removeItem(
+                        "claimguard_user"
+                    );
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+
+                }
+
+
+                let data =
+                    null;
+
+
+                try {
+
+                    data =
+                        await response.json();
+
+                } catch (error) {
+
+                    data =
+                        null;
+
+                }
+
+
+                if (
+                    !response.ok
+                ) {
+
+                    throw new Error(
+                        data?.detail
+                        ||
+                        "Could not load invoices."
+                    );
+
+                }
+
+
+                const invoices =
+                    Array.isArray(
+                        data?.invoices
+                    )
+                        ? data.invoices
+                        : [];
+
+
+                // Backend already sorts these by uploaded_at,
+                // but we sort again defensively for the dashboard.
+                invoices.sort(
+                    (
+                        first,
+                        second
+                    ) =>
+                        String(
+                            second?.uploaded_at
+                            ||
+                            ""
+                        ).localeCompare(
+                            String(
+                                first?.uploaded_at
+                                ||
+                                ""
+                            )
+                        )
+                );
+
+
+                renderStats(
+                    invoices
+                );
+
+
+                renderInvoices(
+                    invoices
+                );
+
+                resumeActiveProcessingJobs(invoices);
+
+
+                renderActivity(
+                    invoices
+                );
+
+
+                renderRiskSummary(
+                    invoices
+                );
+
+
+                loadNotificationCenter();
+
+} catch (error) {
+
+                invoiceLoading.style.display =
+                    "none";
+
+
+                activityLoading.style.display =
+                    "none";
+
+
+                riskSummary.innerHTML =
+                    `
+                        <p>
+                            Risk summary could not be loaded.
+                        </p>
+                    `;
+
+
+                showDashboardMessage(
+                    error?.message
+                    ||
+                    "Could not load dashboard data."
+                );
+
+            }
+
+        }
+
+
+        // =====================================================
+        // LOGOUT
+        // =====================================================
+
+        logoutButton.addEventListener(
+            "click",
+            () => {
+
+                localStorage.removeItem(
+                    "claimguard_access_token"
+                );
+
+                localStorage.removeItem(
+                    "claimguard_user"
+                );
+
+                window.location.href =
+                    "login.html";
+
+            }
+        );
+
+
+        async function downloadDashboardInvoiceReport(invoiceId, button) {
+            if (!invoiceId) return;
+            if (!accessToken) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const originalLabel = button?.textContent || "PDF";
+            if (button) {
+                button.disabled = true;
+                button.textContent = "Preparing…";
+            }
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/api/invoices/${encodeURIComponent(invoiceId)}/report`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${accessToken}`,
+                            "Accept": "application/pdf"
+                        }
+                    }
+                );
+
+                if (response.status === 401) {
+                    localStorage.removeItem("claimguard_access_token");
+                    localStorage.removeItem("claimguard_user");
+                    window.location.href = "login.html";
+                    return;
+                }
+                if (!response.ok) {
+                    const payload = await response.json().catch(() => ({}));
+                    throw new Error(payload?.detail || "The PDF report could not be generated.");
+                }
+
+                const blob = await response.blob();
+                if (!blob.size || blob.type !== "application/pdf") {
+                    throw new Error("The server did not return a valid PDF report.");
+                }
+                const disposition = response.headers.get("Content-Disposition") || "";
+                const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1]
+                    || `ClaimGuard_Report_${invoiceId}.pdf`;
+                const objectUrl = URL.createObjectURL(blob);
+                const anchor = document.createElement("a");
+                anchor.href = objectUrl;
+                anchor.download = filename;
+                document.body.appendChild(anchor);
+                anchor.click();
+                anchor.remove();
+                window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+            } catch (error) {
+                showDashboardMessage(error?.message || "Could not download the PDF report.");
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = originalLabel;
+                }
+            }
+        }
+
+
+        // =====================================================
+        // REFRESH
+        // =====================================================
+
+        refreshDashboardButton.addEventListener(
+            "click",
+            () => {
+
+                validateServerSession()
+                    .then(
+                        isValid => {
+                            if (isValid) {
+                                loadDashboard();
+                            }
+                        }
+                    )
+                    .catch(
+                        error => {
+                            showDashboardMessage(
+                                error?.message
+                                || "Unable to validate the active session."
+                            );
+                        }
+                    );
+
+            }
+        );
+
+        invoiceTableBody.addEventListener("click", event => {
+            const button = event.target.closest("[data-report-invoice-id]");
+            if (!button) return;
+            downloadDashboardInvoiceReport(button.dataset.reportInvoiceId, button);
+        });
+
+
+        // =====================================================
+        // INITIAL LOAD
+        // =====================================================
+
+        if (
+            accessToken &&
+            userData
+        ) {
+
+            loadDashboard();
+
+        }
+
+    </script>
+
+</body>
+
+</html>

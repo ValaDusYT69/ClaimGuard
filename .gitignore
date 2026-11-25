@@ -1,0 +1,51 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Python runtime
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local application data (never commit customer invoices or identity data)
+backend/data/*.db
+backend/data/*.sqlite*
+backend/data/*.json
+backend/uploads/
+backend/reports/
+backend/logs/
+
+# Editor / operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary archives and generated artifacts
+*.zip
+*.tmp
+*.bak
+
+# Local backup archive
+/archieve/
+
+# Local and sensitive files
+backend/uploads/
+backend/reports/
+backend/logs/
+backend/data/*.db
+backend/data/*.sqlite*
+backend/data/*.json
+/archieve/
+-tmp
+/t-Path .backend.env
+/ersUserDesktopClaimGuard
+/image.png
+/-Recurse -File -Filter*

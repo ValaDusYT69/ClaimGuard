@@ -22,7 +22,7 @@ from urllib.parse import (
 )
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
-from typing import Callable
+from typing import Callable, Literal, overload
 
 from invoice.market.providers import search_searxng as _search_searxng_provider
 from invoice.market.query_builder import build_product_search_queries, is_cst_product
@@ -176,11 +176,14 @@ def _diag_query(provider: str) -> None:
         diagnostics["provider_query_attempts"] = diagnostics.get("provider_query_attempts", 0) + 1
 
 
-def _diag_request(provider: str | None) -> None:
-    _diag_increment(provider, "requests_sent")
+def _diag_request(provider: str | None, amount: int = 1) -> None:
+    amount = max(0, int(amount))
+    if not amount:
+        return
+    _diag_increment(provider, "requests_sent", amount)
     diagnostics = _current_market_diagnostics()
     if isinstance(diagnostics, dict):
-        diagnostics["total_requests"] = diagnostics.get("total_requests", 0) + 1
+        diagnostics["total_requests"] = diagnostics.get("total_requests", 0) + amount
 
 
 def _diag_response(provider: str | None, status: int | None, content_type: str | None, body: bytes) -> None:
@@ -218,10 +221,30 @@ def _diag_exception(provider: str | None, exc: BaseException) -> None:
         _diag_nested_increment(provider, "rejection_reasons", f"exception:{type(exc).__name__}")
 
 
-def _fetch_for_provider(url: str, provider: str) -> bytes:
+@overload
+def _fetch_for_provider(url: str, provider: str) -> bytes: ...
+
+
+@overload
+def _fetch_for_provider(
+    url: str,
+    provider: str,
+    *,
+    include_final_url: Literal[True],
+) -> tuple[bytes, str]: ...
+
+
+def _fetch_for_provider(
+    url: str,
+    provider: str,
+    *,
+    include_final_url: bool = False,
+) -> bytes | tuple[bytes, str]:
     previous = _current_diagnostic_provider()
     _set_diagnostic_provider(provider)
     try:
+        if include_final_url:
+            return fetch_url(url, include_final_url=True)
         return fetch_url(url)
     finally:
         _set_diagnostic_provider(previous)
@@ -439,9 +462,23 @@ def is_marketplace(
     return False
 
 
+@overload
+def fetch_url(url: str) -> bytes: ...
+
+
+@overload
 def fetch_url(
     url: str,
-) -> bytes:
+    *,
+    include_final_url: Literal[True],
+) -> tuple[bytes, str]: ...
+
+
+def fetch_url(
+    url: str,
+    *,
+    include_final_url: bool = False,
+) -> bytes | tuple[bytes, str]:
 
     _diag_request(_current_diagnostic_provider())
 
@@ -480,6 +517,17 @@ def fetch_url(
                 response.headers.get_content_type() if response.headers else None,
                 body,
             )
+            if include_final_url:
+                final_url = response.geturl()
+                parsed_final_url = urlparse(final_url)
+                if (
+                    parsed_final_url.scheme not in {"http", "https"}
+                    or not parsed_final_url.hostname
+                    or parsed_final_url.username
+                    or parsed_final_url.password
+                ):
+                    raise ValueError("Candidate fetch ended at an unsupported URL.")
+                return body, final_url
             return body
     except Exception as exc:
         _diag_exception(_current_diagnostic_provider(), exc)
@@ -1343,7 +1391,14 @@ def search_web(
         searx_results, searx_diag = [], {"configured": bool(SEARXNG_URL), "attempted": False}
     if searx_diag.get("configured") and searx_diag.get("attempted"):
         _diag_query("searxng")
-        _diag_request("searxng") if searx_diag.get("requests_sent") else None
+        _diag_request("searxng", int(searx_diag.get("requests_sent") or 0))
+        for key in (
+            "redirect_resolution_attempts",
+            "redirect_resolution_successes",
+            "redirect_resolution_failures",
+            "malformed_result_url_count",
+        ):
+            _diag_increment("searxng", key, int(searx_diag.get(key) or 0))
         status_code = searx_diag.get("status_code")
         if status_code is not None:
             _diag_response(
@@ -2911,9 +2966,10 @@ def analyze_candidate(
 
     try:
 
-        html_bytes = _fetch_for_provider(
+        html_bytes, final_url = _fetch_for_provider(
             url
             , "candidate_page"
+            , include_final_url=True
         )
 
         html = html_bytes.decode(
@@ -2932,6 +2988,9 @@ def analyze_candidate(
         if page_text:
 
             retrieval_method = "direct_http"
+            url = final_url
+            domain = get_domain(final_url)
+            normalized_domain = domain.lower().strip()
 
     except Exception:
 

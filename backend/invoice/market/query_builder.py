@@ -65,6 +65,33 @@ def _model_tokens(product: str) -> list[str]:
     return result[:4]
 
 
+def _keyboard_variant_query(product: str, model_phrase: str) -> str:
+    if not model_phrase or not re.search(r"\bkeyboards?\b", product, re.IGNORECASE):
+        return ""
+
+    terms = [model_phrase]
+    layout = re.search(r"\b(\d{2,3})\s*(?:%|percent)(?!\w)", product, re.IGNORECASE)
+    if layout:
+        terms.append(f"{layout.group(1)}%")
+
+    connectivity = re.search(r"\b(wired|wireless)\b", product, re.IGNORECASE)
+    if connectivity:
+        terms.append(connectivity.group(1).lower())
+
+    if re.search(r"\bhot[\s-]*swap\b", product, re.IGNORECASE):
+        terms.append("hot-swap")
+
+    switch = re.search(
+        r"\b(red|blue|brown|silver|yellow|white)\s+switch(?:es)?\b",
+        product,
+        re.IGNORECASE,
+    )
+    if switch:
+        terms.extend((switch.group(1).lower(), "switch"))
+
+    return " ".join(terms) if len(terms) > 1 else ""
+
+
 def _dedupe(values: list[str], limit: int = 12) -> list[str]:
     seen: set[str] = set()
     output: list[str] = []
@@ -92,6 +119,7 @@ def build_product_search_queries(vendor_name: str | None, product_description: s
     product_short = product[:180]
     model_phrase = " ".join(models[:2])
     brand_and_model = " ".join([part for part in (product.split(" ")[0], model_phrase) if part]).strip()
+    keyboard_variant_query = _keyboard_variant_query(product, model_phrase)
 
     queries: list[str] = []
     # Exact product wording is retained for precision; model-focused queries
@@ -133,7 +161,7 @@ def build_product_search_queries(vendor_name: str | None, product_description: s
             else GENERAL_BD_RETAILERS
         )
         for domain in retailer_domains:
-            phrase = model_phrase or product_short
+            phrase = keyboard_variant_query or model_phrase or product_short
             queries.append(f'site:{domain} "{phrase}" price')
 
     if vendor:

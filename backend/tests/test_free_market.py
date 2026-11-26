@@ -1,6 +1,8 @@
+import io
 import json
 import unittest
-from unittest.mock import patch
+from urllib.error import HTTPError
+from unittest.mock import Mock, patch
 
 from invoice.market.query_builder import build_product_search_queries
 from invoice.market_research import build_direct_source_candidates
@@ -30,7 +32,6 @@ class _FakeResponse:
     def read(self, _limit=-1):
         return self.payload
 
-
 class FreeMarketResearchTests(unittest.TestCase):
     def test_non_cst_product_does_not_receive_cst_queries(self):
         queries = build_product_search_queries(
@@ -41,6 +42,15 @@ class FreeMarketResearchTests(unittest.TestCase):
         self.assertTrue(any("AK820" in query for query in queries))
         self.assertFalse(any("CST" in query or "C1747" in query for query in queries))
         self.assertTrue(any("startech.com.bd" in query for query in queries))
+
+    def test_keyboard_retailer_queries_include_invoice_variant_attributes(self):
+        queries = build_product_search_queries(
+            "Example Vendor",
+            "Ajazz AK820 75% Wired White Light Hot-Swap Black Mechanical Keyboard AS Red Switch",
+        )
+        focused = next(query for query in queries if "site:startech.com.bd" in query)
+        self.assertIn("ak820 75% wired hot-swap red switch", focused.casefold())
+        self.assertLessEqual(len(queries), 12)
 
     def test_known_bangladesh_computer_stores_are_classified_as_retailers(self):
         from invoice.market_research import RETAILER_DOMAINS
@@ -112,12 +122,149 @@ class FreeMarketResearchTests(unittest.TestCase):
         self.assertTrue(diagnostics["attempted"])
         self.assertEqual(diagnostics["status_code"], 200)
 
+    def test_searxng_resolves_brave_go_links_and_preserves_direct_retailer_urls(self):
+        from invoice.market.providers import searxng
+
+        direct_url = "https://techdiversitybd.com/ajazz-ak820-mechanical-keyboard/"
+        payload = json.dumps({
+            "results": [
+                {
+                    "title": "AJAZZ AK820 Mechanical Keyboard Price | Star Tech",
+                    "url": "http:///go/v1/opaque-token",
+                    "content": "Price BDT 2,600",
+                    "engine": "brave",
+                },
+                {
+                    "title": "AJAZZ AK820 75% Wired Price In Bangladesh",
+                    "url": direct_url,
+                    "content": "Price BDT 2,600",
+                    "engine": "google cse",
+                },
+            ]
+        }).encode("utf-8")
+        redirect = HTTPError(
+            "https://search.brave.com/go/v1/opaque-token",
+            302,
+            "Found",
+            {"Location": "https://www.startech.com.bd/ajazz-ak820-mechanical-keyboard"},
+            io.BytesIO(),
+        )
+        opener = Mock()
+        opener.open.side_effect = redirect
+        query = "AJAZZ AK820 75% wired red switch Bangladesh"
+
+        with patch(
+            "invoice.market.providers.searxng.urlopen",
+            return_value=_FakeResponse(payload),
+        ), patch(
+            "invoice.market.providers.searxng.build_opener",
+            return_value=opener,
+        ):
+            results, diagnostics = search_searxng(
+                query,
+                endpoint="http://127.0.0.1:8888",
+            )
+
+        self.assertEqual(
+            [result["url"] for result in results],
+            [
+                "https://www.startech.com.bd/ajazz-ak820-mechanical-keyboard",
+                direct_url,
+            ],
+        )
+        self.assertEqual(diagnostics["redirect_resolution_attempts"], 1)
+        self.assertEqual(diagnostics["redirect_resolution_successes"], 1)
+        self.assertEqual(diagnostics["requests_sent"], 2)
+        self.assertEqual(diagnostics["malformed_result_url_count"], 0)
+        request = opener.open.call_args.args[0]
+        self.assertEqual(request.full_url, "https://search.brave.com/go/v1/opaque-token")
+        self.assertEqual(request.get_method(), "HEAD")
+        self.assertIn("search.brave.com/search?", request.get_header("Referer"))
+
+    def test_searxng_rejects_unsafe_brave_destinations_and_non_brave_go_paths(self):
+        payload = json.dumps({
+            "results": [
+                {
+                    "title": "Brave token with an unsafe destination",
+                    "url": "http:///go/v1/opaque-token",
+                    "engine": "brave",
+                },
+                {
+                    "title": "Untrusted engine path",
+                    "url": "http:///go/v1/other-token",
+                    "engine": "google cse",
+                },
+                {
+                    "title": "Direct retailer",
+                    "url": "https://techdiversitybd.com/ajazz-ak820-mechanical-keyboard/",
+                    "engine": "google cse",
+                },
+            ]
+        }).encode("utf-8")
+        redirect = HTTPError(
+            "https://search.brave.com/go/v1/opaque-token",
+            302,
+            "Found",
+            {"Location": "https://127.0.0.1/internal"},
+            io.BytesIO(),
+        )
+        opener = Mock()
+        opener.open.side_effect = redirect
+
+        with patch(
+            "invoice.market.providers.searxng.urlopen",
+            return_value=_FakeResponse(payload),
+        ), patch(
+            "invoice.market.providers.searxng.build_opener",
+            return_value=opener,
+        ):
+            results, diagnostics = search_searxng(
+                "AJAZZ AK820 price Bangladesh",
+                endpoint="http://127.0.0.1:8888",
+            )
+
+        self.assertEqual(
+            [result["url"] for result in results],
+            ["https://techdiversitybd.com/ajazz-ak820-mechanical-keyboard/"],
+        )
+        self.assertEqual(diagnostics["redirect_resolution_attempts"], 1)
+        self.assertEqual(diagnostics["redirect_resolution_successes"], 0)
+        self.assertEqual(diagnostics["redirect_resolution_failures"], 1)
+        self.assertEqual(diagnostics["requests_sent"], 2)
+        self.assertEqual(diagnostics["malformed_result_url_count"], 2)
+        self.assertEqual(opener.open.call_count, 1)
+
     def test_searxng_is_disabled_when_endpoint_is_not_configured(self):
         with patch.dict("os.environ", {}, clear=True):
             results, diagnostics = search_searxng("test product", endpoint="")
         self.assertEqual(results, [])
         self.assertFalse(diagnostics["configured"])
         self.assertFalse(diagnostics["attempted"])
+
+    def test_candidate_uses_final_retailer_url_after_searxng_redirect(self):
+        from invoice import market_research
+
+        product = "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard Red Switch"
+        result = {
+            "title": product,
+            "snippet": product,
+            "url": "http://127.0.0.1:8888/go/v1/opaque-token",
+            "domain": "127.0.0.1",
+        }
+        html = (
+            "<html><body>Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard "
+            "Red Switch. Price: BDT 2,600. Add to cart.</body></html>"
+        )
+        with patch.object(
+            market_research,
+            "_fetch_for_provider",
+            return_value=(html.encode("utf-8"), "https://www.startech.com.bd/ak820"),
+        ):
+            source = market_research._ORIGINAL_ANALYZE_CANDIDATE_V29(result, product)
+        self.assertIsNotNone(source)
+        assert source is not None
+        self.assertEqual(source["url"], "https://www.startech.com.bd/ak820")
+        self.assertEqual(source["source_name"], "startech.com.bd")
 
     def test_schema_product_offers_are_matched_to_requested_product(self):
         html = '''

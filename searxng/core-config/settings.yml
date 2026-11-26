@@ -6,6 +6,7 @@ search:
     - json
 
 server:
+  base_url: "$SEARXNG_BASE_URL"
   secret_key: "replace-with-SEARXNG_SECRET"
   limiter: false
   image_proxy: true

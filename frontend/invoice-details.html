@@ -8129,8 +8129,9 @@ body.theme-reviewer .error-state{
 
                 anchor.remove();
 
-                URL.revokeObjectURL(
-                    objectUrl
+                window.setTimeout(
+                    () => URL.revokeObjectURL(objectUrl),
+                    1000
                 );
 
             } catch (

@@ -7,17 +7,25 @@ must have JSON output enabled in its own settings.yml.
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import os
+import re
 import socket
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlparse
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
 DEFAULT_TIMEOUT_SECONDS = 6.0
 DEFAULT_MAX_RESULTS = 12
 MAX_RESPONSE_BYTES = 1_500_000
+BRAVE_GO_PATH_RE = re.compile(r"^/go/v1/[A-Za-z0-9_-]+$")
+
+
+class _NoRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
 
 
 def _safe_endpoint(value: str) -> str:
@@ -40,6 +48,81 @@ def _safe_result_url(value: Any) -> str:
     if parsed.username or parsed.password:
         return ""
     return url
+
+
+def _brave_go_path(value: Any) -> str:
+    url = str(value or "").strip()
+    parsed = urlparse(url)
+    if (
+        parsed.scheme != "http"
+        or parsed.netloc
+        or parsed.query
+        or parsed.fragment
+        or not BRAVE_GO_PATH_RE.fullmatch(parsed.path)
+    ):
+        return ""
+    return parsed.path
+
+
+def _safe_brave_destination(value: Any) -> str:
+    url = str(value or "").strip()
+    parsed = urlparse(url)
+    hostname = (parsed.hostname or "").rstrip(".").lower()
+    if (
+        parsed.scheme != "https"
+        or not hostname
+        or parsed.username
+        or parsed.password
+        or hostname == "search.brave.com"
+        or hostname == "localhost"
+        or hostname.endswith((".localhost", ".local"))
+    ):
+        return ""
+    try:
+        port = parsed.port
+    except ValueError:
+        return ""
+    if port not in {None, 443}:
+        return ""
+    try:
+        ipaddress.ip_address(hostname)
+    except ValueError:
+        pass
+    else:
+        return ""
+    return url
+
+
+def _resolve_brave_go_url(path: str, query: str, timeout: float) -> str:
+    # Brave tokens are opaque; resolve them at Brave and do not follow the retailer redirect here.
+    request_url = f"https://search.brave.com{path}"
+    referer = "https://search.brave.com/search?" + urlencode(
+        {"q": str(query or "").strip()[:1000], "source": "web"}
+    )
+    request = Request(
+        request_url,
+        headers={
+            "Referer": referer,
+            "User-Agent": "ClaimGuard-MarketResearch/1.0 (+configured SearXNG client)",
+        },
+        method="HEAD",
+    )
+    try:
+        with build_opener(_NoRedirectHandler()).open(
+            request,
+            timeout=max(1.0, min(float(timeout), 15.0)),
+        ):
+            return ""
+    except HTTPError as exc:
+        try:
+            if exc.code not in {301, 302, 303, 307, 308}:
+                return ""
+            headers = exc.headers or exc.hdrs
+            return _safe_brave_destination(headers.get("Location") if headers else "")
+        finally:
+            exc.close()
+    except (OSError, URLError, TimeoutError, ValueError):
+        return ""
 
 
 def search_searxng(
@@ -67,6 +150,10 @@ def search_searxng(
         "status_code": None,
         "content_type": None,
         "result_count": 0,
+        "redirect_resolution_attempts": 0,
+        "redirect_resolution_successes": 0,
+        "redirect_resolution_failures": 0,
+        "malformed_result_url_count": 0,
         "timeout": False,
         "connection_error": False,
         "http_error": False,
@@ -119,12 +206,37 @@ def search_searxng(
 
         results: list[dict[str, str]] = []
         seen: set[str] = set()
+        seen_brave_redirects: set[str] = set()
+        redirect_limit = max(1, min(int(max_results), 30))
         for item in data["results"]:
             if not isinstance(item, dict):
                 continue
-            url = _safe_result_url(item.get("url"))
             title = str(item.get("title") or "").strip()
-            if not url or not title or url in seen:
+            if not title:
+                continue
+            raw_url = str(item.get("url") or "").strip()
+            origin_engine = str(item.get("engine") or "")[:80]
+            url = _safe_result_url(raw_url)
+            if not url and origin_engine.casefold() == "brave":
+                go_path = _brave_go_path(raw_url)
+                if go_path:
+                    if raw_url in seen_brave_redirects:
+                        continue
+                    seen_brave_redirects.add(raw_url)
+                    if diagnostics["redirect_resolution_attempts"] >= redirect_limit:
+                        diagnostics["redirect_resolution_failures"] += 1
+                    else:
+                        diagnostics["redirect_resolution_attempts"] += 1
+                        diagnostics["requests_sent"] += 1
+                        url = _resolve_brave_go_url(go_path, str(query), timeout)
+                        if url:
+                            diagnostics["redirect_resolution_successes"] += 1
+                        else:
+                            diagnostics["redirect_resolution_failures"] += 1
+            if not url:
+                diagnostics["malformed_result_url_count"] += 1
+                continue
+            if url in seen:
                 continue
             seen.add(url)
             hostname = (urlparse(url).hostname or "").lower()
@@ -136,7 +248,7 @@ def search_searxng(
                 "url": url,
                 "domain": domain,
                 "engine": "searxng",
-                "origin_engine": str(item.get("engine") or "")[:80],
+                "origin_engine": origin_engine,
             })
             if len(results) >= max(1, min(int(max_results), 30)):
                 break

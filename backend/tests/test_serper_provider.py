@@ -1,3 +1,4 @@
+import io
 import json
 import threading
 import time
@@ -28,6 +29,16 @@ class _FakeResponse:
 
     def read(self, _limit=-1):
         return self.payload
+
+
+class _TrackingBody(io.BytesIO):
+    def __init__(self, payload):
+        super().__init__(payload)
+        self.read_limit = None
+
+    def read(self, limit=-1):
+        self.read_limit = limit
+        return super().read(limit)
 
 
 class SerperProviderTests(unittest.TestCase):
@@ -184,6 +195,38 @@ class SerperProviderTests(unittest.TestCase):
         self.assertEqual(build_opener_mock.return_value.open.call_count, 1)
         self.assertEqual(diagnostics["status_code"], 429)
         self.assertEqual(diagnostics["error_type"], "http_error")
+
+    def test_http_400_json_message_is_safe_and_bounded(self):
+        body = _TrackingBody(json.dumps({
+            "message": "Invalid API key: unit-test-key",
+            "debug": "full response details must not be persisted",
+        }).encode("utf-8"))
+        error = HTTPError(
+            "https://google.serper.dev/search",
+            400,
+            "Bad Request",
+            hdrs={"X-API-KEY": "header-secret"},
+            fp=body,
+        )
+        with patch("invoice.market.providers.serper.build_opener") as build_opener_mock:
+            build_opener_mock.return_value.open.side_effect = error
+            results, diagnostics = search_serper(
+                '"MSI A520M-A PRO" price Bangladesh',
+                api_key="unit-test-key",
+            )
+
+        self.assertEqual(results, [])
+        self.assertEqual(body.read_limit, 4 * 1024)
+        self.assertEqual(diagnostics["status_code"], 400)
+        self.assertEqual(diagnostics["error_type"], "http_error")
+        self.assertEqual(
+            diagnostics["error_message"],
+            "Invalid API key: [redacted]",
+        )
+        self.assertNotIn("unit-test-key", repr(diagnostics))
+        self.assertNotIn("header-secret", repr(diagnostics))
+        self.assertNotIn("full response details", repr(diagnostics))
+        self.assertEqual(build_opener_mock.return_value.open.call_count, 1)
 
     def test_missing_api_key_does_not_make_a_request(self):
         with patch("invoice.market.providers.serper.build_opener") as build_opener_mock:

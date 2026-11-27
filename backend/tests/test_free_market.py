@@ -289,6 +289,43 @@ class FreeMarketResearchTests(unittest.TestCase):
         finally:
             market_research._set_market_diagnostics(None)
 
+    def test_serper_http_error_message_is_propagated_to_persisted_diagnostics(self):
+        from invoice import market_research
+
+        message = "Invalid query parameter"
+        market_research._set_market_diagnostics(market_research._new_provider_diagnostics())
+        try:
+            with patch.object(
+                market_research,
+                "_search_serper_provider",
+                return_value=([], {
+                    "configured": True,
+                    "attempted": True,
+                    "requests_sent": 1,
+                    "status_code": 400,
+                    "error_type": "http_error",
+                    "error_message": message,
+                }),
+            ):
+                market_research.search_web('"MSI A520M-A PRO" price Bangladesh')
+
+            current = market_research._current_market_diagnostics()
+            provider_diagnostics = market_research._new_provider_diagnostics()
+            market_research._merge_provider_diagnostics(
+                provider_diagnostics,
+                current,
+            )
+            self.assertEqual(
+                provider_diagnostics["providers"]["serper"]["error_message"],
+                message,
+            )
+            self.assertEqual(
+                provider_diagnostics["providers"]["serper"]["http_errors"],
+                1,
+            )
+        finally:
+            market_research._set_market_diagnostics(None)
+
     def test_cst_direct_urls_are_never_fetched_for_unrelated_products(self):
         self.assertEqual(
             build_direct_source_candidates("Example Vendor", "Ajazz AK820 mechanical keyboard"),

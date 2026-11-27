@@ -16,6 +16,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 SERPER_SEARCH_URL = "https://google.serper.dev/search"
 DEFAULT_TIMEOUT_SECONDS = 10.0
 MAX_RESPONSE_BYTES = 1_500_000
+MAX_ERROR_BODY_BYTES = 4 * 1024
 CACHE_TTL_SECONDS = 30 * 60
 MAX_CACHE_ENTRIES = 128
 
@@ -35,6 +36,26 @@ def _query_key(query: str) -> str:
 
 def _copy_results(results: list[dict[str, str]]) -> list[dict[str, str]]:
     return [dict(result) for result in results]
+
+
+def _safe_http_error_message(body: bytes, api_key: str) -> str | None:
+    try:
+        payload = json.loads(body.decode("utf-8", errors="strict"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, dict) or not isinstance(payload.get("message"), str):
+        return None
+
+    message = " ".join(payload["message"].split())
+    if api_key:
+        message = message.replace(api_key, "[redacted]")
+    message = re.sub(
+        r"(?i)\b(x-api-key|authorization)\b\s*[:=]\s*\S+",
+        r"\1=[redacted]",
+        message,
+    )
+    message = message[:500].strip()
+    return message or None
 
 
 def _cache_read(key: str) -> tuple[list[dict[str, str]], dict[str, Any]] | None:
@@ -77,6 +98,7 @@ def search_serper(
         "result_count": 0,
         "cache_hit": False,
         "error_type": None,
+        "error_message": None,
     }
     clean_query = re.sub(r"\s+", " ", str(query or "")).strip()
     token = str(api_key or "").strip()
@@ -190,7 +212,15 @@ def search_serper(
     except HTTPError as exc:
         diagnostics["status_code"] = int(exc.code)
         diagnostics["error_type"] = "http_error"
-        exc.close()
+        try:
+            diagnostics["error_message"] = _safe_http_error_message(
+                exc.read(MAX_ERROR_BODY_BYTES),
+                token,
+            )
+        except (AttributeError, OSError):
+            pass
+        finally:
+            exc.close()
     except (TimeoutError, OSError, URLError):
         diagnostics["error_type"] = "connection_error"
     except (UnicodeDecodeError, json.JSONDecodeError, ValueError):

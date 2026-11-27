@@ -122,6 +122,7 @@ def _new_provider_diagnostics() -> dict:
             "timeouts": 0,
             "connection_errors": 0,
             "http_errors": 0,
+            "error_message": None,
             "challenge_or_block_pages": 0,
             "parse_failures": 0,
             "candidate_count": 0,
@@ -150,6 +151,7 @@ def _diag_provider(provider: str | None) -> dict | None:
         "status_categories": {}, "content_types": {}, "timeouts": 0,
         "status_codes": {},
         "connection_errors": 0, "http_errors": 0,
+        "error_message": None,
         "challenge_or_block_pages": 0, "parse_failures": 0,
         "candidate_count": 0, "comparable_count": 0,
         "rejection_reasons": {}, "errors": 0,
@@ -258,6 +260,10 @@ def _merge_provider_diagnostics(target: dict, current: dict | None) -> None:
     for provider, values in (current.get("providers") or {}).items():
         destination = target.setdefault("providers", {}).setdefault(provider, {})
         for key, value in values.items():
+            if key == "error_message":
+                if isinstance(value, str) and value:
+                    destination[key] = value[:500]
+                continue
             if isinstance(value, dict):
                 bucket = destination.setdefault(key, {})
                 for nested_key, nested_value in value.items():
@@ -1565,6 +1571,11 @@ def search_web(
             if int(status_code) >= 500:
                 _diag_increment("serper", "http_errors")
     error_type = provider_diagnostics.get("error_type")
+    error_message = provider_diagnostics.get("error_message")
+    if isinstance(error_message, str) and error_message:
+        record = _diag_provider("serper")
+        if record is not None:
+            record["error_message"] = error_message[:500]
     if error_type:
         _diag_nested_increment("serper", "rejection_reasons", str(error_type))
         if error_type == "connection_error":

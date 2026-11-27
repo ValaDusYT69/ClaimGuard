@@ -52,15 +52,246 @@ class MarketVariantAccuracyTests(unittest.TestCase):
         self.assertEqual(conflicting_box["status"], "mismatch")
         self.assertIn("cpu_package_retail_box", conflicting_box["reason"])
 
-    def test_ryzen_5700g_queries_include_model_and_retailer_fallbacks(self):
+    def test_cpu_tray_from_product_features_is_accepted_but_snippet_only_is_not(self):
+        target = "AMD Ryzen 7 5700G Processor with Radeon Graphics (Tray Box)"
+        title = "AMD Ryzen 7 5700G Processor with Radeon Graphics"
+
+        def product_page(package_text):
+            return f"""
+            <html><body><main>
+              <h1>{title}</h1>
+              <script type="application/ld+json">
+                {{"@graph":[{{"@type":"Product","@id":"#5700g",
+                  "name":"{title}","brand":{{"@type":"Brand","name":"AMD"}},
+                  "model":"5700G","offers":{{"@type":"Offer","@id":"#offer",
+                    "price":"21599","priceCurrency":"BDT",
+                    "availability":"https://schema.org/InStock"}}}}]}}
+              </script>
+              <div class="module-features-description">
+                <ul><li>Model: {package_text}</li><li>Speed: 3.8GHz</li></ul>
+              </div>
+              <table><tr><th>Frequency</th><td>3.8GHz</td></tr></table>
+            </main></body></html>
+            """
+
+        tray_prices = market_research.extract_page_price(
+            product_page("Ryzen 7 5700G (Tray Box)"),
+            "fusiontech.com.bd",
+            product_description=target,
+        )
+        self.assertEqual(len(tray_prices), 1)
+        binding = tray_prices[0]["product_entity_binding"]
+        self.assertEqual(binding["association_status"], "unambiguous")
+        self.assertIn("Tray Box", binding["page_specifications"])
+        self.assertIn("Frequency", binding["page_specifications"])
+        tray_source = {
+            **tray_prices[0],
+            "title": title,
+            "source_name": "fusiontech.com.bd",
+            "retrieval_method": "direct_http",
+        }
+        accepted, assessment, reason = market_research._validate_market_source(
+            tray_source,
+            target,
+        )
+        self.assertTrue(accepted, reason)
+        self.assertEqual(assessment["status"], "verified")
+
+        non_tray_prices = market_research.extract_page_price(
+            product_page("Ryzen 7 5700G Processor"),
+            "fusiontech.com.bd",
+            product_description=target,
+        )
+        self.assertEqual(len(non_tray_prices), 1)
+        snippet_only_source = {
+            **non_tray_prices[0],
+            "title": title,
+            "source_name": "fusiontech.com.bd",
+            "retrieval_method": "direct_http",
+            "search_snippet": "AMD Ryzen 7 5700G (Tray Box)",
+        }
+        accepted, assessment, reason = market_research._validate_market_source(
+            snippet_only_source,
+            target,
+        )
+        self.assertFalse(accepted)
+        self.assertIn("cpu_tray", assessment["reason"])
+        self.assertEqual(reason, assessment["reason"])
+
+    def test_psu_minimum_system_power_does_not_override_rated_output(self):
+        target = "Antec B Series B550 550W 80+ Bronze Non-Modular Power Supply"
+        page_evidence = (
+            "Antec B Series B550 550W 80 Plus Bronze Non Modular Power Supply. "
+            "Minimum Power (Approx.) 470W. Maximum Power 550 Watt. "
+            "Peak Output Capacity 550W."
+        )
+
+        assessment = assess_product_variant(
+            target,
+            page_evidence,
+            category_evidence=page_evidence,
+            brand_evidence="Antec",
+            specification_evidence=page_evidence,
+        )
+
+        self.assertEqual(assessment["status"], "verified")
+
+    def test_structured_brand_is_not_confused_with_motherboard_chipset(self):
+        target = "MSI A520M-A PRO ATX Motherboard"
+        title = "MSI A520M-A PRO AMD Micro-ATX Motherboard"
+        html = f"""
+        <html><body><main>
+          <h1>{title}</h1>
+          <script type="application/ld+json">
+            {{"@graph":[{{"@type":"Product","@id":"#a520m-a-pro",
+              "name":"{title}","brand":{{"@type":"Brand","name":"MSI"}},
+              "model":"A520M-A PRO","category":"Motherboard",
+              "offers":{{"@type":"Offer","@id":"#offer","price":"7700",
+                "priceCurrency":"BDT",
+                "availability":"https://schema.org/InStock"}}}}]}}
+          </script>
+          <table><tr><th>Chipset</th><td>AMD A520</td></tr>
+            <tr><th>Form Factor</th><td>Micro-ATX</td></tr></table>
+        </main></body></html>
+        """
+
+        prices = market_research.extract_page_price(
+            html,
+            "shop.example",
+            product_description=target,
+        )
+
+        self.assertEqual(len(prices), 1)
+        binding = prices[0]["product_entity_binding"]
+        self.assertEqual(binding["entity_brand"], "MSI")
+        source = {
+            **prices[0],
+            "title": title,
+            "source_name": "shop.example",
+            "retrieval_method": "direct_http",
+        }
+        accepted, assessment, reason = market_research._validate_market_source(
+            source,
+            target,
+        )
+
+        self.assertFalse(accepted)
+        self.assertEqual(assessment["reason"], "variant_mismatch:motherboard_form_factor_mismatch")
+        self.assertEqual(reason, assessment["reason"])
+
+    def test_ryzen_5700g_uses_one_variant_specific_search(self):
         queries = build_product_search_queries(
             "Example Vendor",
-            "AMD Ryzen 7 5700G Processor",
+            "AMD Ryzen 7 5700G Processor with Radeon Graphics (Tray Box)",
         )
-        self.assertTrue(any("AMD Ryzen 7 5700G processor Bangladesh price" in query for query in queries))
-        self.assertTrue(any("Ryzen 7 5700G 8 Core Radeon Graphics" in query for query in queries))
-        self.assertTrue(any("AMD 5700G processor price in Bangladesh" in query for query in queries))
-        self.assertTrue(any("Ryzen 7 5700G Star Tech" in query for query in queries))
+        self.assertEqual(len(queries), 1)
+        self.assertIn('"AMD Ryzen 7 5700G" "Tray Box"', queries[0])
+        self.assertIn("(processor OR CPU)", queries[0])
+        self.assertNotIn("Star Tech", queries[0])
+
+    def test_analysis_uses_one_query_and_caps_candidate_fetches_at_six(self):
+        target = "MSI A520M-A PRO Motherboard"
+        domains = [
+            "startech.com.bd",
+            "techlandbd.com",
+            "skyland.com.bd",
+            "pchouse.com.bd",
+            "ryans.com",
+            "ultratech.com.bd",
+        ]
+
+        def result_for(domain):
+            return {
+                "title": target,
+                "url": f"https://{domain}/products/msi-a520m-a-pro",
+                "domain": domain,
+                "snippet": "BDT 7,300",
+                "engine": "serper",
+            }
+
+        def fake_candidate(result, product_description):
+            return {
+                "url": result["url"],
+                "source_name": result["domain"],
+                "title": product_description,
+                "price": 7300,
+                "currency": "BDT",
+                "price_source": "structured_product_page",
+                "retrieval_method": "direct_http",
+                "availability": "in_stock",
+                "match_confidence": 0.9,
+                "product_entity_binding": {
+                    "association_status": "unambiguous",
+                    "product_entity_id": "msi-a520m-a-pro",
+                    "price_entity_id": "msi-a520m-a-pro",
+                    "entity_identity": product_description,
+                    "entity_title": product_description,
+                    "entity_category": "motherboard",
+                },
+            }
+
+        with patch.object(
+            market_research,
+            "search_web",
+            return_value=[result_for(domain) for domain in domains],
+        ) as search, patch.object(
+            market_research,
+            "analyze_candidate",
+            side_effect=fake_candidate,
+        ) as candidate, patch.object(
+            market_research,
+            "_validate_market_source",
+            return_value=(True, {"status": "verified", "confidence": 0.9}, None),
+        ):
+            result = market_research.analyze_market_price(
+                "Example Vendor",
+                target,
+                7300,
+                "BDT",
+            )
+
+        self.assertEqual(search.call_count, 1)
+        self.assertEqual(candidate.call_count, 6)
+        self.assertEqual(result["search_diagnostics"]["queries_attempted"], 1)
+        self.assertEqual(result["search_diagnostics"]["candidates_checked"], 6)
+        self.assertEqual(result["search_diagnostics"]["independent_source_count"], 6)
+
+    def test_analysis_fetches_at_most_six_distinct_retailers(self):
+        target = "MSI A520M-A PRO Motherboard"
+        domains = [
+            "startech.com.bd",
+            "techlandbd.com",
+            "skyland.com.bd",
+            "pchouse.com.bd",
+            "ryans.com",
+            "ultratech.com.bd",
+            "trusttechbd.com",
+        ]
+        results = [
+            {
+                "title": target,
+                "url": f"https://{domain}/products/msi-a520m-a-pro",
+                "domain": domain,
+                "snippet": "BDT 7,300",
+                "engine": "serper",
+            }
+            for domain in domains
+        ]
+
+        with patch.object(market_research, "search_web", return_value=results) as search, \
+             patch.object(market_research, "analyze_candidate", return_value=None) as candidate:
+            result = market_research.analyze_market_price(
+                "Example Vendor",
+                target,
+                7300,
+                "BDT",
+            )
+
+        self.assertEqual(search.call_count, 1)
+        self.assertEqual(candidate.call_count, 6)
+        self.assertEqual(result["search_diagnostics"]["queries_attempted"], 1)
+        self.assertEqual(result["search_diagnostics"]["search_candidates_selected"], 6)
+        self.assertEqual(result["search_diagnostics"]["search_results_not_fetched_due_to_candidate_cap"], 1)
 
     def test_search_snippet_price_is_never_accepted_without_page_evidence(self):
         result = {
@@ -168,7 +399,8 @@ class MarketVariantAccuracyTests(unittest.TestCase):
         self.assertIn("Carbon Fiber Tri-mode", metadata["label"])
         self.assertIn("AJ199 MAX", metadata["notice"])
         queries = market_research.build_search_queries("TECH DIVERSITY LTD", self.TARGET)
-        self.assertTrue(any("AJ199 MAX Carbon Fiber Tri-mode" in query for query in queries))
+        self.assertEqual(len(queries), 1)
+        self.assertIn("AJ199 MAX Carbon Fiber Tri-mode", queries[0])
 
     def test_keyboard_switch_variant_mismatch_is_rejected(self):
         target = "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard Red Switch"

@@ -41,16 +41,63 @@ class FreeMarketResearchTests(unittest.TestCase):
         self.assertTrue(queries)
         self.assertTrue(any("AK820" in query for query in queries))
         self.assertFalse(any("CST" in query or "C1747" in query for query in queries))
-        self.assertTrue(any("startech.com.bd" in query for query in queries))
+        self.assertEqual(len(queries), 1)
+        self.assertIn("Bangladesh", queries[0])
 
     def test_keyboard_retailer_queries_include_invoice_variant_attributes(self):
         queries = build_product_search_queries(
             "Example Vendor",
             "Ajazz AK820 75% Wired White Light Hot-Swap Black Mechanical Keyboard AS Red Switch",
         )
-        focused = next(query for query in queries if "site:startech.com.bd" in query)
-        self.assertIn("ak820 75% wired hot-swap red switch", focused.casefold())
-        self.assertLessEqual(len(queries), 12)
+        self.assertEqual(len(queries), 1)
+        focused = queries[0].casefold()
+        self.assertIn('"ajazz ak820"', focused)
+        self.assertIn('(keyboard or "mechanical keyboard")', focused)
+        self.assertNotIn("star tech", focused)
+        self.assertNotIn("hot-swap black mechanical keyboard as red switch", focused)
+        self.assertLess(len(focused), 100)
+
+    def test_psu_and_case_queries_include_category_and_material_specs(self):
+        psu_queries = build_product_search_queries(
+            "Example Vendor",
+            "Antec B550 550W 80+ Bronze Non-Modular Power Supply",
+        )
+        self.assertEqual(len(psu_queries), 1)
+        psu_retailer_query = psu_queries[0]
+        self.assertIn('"antec b550"', psu_retailer_query.casefold())
+        self.assertIn('(psu or "power supply")', psu_retailer_query.casefold())
+        self.assertNotIn("trusttech", psu_retailer_query.casefold())
+
+        case_queries = build_product_search_queries(
+            "Example Vendor",
+            "MaxGreen Panora F3 M-ATX Mid-Tower Case",
+        )
+        self.assertEqual(len(case_queries), 1)
+        case_retailer_query = case_queries[0]
+        self.assertIn('"maxgreen panora f3"', case_retailer_query.casefold())
+        self.assertIn("(case or casing or chassis)", case_retailer_query.casefold())
+        self.assertNotIn("mid-tower", case_retailer_query.casefold())
+        self.assertLess(len(case_retailer_query), 100)
+
+        ram_queries = build_product_search_queries(
+            "Example Vendor",
+            "Team Delta RGB DDR4 8GB 3200MHz CL16 Desktop RAM",
+        )
+        self.assertEqual(len(ram_queries), 1)
+        ram_retailer_query = ram_queries[0]
+        self.assertIn('"team delta rgb" ddr4', ram_retailer_query.casefold())
+        self.assertIn("(ram or memory)", ram_retailer_query.casefold())
+
+    def test_motherboard_query_uses_exact_model_and_short_category_synonyms(self):
+        queries = build_product_search_queries(
+            "Example Vendor",
+            "MSI A520M-A PRO AM4 AMD ATX Motherboard",
+        )
+
+        self.assertEqual(len(queries), 1)
+        self.assertIn('"msi a520m-a pro"', queries[0].casefold())
+        self.assertIn("(motherboard or mainboard)", queries[0].casefold())
+        self.assertLess(len(queries[0]), 100)
 
     def test_known_bangladesh_computer_stores_are_classified_as_retailers(self):
         from invoice.market_research import RETAILER_DOMAINS
@@ -58,8 +105,135 @@ class FreeMarketResearchTests(unittest.TestCase):
             "startech.com.bd", "techlandbd.com", "ryans.com",
             "ultratech.com.bd", "techmart.com.bd", "applegadgetsbd.com",
             "pcpartsbd.com", "pcbstore.com.bd", "skylandofficialbd.com",
+            "skyland.com.bd", "pchouse.com.bd", "trusttechbd.com",
         ):
             self.assertIn(domain, RETAILER_DOMAINS)
+
+    def test_search_ranking_keeps_local_exact_model_retailers(self):
+        from invoice import market_research
+
+        results = [
+            {
+                "title": "MSI A520M-A PRO Motherboard Price",
+                "url": "https://www.startech.com.bd/msi-a520m-a-pro",
+                "snippet": "BDT 7,300",
+            },
+            {
+                "title": "MSI A520M-A Pro Motherboard Price",
+                "url": "https://startech.com.bd/product/msi-a520m-a-pro?ref=search",
+                "snippet": "BDT 7,300",
+            },
+            {
+                "title": "MSI A520M-A PRO Motherboard Price",
+                "url": "https://www.techlandbd.com/msi-a520m-a-pro",
+                "snippet": "BDT 7,400",
+            },
+            {
+                "title": "MSI A520M-A PRO Motherboard Price",
+                "url": "https://www.facebook.com/marketplace/msi-a520m-a-pro",
+                "snippet": "BDT 7,200",
+            },
+            {
+                "title": "MSI A520M-A PRO Motherboard Price",
+                "url": "https://hardware.example.com/msi-a520m-a-pro",
+                "snippet": "BDT 7,100",
+            },
+        ]
+
+        ranked = market_research._rank_market_search_results(
+            results,
+            "MSI A520M-A PRO Motherboard",
+        )
+
+        self.assertEqual(
+            [result["domain"] for result in ranked],
+            ["startech.com.bd", "techlandbd.com"],
+        )
+
+    def test_search_ranking_prefers_model_listing_urls_before_category_pages(self):
+        from invoice import market_research
+
+        target = "MaxGreen Panora F3 M-ATX Mid-Tower Casing"
+        generic_results = [
+            {
+                "title": "MaxGreen computer case price",
+                "url": f"https://shop{index}.com.bd/component/casing/maxgreen-cases",
+                "snippet": "Panora F3 mid-tower case",
+            }
+            for index in range(7)
+        ]
+        exact_model_results = [
+            {
+                "title": "MaxGreen Panora F3 M-ATX Mid-Tower Case",
+                "url": f"https://retailer{index}.com.bd/maxgreen-panora-f3-case",
+                "snippet": "Price in Bangladesh",
+            }
+            for index in range(3)
+        ]
+
+        ranked = market_research._rank_market_search_results(
+            generic_results + exact_model_results,
+            target,
+            limit=6,
+        )
+
+        self.assertEqual(len(ranked), 6)
+        self.assertEqual(
+            [result["url"] for result in ranked[:3]],
+            [result["url"] for result in exact_model_results],
+        )
+
+    def test_market_search_uses_serper_only(self):
+        from invoice import market_research
+
+        market_research._set_market_diagnostics(market_research._new_provider_diagnostics())
+        try:
+            query = '"MSI A520M-A PRO" price Bangladesh'
+            serper_results = [{
+                "title": "MSI A520M-A PRO Motherboard",
+                "url": "https://startech.com.bd/msi-a520m-a-pro",
+                "domain": "startech.com.bd",
+                "snippet": "Page preview, not a verified price",
+                "engine": "serper",
+            }]
+            with patch.object(market_research, "SERPER_API_KEY", "unit-test-key"), \
+                 patch.object(
+                     market_research,
+                     "_search_serper_provider",
+                     return_value=(
+                         serper_results,
+                         {
+                             "configured": True,
+                             "attempted": True,
+                             "requests_sent": 1,
+                             "status_code": 200,
+                             "content_type": "application/json",
+                             "result_count": 1,
+                             "cache_hit": False,
+                         },
+                     ),
+                 ) as serper, \
+                 patch(
+                     "invoice.market.providers.searxng.search_searxng"
+                 ) as searxng, \
+                 patch.object(market_research, "search_google") as google, \
+                 patch.object(market_research, "search_duckduckgo") as duckduckgo, \
+                 patch.object(market_research, "search_bing") as bing, \
+                 patch.object(market_research, "search_bing_rss") as bing_rss:
+                results = market_research.search_web(query)
+
+            self.assertEqual(results, serper_results)
+            serper.assert_called_once_with(query, api_key="unit-test-key")
+            searxng.assert_not_called()
+            google.assert_not_called()
+            duckduckgo.assert_not_called()
+            bing.assert_not_called()
+            bing_rss.assert_not_called()
+            diagnostics = market_research._current_market_diagnostics()["providers"]
+            self.assertEqual(diagnostics["serper"]["query_count"], 1)
+            self.assertNotIn("searxng", diagnostics)
+        finally:
+            market_research._set_market_diagnostics(None)
 
     def test_cst_direct_urls_are_never_fetched_for_unrelated_products(self):
         self.assertEqual(
@@ -79,15 +253,19 @@ class FreeMarketResearchTests(unittest.TestCase):
             "CST Jack Rabbit C1747 27.5x2.10 Coffee tire",
         )
         self.assertTrue(any("C1747" in query for query in queries))
-        self.assertTrue(any("csttires.com.bd" in query for query in queries))
+        self.assertEqual(len(queries), 1)
 
     def test_google_html_is_not_used_by_default(self):
         from invoice import market_research
-        with patch.object(market_research, "search_google") as google, patch.object(
-            market_research, "search_duckduckgo", return_value=[]
-        ), patch.object(market_research, "search_bing", return_value=[]), patch.object(
-            market_research, "search_bing_rss", return_value=[]
-        ):
+        with patch.object(market_research, "SERPER_API_KEY", ""), patch.object(
+            market_research, "_search_serper_provider", return_value=([], {
+                "configured": False,
+                "attempted": False,
+                "requests_sent": 0,
+                "cache_hit": False,
+                "error_type": "missing_api_key",
+            })
+        ), patch.object(market_research, "search_google") as google:
             market_research.search_web('site:startech.com.bd "Ajazz AK820"')
         google.assert_not_called()
 
@@ -313,7 +491,8 @@ class FreeMarketResearchTests(unittest.TestCase):
         self.assertEqual(prices[0]["price"], 2600.0)
         self.assertEqual(prices[0]["currency"], "BDT")
         self.assertEqual(prices[0]["product_name"], "Ajazz AK820 Mechanical Keyboard")
-        self.assertEqual(prices[0]["sku"], "AK820")
+        self.assertEqual(prices[0]["model"], "AK820")
+        self.assertEqual(prices[0]["product_identifier"], "AK820")
         self.assertEqual(prices[0]["price_source"], "schema_org_product_offer")
 
 

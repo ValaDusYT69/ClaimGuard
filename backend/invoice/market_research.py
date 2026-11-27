@@ -24,7 +24,7 @@ from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 from typing import Callable, Literal, overload
 
-from invoice.market.providers import search_searxng as _search_searxng_provider
+from invoice.market.providers.serper import search_serper as _search_serper_provider
 from invoice.market.query_builder import build_product_search_queries, is_cst_product
 from invoice.market.structured_data import (
     extract_matching_dom_product_offers,
@@ -41,12 +41,7 @@ from invoice.market.variant_validation import (
 )
 from invoice.extraction.identity import normalize_product_identity
 from config import (
-    MARKET_ENABLE_GOOGLE_HTML_FALLBACK,
-    SEARXNG_URL,
-    SEARXNG_API_KEY,
-    SEARXNG_LANGUAGE,
-    SEARXNG_TIMEOUT_SECONDS,
-    SEARXNG_MAX_QUERIES_PER_PRODUCT,
+    SERPER_API_KEY,
 )
 
 
@@ -74,13 +69,13 @@ JINA_READER_URL_PREFIX = (
     "https://r.jina.ai/"
 )
 
-REQUEST_TIMEOUT = 12
+REQUEST_TIMEOUT = 8
 
-MAX_SEARCH_RESULTS = 16
+MAX_SEARCH_RESULTS = 10
 
-# The per-query parser stays bounded, while the main analysis collects
-# enough results across targeted queries to obtain independent source domains.
-MAX_TOTAL_SEARCH_RESULTS = 40
+MAX_SEARCH_QUERIES_PER_PRODUCT = 1
+MAX_CANDIDATES_PER_PRODUCT = 6
+MAX_TOTAL_SEARCH_RESULTS = MAX_CANDIDATES_PER_PRODUCT
 
 MAX_PAGE_BYTES = (
     3 * 1024 * 1024
@@ -88,7 +83,7 @@ MAX_PAGE_BYTES = (
 
 MIN_MATCH_CONFIDENCE = 0.55
 
-# Direct Google HTML parsing is opt-in via config.py; SearXNG/other providers are preferred.
+# Serper provides the only normal market-search provider.
 
 
 # Provider diagnostics are intentionally opt-in and contain only aggregate,
@@ -115,7 +110,7 @@ def _current_diagnostic_provider() -> str | None:
 
 def _new_provider_diagnostics() -> dict:
     providers = {}
-    for name in ("searxng", "google", "duckduckgo", "bing", "bing_rss", "candidate_page", "jina_reader"):
+    for name in ("serper", "candidate_page", "jina_reader"):
         providers[name] = {
             "query_count": 0,
             "requests_sent": 0,
@@ -312,13 +307,25 @@ RETAILER_DOMAINS = {
     "bikeshopbd.com.bd",
     "startech.com.bd",
     "techlandbd.com",
+    "techdiversitybd.com",
     "ryans.com",
+    "skyland.com.bd",
     "ultratech.com.bd",
+    "pchouse.com.bd",
+    "trusttechbd.com",
     "techmart.com.bd",
     "applegadgetsbd.com",
     "pcpartsbd.com",
     "pcbstore.com.bd",
     "skylandofficialbd.com",
+    "computervillage.com.bd",
+    "wcs.com.bd",
+    "pqs.com.bd",
+    "fusiontech.com.bd",
+    "creatus.com.bd",
+    "khantechnologiesbd.com",
+    "jazztechcomputer.com",
+    "onestop.net.bd",
 }
 
 
@@ -1365,84 +1372,156 @@ def search_google(
 # SEARCH WEB
 # =========================================================
 
+BLOCKED_MARKET_SEARCH_DOMAINS = {
+    "facebook.com",
+    "instagram.com",
+    "linkedin.com",
+    "reddit.com",
+    "quora.com",
+    "wikipedia.org",
+    "stackoverflow.com",
+    "stackexchange.com",
+    "youtube.com",
+    "tiktok.com",
+    "x.com",
+    "twitter.com",
+    "pinterest.com",
+    "medium.com",
+    "bloomberg.com",
+    "marketwatch.com",
+    "investing.com",
+    "tradingview.com",
+    "finance.yahoo.com",
+}
+
+
+def _rank_market_search_results(
+    results: list[dict],
+    product_description: str,
+    limit: int = MAX_CANDIDATES_PER_PRODUCT,
+) -> list[dict]:
+    """Keep distinct, locally relevant retailer listings ahead of broad results."""
+    target_models = extract_model_tokens(product_description)
+    target_tokens = set(tokenize(product_description))
+    ranked: list[tuple[tuple, dict, str]] = []
+    seen_urls: set[str] = set()
+
+    for raw_result in results:
+        if not isinstance(raw_result, dict):
+            continue
+        url = str(raw_result.get("url") or "").strip()
+        parsed = urlparse(url)
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.hostname
+            or parsed.username
+            or parsed.password
+        ):
+            continue
+        domain = get_domain(url)
+        if not domain or any(
+            domain == blocked or domain.endswith("." + blocked)
+            for blocked in BLOCKED_MARKET_SEARCH_DOMAINS
+        ):
+            continue
+        is_local_retailer = domain in RETAILER_DOMAINS
+        if not is_local_retailer and not domain.endswith(".bd"):
+            continue
+
+        title = str(raw_result.get("title") or "")
+        snippet = str(raw_result.get("snippet") or "")
+        evidence = f"{title} {snippet} {url}"
+        result_models = extract_model_tokens(evidence)
+        model_hits = target_models & result_models
+        if target_models and not model_hits:
+            continue
+        if not target_models and not _passes_search_result_identity_prefilter(
+            product_description,
+            set(tokenize(evidence)),
+        ):
+            continue
+
+        title_models = target_models & extract_model_tokens(title)
+        path_segments = [segment for segment in parsed.path.split("/") if segment]
+        url_model_hits = target_models & extract_model_tokens(parsed.path)
+        last_segment_model_hits = (
+            target_models & extract_model_tokens(path_segments[-1])
+            if path_segments
+            else set()
+        )
+        result_tokens = set(tokenize(evidence))
+        token_overlap = len(target_tokens & result_tokens)
+        has_price_signal = bool(
+            re.search(r"\b(?:bdt|taka|price)\b|৳", f"{title} {snippet}", re.IGNORECASE)
+        )
+        rank = (
+            0 if last_segment_model_hits else 1 if url_model_hits else 2,
+            0 if is_local_retailer else 1,
+            -len(title_models),
+            -len(model_hits),
+            -token_overlap,
+            0 if has_price_signal else 1,
+            domain,
+        )
+        canonical_url = parsed._replace(query="", fragment="").geturl().rstrip("/")
+        if canonical_url in seen_urls:
+            continue
+        seen_urls.add(canonical_url)
+        result = dict(raw_result)
+        result["url"] = url
+        result["domain"] = domain
+        ranked.append((rank, result, domain))
+
+    ranked.sort(key=lambda entry: entry[0])
+    selected: list[dict] = []
+    selected_domains: set[str] = set()
+    for _, result, domain in ranked:
+        if domain in selected_domains:
+            continue
+        selected_domains.add(domain)
+        selected.append(result)
+        if len(selected) >= max(1, limit):
+            break
+    return selected
+
+
 def search_web(
     query: str,
 ) -> list[dict]:
-    """Search configured free providers first, then bounded legacy fallbacks.
-
-    Google HTML scraping is disabled by default. If an operator configures a
-    SearXNG endpoint, it becomes the first metasearch source; existing DDG/Bing
-    fallbacks remain available for compatibility.
-    """
-
-    results: list[dict] = []
-
-    searx_record = _diag_provider("searxng")
-    searx_budget_available = (
-        bool(SEARXNG_URL)
-        and searx_record is not None
-        and int(searx_record.get("query_count") or 0) < SEARXNG_MAX_QUERIES_PER_PRODUCT
+    """Fetch one Serper organic-results page; never fan out to another provider."""
+    results, provider_diagnostics = _search_serper_provider(
+        query,
+        api_key=SERPER_API_KEY,
     )
-    if searx_budget_available:
-        searx_results, searx_diag = _search_searxng_provider(
-            query,
-            endpoint=SEARXNG_URL,
-            api_key=SEARXNG_API_KEY,
-            language=SEARXNG_LANGUAGE,
-            timeout=SEARXNG_TIMEOUT_SECONDS,
-        )
-    else:
-        searx_results, searx_diag = [], {"configured": bool(SEARXNG_URL), "attempted": False}
-    if searx_diag.get("configured") and searx_diag.get("attempted"):
-        _diag_query("searxng")
-        _diag_request("searxng", int(searx_diag.get("requests_sent") or 0))
-        for key in (
-            "redirect_resolution_attempts",
-            "redirect_resolution_successes",
-            "redirect_resolution_failures",
-            "malformed_result_url_count",
-        ):
-            _diag_increment("searxng", key, int(searx_diag.get(key) or 0))
-        status_code = searx_diag.get("status_code")
-        if status_code is not None:
+    if provider_diagnostics.get("attempted"):
+        _diag_query("serper")
+        _diag_request("serper", int(provider_diagnostics.get("requests_sent") or 0))
+    if provider_diagnostics.get("cache_hit"):
+        _diag_increment("serper", "cache_hits")
+    status_code = provider_diagnostics.get("status_code")
+    if provider_diagnostics.get("attempted") and status_code is not None:
+        if 200 <= int(status_code) < 300:
             _diag_response(
-                "searxng",
+                "serper",
                 int(status_code),
-                searx_diag.get("content_type"),
+                provider_diagnostics.get("content_type"),
                 b"",
-            ) if 200 <= int(status_code) < 300 else _diag_nested_increment("searxng", "status_codes", str(status_code))
-        if searx_diag.get("timeout"):
-            _diag_increment("searxng", "timeouts")
-        if searx_diag.get("connection_error"):
-            _diag_increment("searxng", "connection_errors")
-        if searx_diag.get("http_error"):
-            _diag_increment("searxng", "http_errors")
-        if searx_diag.get("parse_error"):
-            _diag_increment("searxng", "parse_failures")
-        if searx_diag.get("error_type"):
-            _diag_nested_increment("searxng", "rejection_reasons", str(searx_diag["error_type"]))
-        if searx_results:
-            _diag_increment("searxng", "candidate_count", len(searx_results))
-        results.extend(searx_results)
-
-    # Use direct Google HTML only when an operator explicitly enables it.
-    # This avoids making the application depend on a scrape path that commonly
-    # returns 429 or challenge pages. SearXNG may still aggregate Google if the
-    # configured SearXNG instance enables that engine.
-    if MARKET_ENABLE_GOOGLE_HTML_FALLBACK and query.strip().lower().startswith("site:") and len(results) < 5:
-        results.extend(search_google(query))
-
-    if len(results) < 5:
-        ddg_results = search_duckduckgo(query)
-        results.extend(ddg_results)
-
-    if len(results) < 5:
-        bing_results = search_bing(query)
-        results.extend(bing_results)
-
-    if len(results) < 5:
-        bing_rss_results = search_bing_rss(query)
-        results.extend(bing_rss_results)
+            )
+        else:
+            _diag_nested_increment("serper", "status_codes", str(status_code))
+            if int(status_code) >= 500:
+                _diag_increment("serper", "http_errors")
+    error_type = provider_diagnostics.get("error_type")
+    if error_type:
+        _diag_nested_increment("serper", "rejection_reasons", str(error_type))
+        if error_type == "connection_error":
+            _diag_increment("serper", "connection_errors")
+        elif error_type == "http_error":
+            _diag_increment("serper", "http_errors")
+        elif error_type == "invalid_response":
+            _diag_increment("serper", "parse_failures")
+    if results:
+        _diag_increment("serper", "candidate_count", len(results))
 
     unique: list[dict] = []
     seen: set[str] = set()
@@ -1451,7 +1530,11 @@ def search_web(
         if not url or url in seen:
             continue
         seen.add(url)
-        unique.append(result)
+        result_copy = dict(result)
+        line_item_id = _MARKET_LINE_ITEM_ID.get()
+        if line_item_id:
+            result_copy["invoice_line_id"] = line_item_id
+        unique.append(result_copy)
         if len(unique) >= MAX_SEARCH_RESULTS:
             break
     return unique
@@ -2275,7 +2358,9 @@ def extract_page_price(
                     product_description,
                     evidence,
                     category_evidence=category_evidence,
-                    brand_evidence=str(binding.get("entity_identity") or ""),
+                    brand_evidence=str(
+                        binding.get("entity_brand") or binding.get("entity_identity") or ""
+                    ),
                     specification_evidence=str(binding.get("page_specifications") or ""),
                 )
                 item["variant_assessment"] = assessment
@@ -2315,7 +2400,9 @@ def extract_page_price(
                     product_description,
                     evidence,
                     category_evidence=category_evidence,
-                    brand_evidence=str(binding.get("entity_identity") or ""),
+                    brand_evidence=str(
+                        binding.get("entity_brand") or binding.get("entity_identity") or ""
+                    ),
                     specification_evidence=str(binding.get("page_specifications") or ""),
                 )
                 item["variant_assessment"] = assessment
@@ -3000,6 +3087,9 @@ def analyze_candidate(
         + " "
         + domain
     )
+    page_text = ""
+    html = ""
+    retrieval_method = "search_result"
 
     def reject_candidate(
         reason: str,
@@ -3012,6 +3102,7 @@ def analyze_candidate(
             "title": title,
             "search_snippet": snippet,
             "rejection_stage": stage,
+            "retrieval_method": retrieval_method,
             "page_evidence_excerpt": page_evidence[:3000] or None,
         }
         _record_market_exclusion(
@@ -3053,12 +3144,6 @@ def analyze_candidate(
         product_description,
         candidate_text,
     )
-
-    page_text = ""
-
-    html = ""
-
-    retrieval_method = "search_result"
 
     # -----------------------------------------------------
     # Direct source fetch.
@@ -5479,15 +5564,16 @@ def build_search_queries(
     if normalized_product is None:
         logger.warning(
             "market_search_query_skipped_identity_review",
-            extra={"stage": "search_query_generation"},
+            extra={
+                "stage": "search_query_generation",
+                "invoice_line_id": _MARKET_LINE_ITEM_ID.get(),
+            },
         )
         return []
     effective_product = _effective_market_search_query(normalized_product)
     queries = build_product_search_queries(vendor_name, effective_product)
 
-    # Discover the known higher-spec AJ199 MAX edition separately so the UI
-    # can present it as context. The validator never merges it into the base
-    # Carbon Fiber Tri-mode AJ199 benchmark.
+    # Keep the separate edition discoverable without issuing a second search.
     normalized_identity = normalize_text(effective_product)
     if (
         "aj199" in normalized_identity
@@ -5495,20 +5581,18 @@ def build_search_queries(
         and "tri mode" in normalized_identity
         and "aj199 max" not in normalized_identity
     ):
-        related_query = (
-            '"AJAZZ AJ199 MAX Carbon Fiber Tri-mode" '
-            'PAW3395 26000 DPI price Bangladesh'
-        )
-        if related_query.casefold() not in {query.casefold() for query in queries}:
-            # Keep the separate-edition lookup near the beginning of the
-            # bounded query sequence so early-stop logic cannot skip it.
-            queries.insert(1, related_query)
+        if queries:
+            queries[0] = (
+                f'({queries[0]}) OR ("AJAZZ AJ199 MAX Carbon Fiber Tri-mode" '
+                f'PAW3395 26000 DPI price Bangladesh)'
+            )
     logger.info(
         "market_search_queries_generated",
         extra={
             "stage": "search_query_generation",
             "product_length": len(effective_product),
             "query_count": len(queries),
+            "invoice_line_id": _MARKET_LINE_ITEM_ID.get(),
         },
     )
     return queries
@@ -5804,28 +5888,19 @@ def analyze_market_price(
     queries = build_search_queries(
         vendor_name=vendor,
         product_description=product,
-    )
+    )[:MAX_SEARCH_QUERIES_PER_PRODUCT]
     diagnostics = _current_market_diagnostics()
     assert diagnostics is not None
     diagnostics["logical_queries"] = len(queries)
 
-    # The standard AJ199 Carbon Fiber query and its separate AJ199 MAX query
-    # must both run before the normal priority-domain early-stop condition.
-    required_query_count = max(
-        (index + 1 for index, query in enumerate(queries)
-         if "AJ199 MAX Carbon Fiber Tri-mode" in query),
-        default=0,
-    )
-
-    search_results = []
-
+    search_results: list[dict] = []
     candidates_checked = 0
-
-    search_engine_counts = {}
-
-    search_domain_counts = {}
-
-    seen_urls = set()
+    search_engine_counts: dict[str, int] = {}
+    search_domain_counts: dict[str, int] = {}
+    seen_urls: set[str] = set()
+    results_by_url: dict[str, dict] = {}
+    relevant_search_results: list[dict] = []
+    queries_attempted = 0
 
     if is_cst_product(product):
         priority_domains = {
@@ -5833,17 +5908,12 @@ def analyze_market_price(
             "csttires.com.bd.maxxis.com.bd", "othoba.com", "sawaribd.com",
         }
     else:
-        priority_domains = {
-            "daraz.com.bd", "startech.com.bd", "ryans.com",
-            "techlandbd.com", "othoba.com", "ultratech.com.bd",
-            "techmart.com.bd", "applegadgetsbd.com", "pcpartsbd.com",
-            "pcbstore.com.bd", "skylandofficialbd.com",
-        }
+        priority_domains = RETAILER_DOMAINS | {"daraz.com.bd", "othoba.com"}
 
     priority_domains_found = set()
 
     for query_index, query in enumerate(queries):
-
+        queries_attempted += 1
         results = search_web(
             query
         )
@@ -5889,33 +5959,47 @@ def analyze_market_price(
                     priority_domains_found.add(domain)
 
             if not url:
-
                 continue
 
-            if url in seen_urls:
-
+            parsed_url = urlparse(str(url))
+            canonical_url = parsed_url._replace(
+                query="",
+                fragment="",
+            ).geturl().rstrip("/")
+            if canonical_url in seen_urls:
                 continue
 
-            seen_urls.add(
-                url
-            )
+            seen_urls.add(canonical_url)
+            results_by_url[canonical_url] = result
 
-            search_results.append(
-                result
-            )
-
-        # Continue past the first result page so targeted queries for
-        # independent source categories have a chance to contribute.
+        relevant_search_results = _rank_market_search_results(
+            list(results_by_url.values()),
+            product,
+            limit=max(1, len(results_by_url)),
+        )
+        search_results = relevant_search_results[:MAX_CANDIDATES_PER_PRODUCT]
+        priority_domains_found = {
+            get_domain(result.get("url") or "")
+            for result in search_results
+            if get_domain(result.get("url") or "") in priority_domains
+        }
         if (
-            len(search_results) >= MAX_TOTAL_SEARCH_RESULTS
-            or len(priority_domains_found) >= 3
-        ) and query_index + 1 >= required_query_count:
-
+            len(search_results) >= MAX_CANDIDATES_PER_PRODUCT
+        ):
             break
 
-        time.sleep(
-            0.15
-        )
+        if query_index + 1 < len(queries):
+            time.sleep(0.15)
+
+    raw_search_result_count = len(results_by_url)
+    relevance_excluded_count = max(
+        0,
+        raw_search_result_count - len(relevant_search_results),
+    )
+    candidate_cap_excluded_count = max(
+        0,
+        len(relevant_search_results) - len(search_results),
+    )
 
     # -----------------------------------------------------
     # Analyze pages
@@ -5924,7 +6008,8 @@ def analyze_market_price(
     analyzed_sources = []
 
     for result in search_results:
-
+        if candidates_checked >= MAX_CANDIDATES_PER_PRODUCT:
+            break
         candidates_checked += 1
         result_provider = result.get("engine") or "candidate_page"
         _diag_increment(result_provider, "candidate_count")
@@ -5980,16 +6065,6 @@ def analyze_market_price(
                 rejection = "product_match_rejected"
             _diag_nested_increment(result_provider, "rejection_reasons", rejection)
 
-        if len(
-            analyzed_sources
-        ) >= 8:
-
-            break
-
-        time.sleep(
-            0.15
-        )
-
     # -----------------------------------------------------
     # DIRECT SOURCE FALLBACK
     # -----------------------------------------------------
@@ -5998,6 +6073,46 @@ def analyze_market_price(
         vendor_name=vendor,
         product_description=product,
     )
+
+    selected_candidate_urls = {
+        urlparse(str(result.get("url") or ""))._replace(
+            query="",
+            fragment="",
+        ).geturl().rstrip("/")
+        for result in search_results
+    }
+    selected_candidate_domains = {
+        get_domain(result.get("url") or "")
+        for result in search_results
+        if get_domain(result.get("url") or "")
+    }
+    bounded_direct_candidates = []
+    remaining_direct_slots = max(
+        0,
+        MAX_CANDIDATES_PER_PRODUCT - len(search_results),
+    )
+    if remaining_direct_slots:
+        for candidate in direct_candidates:
+            candidate_url = str(candidate.get("url") or "")
+            parsed_candidate_url = urlparse(candidate_url)
+            canonical_candidate_url = parsed_candidate_url._replace(
+                query="",
+                fragment="",
+            ).geturl().rstrip("/")
+            candidate_domain = get_domain(candidate_url)
+            if (
+                not candidate_url
+                or canonical_candidate_url in selected_candidate_urls
+                or candidate_domain in selected_candidate_domains
+            ):
+                continue
+            bounded_direct_candidates.append(candidate)
+            selected_candidate_urls.add(canonical_candidate_url)
+            if candidate_domain:
+                selected_candidate_domains.add(candidate_domain)
+            if len(bounded_direct_candidates) >= remaining_direct_slots:
+                break
+    direct_candidates = bounded_direct_candidates
 
     direct_sources_checked = 0
     direct_sources_accepted = 0
@@ -6071,7 +6186,14 @@ def analyze_market_price(
 
     for direct_result in direct_candidates:
 
+        if candidates_checked >= MAX_CANDIDATES_PER_PRODUCT:
+            break
+        candidates_checked += 1
         direct_sources_checked += 1
+
+        direct_provider = direct_result.get("engine") or "direct_source"
+        _diag_increment(direct_provider, "candidate_count")
+        diagnostics["total_candidate_count"] += 1
 
         direct_domain = (
             direct_result.get("domain")
@@ -6085,6 +6207,8 @@ def analyze_market_price(
 
         if source:
 
+            _diag_increment(direct_provider, "comparable_count")
+            diagnostics["total_comparable_count"] += 1
             source_currency = source.get("currency")
 
             if (
@@ -6433,10 +6557,19 @@ def analyze_market_price(
             {
 
                 "queries_attempted":
-                    len(queries),
+                    queries_attempted,
 
                 "search_results_found":
+                    raw_search_result_count,
+
+                "search_candidates_selected":
                     len(search_results),
+
+                "search_results_excluded_by_relevance":
+                    relevance_excluded_count,
+
+                "search_results_not_fetched_due_to_candidate_cap":
+                    candidate_cap_excluded_count,
 
                 "candidates_checked":
                     candidates_checked,
@@ -6561,8 +6694,22 @@ def analyze_invoice_market(
         unit_price = raw.get("unit_price")
         if unit_price is None:
             unit_price = raw.get("price")
+        raw_line_item_id = next(
+            (
+                raw[key]
+                for key in ("line_item_id", "invoice_line_id", "item_id", "id")
+                if raw.get(key) is not None and str(raw.get(key)).strip()
+            ),
+            None,
+        )
+        line_item_id = (
+            str(raw_line_item_id).strip()
+            if raw_line_item_id is not None
+            else f"line-{len(normalized_items) + 1}"
+        )
         normalized_items.append({
             **raw,
+            "invoice_line_id": line_item_id,
             "product": product,
             "unit_price": unit_price,
             "identity_review_required": product is None,
@@ -6607,18 +6754,55 @@ def analyze_invoice_market(
     product_analyses: list[dict] = []
     sources_by_line_and_domain: dict[tuple[int, str], dict] = {}
     query_count = result_count = candidate_count = 0
+    valid_product_page_count = 0
+    price_extraction_count = 0
+    relevance_excluded_count = 0
+    candidate_cap_excluded_count = 0
     provider_diagnostics = _new_provider_diagnostics()
 
     def analyze_product(item: dict) -> tuple[dict, float]:
         context = copy_context()
         started = time.perf_counter()
-        analysis = context.run(
-            analyze_market_price,
-            vendor_name,
-            item["product"],
-            item.get("unit_price"),
-            invoice_currency,
-        )
+        def run_analysis() -> dict:
+            line_id_token = _MARKET_LINE_ITEM_ID.set(item["invoice_line_id"])
+            try:
+                return analyze_market_price(
+                    vendor_name,
+                    item["product"],
+                    item.get("unit_price"),
+                    invoice_currency,
+                )
+            finally:
+                _MARKET_LINE_ITEM_ID.reset(line_id_token)
+
+        try:
+            analysis = context.run(run_analysis)
+        except Exception as exc:
+            logger.exception(
+                "market_product_analysis_failed",
+                extra={
+                    "stage": "market_research",
+                    "invoice_line_id": item["invoice_line_id"],
+                },
+            )
+            analysis = {
+                "status": "search_failed",
+                "message": "Market research failed for this product line; other product lines were retained.",
+                "error_type": type(exc).__name__,
+                "error_detail": str(exc)[:300],
+                "sources": [],
+                "market_statistics": {
+                    "currency": None,
+                    "lowest": None,
+                    "highest": None,
+                    "average": None,
+                    "median": None,
+                },
+                "search_diagnostics": {
+                    "provider_diagnostics": _current_market_diagnostics()
+                    or _new_provider_diagnostics(),
+                },
+            }
         return analysis, round(time.perf_counter() - started, 3)
 
     analyses: list[tuple[dict, float] | None] = [None] * len(normalized_items)
@@ -6665,6 +6849,7 @@ def analyze_invoice_market(
             source_copy = dict(source)
             source_copy["product_description"] = item["product"]
             source_copy["invoice_line_index"] = index
+            source_copy["invoice_line_id"] = item["invoice_line_id"]
             domain = get_domain(source_copy.get("url") or source_copy.get("source_name", ""))
             key = (index, domain or source_copy.get("url") or f"line-{index}-source-{len(line_sources)}")
             if key not in sources_by_line_and_domain:
@@ -6675,12 +6860,21 @@ def analyze_invoice_market(
         query_count += int(diagnostics.get("queries_attempted") or 0)
         result_count += int(diagnostics.get("search_results_found") or 0)
         candidate_count += int(diagnostics.get("candidates_checked") or 0)
+        valid_product_page_count += int(diagnostics.get("valid_product_page_count") or 0)
+        price_extraction_count += int(diagnostics.get("price_extraction_count") or 0)
+        relevance_excluded_count += int(
+            diagnostics.get("search_results_excluded_by_relevance") or 0
+        )
+        candidate_cap_excluded_count += int(
+            diagnostics.get("search_results_not_fetched_due_to_candidate_cap") or 0
+        )
         _merge_provider_diagnostics(provider_diagnostics, diagnostics.get("provider_diagnostics"))
         logger.info(
             "market_product_candidates_processed",
             extra={
                 "stage": "candidate_validation",
                 "line_index": index,
+                "invoice_line_id": item["invoice_line_id"],
                 "retrieved_count": int(diagnostics.get("search_results_found") or 0),
                 "candidate_count": int(diagnostics.get("candidates_checked") or 0),
                 "accepted_count": len(line_sources),
@@ -6693,6 +6887,7 @@ def analyze_invoice_market(
 
         product_analyses.append({
             "line_index": index,
+            "invoice_line_id": item["invoice_line_id"],
             "product": item["product"] or "Product identity requires review",
             "quantity": item.get("quantity"),
             "invoice_unit_price": item.get("unit_price"),
@@ -6752,6 +6947,10 @@ def analyze_invoice_market(
             "queries_attempted": query_count,
             "search_results_found": result_count,
             "candidates_checked": candidate_count,
+            "valid_product_page_count": valid_product_page_count,
+            "price_extraction_count": price_extraction_count,
+            "search_results_excluded_by_relevance": relevance_excluded_count,
+            "search_results_not_fetched_due_to_candidate_cap": candidate_cap_excluded_count,
             "sources_accepted": len(sources),
             "unique_source_domains": len(domains),
             "independent_source_count": len(domains),
@@ -9058,6 +9257,7 @@ from contextvars import ContextVar as _MarketContextVar
 from urllib.parse import urlparse as _market_urlparse
 
 _MARKET_VARIANT_CONTEXT = _MarketContextVar("claimguard_market_variant_context", default=None)
+_MARKET_LINE_ITEM_ID = _MarketContextVar("claimguard_market_line_item_id", default=None)
 _ORIGINAL_ANALYZE_CANDIDATE_V29 = analyze_candidate
 _ORIGINAL_ANALYZE_DIRECT_CANDIDATE_V29 = analyze_direct_candidate
 _ORIGINAL_ANALYZE_MARKET_PRICE_V29 = analyze_market_price
@@ -9098,7 +9298,7 @@ def _market_exclusion_record(source: dict, assessment: dict | None, reason: str)
         "extracted_product_title": str(
             source.get("product_name") or binding.get("entity_identity") or ""
         )[:500] or None,
-        "brand": source.get("brand"),
+        "brand": source.get("brand") or binding.get("entity_brand"),
         "model": source.get("model"),
         "sku": source.get("sku"),
         "mpn": source.get("mpn"),
@@ -9124,6 +9324,7 @@ def _market_exclusion_record(source: dict, assessment: dict | None, reason: str)
         "page_evidence_excerpt": str(source.get("page_evidence_excerpt") or "")[:3000] or None,
         "price": source.get("price"),
         "currency": source.get("currency"),
+        "invoice_line_id": source.get("invoice_line_id") or _MARKET_LINE_ITEM_ID.get(),
         "availability": source.get("availability"),
         "price_source": source.get("price_source"),
         "source_type": source.get("source_type"),
@@ -9134,10 +9335,61 @@ def _market_exclusion_record(source: dict, assessment: dict | None, reason: str)
     }
 
 
+def _record_market_candidate_metrics(
+    source: dict,
+    context: dict,
+    rejection_reason: str | None = None,
+) -> None:
+    url = str(source.get("url") or source.get("search_result_url") or "")
+    metric_key = url or str(source.get("title") or source.get("search_title") or "")
+    observed = context.setdefault("candidate_metric_keys", set())
+    if not metric_key or metric_key in observed:
+        return
+    observed.add(metric_key)
+
+    retrieval_method = str(
+        source.get("retrieval_method") or source.get("page_fetch_method") or ""
+    )
+    failed_identity_stages = {
+        "page_identity_validation",
+        "search_result_identity_validation",
+        "search_result_identity_prefilter",
+    }
+    identity_failed = (
+        str(source.get("rejection_stage") or "") in failed_identity_stages
+        or rejection_reason in {
+            "page_identity_not_verified",
+            "search_identity_overlap_below_threshold",
+            "page_identity_confidence_below_threshold",
+        }
+    )
+    if (
+        not identity_failed
+        and (
+            retrieval_method in {"direct_http", "jina_reader"}
+            or source.get("page_evidence_excerpt")
+        )
+    ):
+        context["valid_product_page_count"] = (
+            int(context.get("valid_product_page_count") or 0) + 1
+        )
+    price_source = str(
+        source.get("price_source") or source.get("price_extraction_method") or ""
+    )
+    if source.get("price") is not None and price_source not in {
+        "search_result_fallback",
+        "search_snippet",
+    }:
+        context["price_extraction_count"] = (
+            int(context.get("price_extraction_count") or 0) + 1
+        )
+
+
 def _record_market_exclusion(source: dict, assessment: dict | None, reason: str) -> None:
     context = _MARKET_VARIANT_CONTEXT.get()
     if context is None:
         return
+    _record_market_candidate_metrics(source, context, reason)
     url = str(source.get("url") or source.get("search_result_url") or "")
     key = (url, reason)
     seen = context.setdefault("excluded_keys", set())
@@ -9208,7 +9460,9 @@ def _validate_market_source(source: dict, product_description: str) -> tuple[boo
             product_description,
             evidence,
             category_evidence=category_evidence,
-            brand_evidence=str(binding.get("entity_identity") or ""),
+            brand_evidence=str(
+                binding.get("entity_brand") or binding.get("entity_identity") or ""
+            ),
             specification_evidence=str(binding.get("page_specifications") or ""),
         )
     else:
@@ -9242,6 +9496,14 @@ def analyze_candidate(result: dict, product_description: str) -> dict | None:
     source = _ORIGINAL_ANALYZE_CANDIDATE_V29(result, effective_product)
     if not source:
         return None
+    source["invoice_line_id"] = (
+        source.get("invoice_line_id")
+        or result.get("invoice_line_id")
+        or _MARKET_LINE_ITEM_ID.get()
+    )
+    context = _MARKET_VARIANT_CONTEXT.get()
+    if context is not None:
+        _record_market_candidate_metrics(source, context)
     accepted, assessment, reason = _validate_market_source(source, product_description)
     if not accepted:
         _record_market_exclusion(source, assessment, reason or "not_verified")
@@ -9254,6 +9516,14 @@ def analyze_direct_candidate(result: dict, product_description: str) -> dict | N
     source = _ORIGINAL_ANALYZE_DIRECT_CANDIDATE_V29(result, effective_product)
     if not source:
         return None
+    source["invoice_line_id"] = (
+        source.get("invoice_line_id")
+        or result.get("invoice_line_id")
+        or _MARKET_LINE_ITEM_ID.get()
+    )
+    context = _MARKET_VARIANT_CONTEXT.get()
+    if context is not None:
+        _record_market_candidate_metrics(source, context)
     accepted, assessment, reason = _validate_market_source(source, product_description)
     if not accepted:
         _record_market_exclusion(source, assessment, reason or "not_verified")
@@ -9517,6 +9787,15 @@ def analyze_market_price(
             invoice_unit_price,
             invoice_currency,
         )
-        return _rebuild_market_result(result, product_description or "", context)
+        rebuilt = _rebuild_market_result(result, product_description or "", context)
+        diagnostics = rebuilt.setdefault("search_diagnostics", {})
+        diagnostics["valid_product_page_count"] = int(
+            context.get("valid_product_page_count") or 0
+        )
+        diagnostics["price_extraction_count"] = int(
+            context.get("price_extraction_count") or 0
+        )
+        diagnostics["invoice_line_id"] = _MARKET_LINE_ITEM_ID.get()
+        return rebuilt
     finally:
         _MARKET_VARIANT_CONTEXT.reset(token)

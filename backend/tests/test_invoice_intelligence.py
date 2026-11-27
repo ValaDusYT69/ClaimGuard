@@ -64,8 +64,11 @@ Grand Total 7,100.00"""
             f"Product Description {product}",
         )
 
-        self.assertTrue(queries)
-        self.assertTrue(any("AK820" in query and "Keyboard" in query for query in queries))
+        self.assertEqual(len(queries), 1)
+        self.assertTrue(any(
+            "ak820" in query.casefold() and "keyboard" in query.casefold()
+            for query in queries
+        ))
         for query in queries:
             self.assertNotRegex(
                 query,
@@ -264,9 +267,24 @@ Grand Total
 
     def test_market_analysis_keeps_product_level_results(self):
         def fake_search(query):
+            product = (
+                "Keyboard model K1"
+                if "Keyboard" in query
+                else "Mouse model M1"
+            )
             return [
-                {"url": "https://shop-a.example/item", "engine": "test"},
-                {"url": "https://shop-b.example/item", "engine": "test"},
+                {
+                    "url": "https://startech.com.bd/products/item-a",
+                    "domain": "startech.com.bd",
+                    "title": product,
+                    "engine": "test",
+                },
+                {
+                    "url": "https://techlandbd.com/products/item-b",
+                    "domain": "techlandbd.com",
+                    "title": product,
+                    "engine": "test",
+                },
             ]
 
         def fake_candidate(result, product_description):
@@ -274,6 +292,13 @@ Grand Total
                 "url": result["url"],
                 "source_name": result["url"].split("/")[2],
                 "title": product_description,
+                "variant_evidence": product_description,
+                "product_entity_binding": {
+                    "association_status": "unambiguous",
+                    "product_entity_id": "test-product",
+                    "price_entity_id": "test-product",
+                    "entity_identity": product_description,
+                },
                 "search_snippet": product_description,
                 "source_type": "retailer",
                 "price": 2500,
@@ -284,8 +309,8 @@ Grand Total
             }
 
         items = [
-            {"product": "Keyboard model K1", "unit_price": 2600},
-            {"product": "Mouse model M1", "unit_price": 2800},
+            {"id": "invoice-line-keyboard", "product": "Keyboard model K1", "unit_price": 2600},
+            {"id": "invoice-line-mouse", "product": "Mouse model M1", "unit_price": 2800},
         ]
         with patch.object(market_research, "search_web", side_effect=fake_search), patch.object(
             market_research, "analyze_candidate", side_effect=fake_candidate
@@ -299,6 +324,14 @@ Grand Total
             )
 
         self.assertEqual(len(result["product_analyses"]), 2)
+        self.assertEqual(
+            [item["invoice_line_id"] for item in result["product_analyses"]],
+            ["invoice-line-keyboard", "invoice-line-mouse"],
+        )
+        self.assertEqual(
+            {source["invoice_line_id"] for source in result["sources"]},
+            {"invoice-line-keyboard", "invoice-line-mouse"},
+        )
         self.assertEqual(result["search_diagnostics"]["independent_source_count"], 2)
         self.assertEqual(result["product_analyses"][0]["market"]["market_statistics"]["average"], 2500)
         self.assertEqual(result["product_analyses"][0]["market"]["price_difference_percent"], 4.0)
@@ -313,6 +346,69 @@ Grand Total
         self.assertEqual(provider_diagnostics["total_candidate_count"], 4)
         self.assertEqual(provider_diagnostics["total_comparable_count"], 4)
         self.assertIn("test", provider_diagnostics["providers"])
+
+    def test_one_product_search_failure_does_not_hide_other_line_offers(self):
+        def fake_search(query):
+            if "Keyboard model K1" in query:
+                raise RuntimeError("temporary search failure")
+            return [
+                {
+                    "url": "https://startech.com.bd/products/mouse-m1",
+                    "domain": "startech.com.bd",
+                    "title": "Mouse model M1",
+                    "engine": "test",
+                },
+                {
+                    "url": "https://techlandbd.com/products/mouse-m1",
+                    "domain": "techlandbd.com",
+                    "title": "Mouse model M1",
+                    "engine": "test",
+                },
+            ]
+
+        def fake_candidate(result, product_description):
+            return {
+                "url": result["url"],
+                "source_name": result["domain"],
+                "title": product_description,
+                "product_entity_binding": {
+                    "association_status": "unambiguous",
+                    "product_entity_id": product_description,
+                    "price_entity_id": product_description,
+                    "entity_identity": product_description,
+                },
+                "source_type": "retailer",
+                "price": 2500,
+                "currency": "BDT",
+                "price_source": "structured_product_page",
+                "retrieval_method": "direct_http",
+                "availability": "listed",
+                "match_confidence": 0.9,
+            }
+
+        items = [
+            {"id": "line-keyboard", "product": "Keyboard model K1", "unit_price": 2600},
+            {"id": "line-mouse", "product": "Mouse model M1", "unit_price": 2800},
+        ]
+        with patch.object(market_research, "search_web", side_effect=fake_search), \
+             patch.object(market_research, "analyze_candidate", side_effect=fake_candidate), \
+             patch.object(
+                 market_research,
+                 "_validate_market_source",
+                 return_value=(True, {"status": "verified", "confidence": 0.9}, None),
+             ):
+            result = market_research.analyze_invoice_market(
+                "Example Vendor",
+                items[0]["product"],
+                items[0]["unit_price"],
+                "BDT",
+                items,
+            )
+
+        self.assertEqual(result["product_analyses"][0]["status"], "search_failed")
+        self.assertEqual(result["product_analyses"][1]["invoice_line_id"], "line-mouse")
+        self.assertEqual(len(result["product_analyses"][1]["market"]["sources"]), 2)
+        self.assertEqual(len(result["sources"]), 2)
 
 
     def test_item_qty_rate_total_headers_extract_each_horizontal_product(self):

@@ -98,8 +98,9 @@ SEARXNG_URL = os.getenv("SEARXNG_URL", "").strip().rstrip("/")
 SEARXNG_API_KEY = os.getenv("SEARXNG_API_KEY", "").strip()
 SEARXNG_LANGUAGE = os.getenv("SEARXNG_LANGUAGE", "en").strip() or "en"
 SEARXNG_TIMEOUT_SECONDS = _env_float("SEARXNG_TIMEOUT_SECONDS", 4.0, minimum=1.0, maximum=30.0)
-SEARXNG_MAX_QUERIES_PER_PRODUCT = _env_int("SEARXNG_MAX_QUERIES_PER_PRODUCT", 4, minimum=1, maximum=8)
+SEARXNG_MAX_QUERIES_PER_PRODUCT = _env_int("SEARXNG_MAX_QUERIES_PER_PRODUCT", 2, minimum=1, maximum=2)
 MARKET_ENABLE_GOOGLE_HTML_FALLBACK = _env_bool("MARKET_ENABLE_GOOGLE_HTML_FALLBACK", False)
+SERPER_API_KEY = os.getenv("SERPER_API_KEY", "").strip()
 
 
 def validate_runtime_config() -> None:
@@ -135,5 +136,5 @@ __all__ = [
     "SMTP_PORT", "EMAIL_USER", "EMAIL_APP_PASSWORD", "TESSERACT_CMD",
     "TESSDATA_PREFIX", "OCR_LANG", "SEARXNG_URL", "SEARXNG_API_KEY",
     "SEARXNG_LANGUAGE", "SEARXNG_TIMEOUT_SECONDS", "SEARXNG_MAX_QUERIES_PER_PRODUCT",
-    "MARKET_ENABLE_GOOGLE_HTML_FALLBACK", "validate_runtime_config",
+    "MARKET_ENABLE_GOOGLE_HTML_FALLBACK", "SERPER_API_KEY", "validate_runtime_config",
 ]

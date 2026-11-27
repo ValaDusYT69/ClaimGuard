@@ -31,6 +31,27 @@ class MarketVariantAccuracyTests(unittest.TestCase):
             )
             self.assertEqual(result["status"], "mismatch")
 
+    def test_explicit_cpu_tray_package_requires_matching_page_evidence(self):
+        target = "AMD Ryzen 7 5700G Processor with Radeon Graphics (Tray Box)"
+        missing_package = assess_product_variant(
+            target,
+            "AMD Ryzen 7 5700G Processor with Radeon Graphics",
+        )
+        matching_tray = assess_product_variant(
+            target,
+            "AMD Ryzen 7 5700G OEM/Tray Processor with Radeon Graphics",
+        )
+        conflicting_box = assess_product_variant(
+            target,
+            "AMD Ryzen 7 5700G Boxed Processor with Radeon Graphics",
+        )
+
+        self.assertEqual(missing_package["status"], "unverified")
+        self.assertIn("cpu_tray", missing_package["reason"])
+        self.assertEqual(matching_tray["status"], "verified")
+        self.assertEqual(conflicting_box["status"], "mismatch")
+        self.assertIn("cpu_package_retail_box", conflicting_box["reason"])
+
     def test_ryzen_5700g_queries_include_model_and_retailer_fallbacks(self):
         queries = build_product_search_queries(
             "Example Vendor",
@@ -56,6 +77,30 @@ class MarketVariantAccuracyTests(unittest.TestCase):
                     "AMD Ryzen 7 5700G Processor",
                 )
             )
+
+    def test_exact_model_search_hit_is_discovery_only_not_offer_verification(self):
+        target = "Addlink S70 Lite 256GB M.2 2280 PCIe NVMe SSD"
+        self.assertTrue(
+            market_research._passes_search_result_identity_prefilter(
+                target,
+                {"s70"},
+            )
+        )
+        accepted, assessment, reason = market_research._validate_market_source(
+            {
+                "title": "S70",
+                "search_snippet": "S70 256GB BDT 5000",
+                "url": "https://shop.example/s70",
+                "price": 5000,
+                "currency": "BDT",
+                "price_source": "page_html",
+                "availability": "listed",
+            },
+            target,
+        )
+        self.assertFalse(accepted)
+        self.assertEqual(assessment["status"], "unverified")
+        self.assertEqual(reason, "product_entity_association_missing")
 
     def test_aj199_carbon_fiber_standard_tri_mode_is_verified(self):
         candidate = (
@@ -155,6 +200,341 @@ class MarketVariantAccuracyTests(unittest.TestCase):
         self.assertEqual(other_model["status"], "mismatch")
         self.assertEqual(wrong_switch["status"], "mismatch")
 
+    def test_search_snippet_cannot_verify_variant_for_a_page_price(self):
+        target = "AJAZZ AK820 75% Wired Hot-Swap Black Mechanical Keyboard AS Red Switch"
+        source = {
+            "title": target,
+            "search_snippet": target,
+            "url": "https://shop.example/ak820",
+            "price": 2600,
+            "currency": "BDT",
+            "price_source": "page_html",
+            "availability": "listed",
+        }
+
+        accepted, assessment, _ = market_research._validate_market_source(
+            source,
+            target,
+        )
+        self.assertFalse(accepted)
+        self.assertEqual(assessment["status"], "unverified")
+
+        source["variant_evidence"] = (
+            "AJAZZ AK820 75% Wired Hot-Swap Black Mechanical Keyboard "
+            "AS Red Switch Price ৳2,600"
+        )
+        accepted, assessment, _ = market_research._validate_market_source(
+            source,
+            target,
+        )
+        self.assertFalse(accepted)
+
+        source["product_entity_binding"] = {
+            "association_status": "unambiguous",
+            "association_method": "test_product_entity",
+            "product_entity_id": "AK820-RED",
+            "price_entity_id": "AK820-RED",
+            "entity_identity": "AJAZZ AK820 75% Wired Hot-Swap Black Mechanical Keyboard AS Red Switch",
+            "page_specifications": "",
+            "selected_variant": "",
+        }
+        accepted, assessment, _ = market_research._validate_market_source(
+            source,
+            target,
+        )
+        self.assertTrue(accepted)
+        self.assertEqual(assessment["status"], "verified")
+
+    def test_jsonld_price_and_separate_product_specifications_share_one_entity(self):
+        target = "Antec B550 550W 80+ Bronze Non-Modular Power Supply"
+        html = """
+        <html><script type="application/ld+json">
+        {"@type":"Product","@id":"#antec-b550","name":"Antec B550 Power Supply",
+         "brand":{"@type":"Brand","name":"Antec"},"model":"B550","sku":"B550",
+         "offers":{"@type":"Offer","@id":"#offer-b550","price":"4999",
+                   "priceCurrency":"BDT","availability":"https://schema.org/InStock"}}
+        </script><body><main>
+          <h1>Antec B550 550W Power Supply</h1>
+          <table id="product-specifications">
+            <tr><th>Wattage</th><td>550W</td></tr>
+            <tr><th>Efficiency</th><td>80+ Bronze</td></tr>
+            <tr><th>Modularity</th><td>Non-Modular</td></tr>
+          </table>
+        </main></body></html>
+        """
+
+        prices = market_research.extract_page_price(
+            html,
+            "shop.example",
+            product_description=target,
+        )
+        self.assertEqual(len(prices), 1)
+        source = {
+            **prices[0],
+            "title": "Antec B550 550W Power Supply",
+            "url": "https://shop.example/antec-b550",
+        }
+        accepted, assessment, reason = market_research._validate_market_source(source, target)
+
+        self.assertTrue(accepted, reason)
+        self.assertEqual(assessment["status"], "verified")
+        self.assertEqual(prices[0]["product_entity_binding"]["price_entity_id"], "#antec-b550")
+        self.assertIn("80+ Bronze", prices[0]["product_entity_binding"]["page_specifications"])
+
+    def test_category_comes_from_product_title_not_mixed_specification_identity(self):
+        target = "Antec B550 550W 80+ Bronze Non-Modular Power Supply"
+        html = """
+        <html><script type="application/ld+json">
+        {"@type":"Product","@id":"#antec-b550",
+         "name":"Antec B550 550W 80+ Bronze Non-Modular Power Supply",
+         "brand":{"@type":"Brand","name":"Antec"},"model":"B550","sku":"B550",
+         "additionalProperty":[{"name":"Connectors","value":"CPU 8-pin and RAM power"}],
+         "offers":{"@type":"Offer","price":"4999","priceCurrency":"BDT",
+                   "availability":"https://schema.org/InStock"}}
+        </script><body><main><h1>Antec B550 550W Power Supply</h1>
+          <table id="product-specifications">
+            <tr><th>Efficiency</th><td>80+ Bronze</td></tr>
+            <tr><th>Modularity</th><td>Non-Modular</td></tr>
+          </table>
+        </main></body></html>
+        """
+
+        prices = market_research.extract_page_price(
+            html,
+            "shop.example",
+            product_description=target,
+        )
+        source = {
+            **prices[0],
+            "title": prices[0]["product_name"],
+            "url": "https://shop.example/antec-b550",
+        }
+
+        accepted, assessment, reason = market_research._validate_market_source(source, target)
+
+        self.assertTrue(accepted, reason)
+        self.assertEqual(assessment["status"], "verified")
+        self.assertEqual(
+            prices[0]["product_entity_binding"]["entity_title"],
+            "Antec B550 550W 80+ Bronze Non-Modular Power Supply",
+        )
+
+    def test_jsonld_offer_from_another_product_card_is_not_used(self):
+        target = "Antec B550 550W 80+ Bronze Non-Modular Power Supply"
+        html = """
+        <html><script type="application/ld+json">
+        {"@graph":[
+          {"@type":"Product","@id":"#b550","name":"Antec B550 Power Supply",
+           "brand":{"@type":"Brand","name":"Antec"},"model":"B550",
+           "offers":{"@type":"Offer","price":"4999","priceCurrency":"BDT"}},
+          {"@type":"Product","@id":"#b650","name":"Antec B650 650W Gold Power Supply",
+           "brand":{"@type":"Brand","name":"Antec"},"model":"B650",
+           "offers":{"@type":"Offer","price":"1000","priceCurrency":"BDT"}}
+        ]}</script><body><main><h1>Antec B550 550W Power Supply</h1>
+          <table><tr><th>Efficiency</th><td>80+ Bronze</td></tr>
+          <tr><th>Modularity</th><td>Non-Modular</td></tr></table>
+        </main><aside class="related-products">Antec B650 650W Gold</aside></body></html>
+        """
+
+        prices = market_research.extract_page_price(
+            html,
+            "shop.example",
+            product_description=target,
+        )
+
+        self.assertEqual([(item["price"], item["product_name"]) for item in prices], [(4999.0, "Antec B550 Power Supply")])
+        self.assertEqual(
+            prices[0]["product_entity_binding"]["product_entity_id"],
+            prices[0]["product_entity_binding"]["price_entity_id"],
+        )
+
+    def test_wrong_sku_variant_does_not_verify_target_switch(self):
+        target = "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard Red Switch"
+        html = """
+        <html><script type="application/ld+json">
+        {"@type":"Product","@id":"#ak820-brown","name":"Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard",
+         "brand":{"@type":"Brand","name":"Ajazz"},"model":"AK820","sku":"AK820-BROWN",
+         "additionalProperty":{"@type":"PropertyValue","name":"Switch","value":"Brown"},
+         "offers":{"@type":"Offer","price":"2600","priceCurrency":"BDT"}}
+        </script><body><main><h1>Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard</h1>
+          <table><tr><th>Switch</th><td>Brown</td></tr></table>
+        </main></body></html>
+        """
+        offer = market_research.extract_page_price(
+            html,
+            "shop.example",
+            product_description=target,
+        )[0]
+        source = {**offer, "title": "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard"}
+
+        accepted, assessment, reason = market_research._validate_market_source(source, target)
+
+        self.assertFalse(accepted)
+        self.assertEqual(assessment["status"], "mismatch")
+        self.assertIn("switch_brown", reason or "")
+
+    def test_unrelated_page_text_cannot_supply_required_variant_evidence(self):
+        target = "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard Red Switch"
+        html = """
+        <html><script type="application/ld+json">
+        {"@type":"Product","@id":"#ak820","name":"Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard",
+         "brand":{"@type":"Brand","name":"Ajazz"},"model":"AK820",
+         "offers":{"@type":"Offer","price":"2600","priceCurrency":"BDT"}}
+        </script><body><main><h1>Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard</h1>
+          <table><tr><th>Layout</th><td>75%</td></tr></table>
+        </main><aside class="related-products">Red Switch hot-swap keyboard</aside>
+        <p>Search snippet: Red Switch 75% hot-swap</p></body></html>
+        """
+        offer = market_research.extract_page_price(
+            html,
+            "shop.example",
+            product_description=target,
+        )[0]
+        source = {
+            **offer,
+            "title": "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard",
+            "search_snippet": target,
+        }
+
+        accepted, assessment, reason = market_research._validate_market_source(source, target)
+
+        self.assertFalse(accepted)
+        self.assertEqual(assessment["status"], "unverified")
+        self.assertIn("switch_red", reason or "")
+
+    def test_unresolved_variant_selector_is_rejected_as_ambiguous(self):
+        target = "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard Red Switch"
+        html = """
+        <html><script type="application/ld+json">
+        {"@type":"Product","@id":"#ak820","name":"Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard",
+         "brand":{"@type":"Brand","name":"Ajazz"},"model":"AK820",
+         "offers":{"@type":"Offer","price":"2600","priceCurrency":"BDT"}}
+        </script><body><main><h1>Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard</h1>
+          <select name="attribute_switch">
+            <option value="red">Red</option><option value="brown">Brown</option>
+          </select>
+        </main></body></html>
+        """
+        offer = market_research.extract_page_price(
+            html,
+            "shop.example",
+            product_description=target,
+        )[0]
+        source = {**offer, "title": "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard"}
+
+        accepted, assessment, reason = market_research._validate_market_source(source, target)
+
+        self.assertFalse(accepted)
+        self.assertEqual(assessment["status"], "unverified")
+        self.assertTrue((reason or "").startswith("ambiguous_product_entity_association:"))
+
+    def test_product_group_offer_follows_referenced_selected_variant(self):
+        target = "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard Red Switch"
+        html = """
+        <html><script type="application/ld+json">
+        {"@graph":[
+          {"@type":"ProductGroup","@id":"#ak820-group","name":"Ajazz AK820 Keyboard",
+           "hasVariant":[{"@id":"#ak820-red"},{"@id":"#ak820-brown"}],
+           "offers":{"@id":"#group-offer"}},
+          {"@type":"Product","@id":"#ak820-red","name":"Ajazz AK820 75% Wired Hot-Swap Keyboard",
+           "brand":{"@type":"Brand","name":"Ajazz"},"model":"AK820","sku":"AK820-RED",
+           "additionalProperty":{"@type":"PropertyValue","name":"Switch","value":"Red"}},
+          {"@type":"Product","@id":"#ak820-brown","name":"Ajazz AK820 75% Wired Hot-Swap Keyboard",
+           "brand":{"@type":"Brand","name":"Ajazz"},"model":"AK820","sku":"AK820-BROWN",
+           "additionalProperty":{"@type":"PropertyValue","name":"Switch","value":"Brown"}},
+          {"@type":"Offer","@id":"#group-offer","price":"2600","priceCurrency":"BDT"}
+        ]}</script><body><main>
+          <h1>Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard</h1>
+          <select name="attribute_switch">
+            <option value="red" selected>Red</option><option value="brown">Brown</option>
+          </select>
+        </main></body></html>
+        """
+
+        prices = market_research.extract_page_price(
+            html,
+            "shop.example",
+            product_description=target,
+        )
+
+        self.assertEqual(len(prices), 1)
+        self.assertEqual(prices[0]["sku"], "AK820-RED")
+        self.assertEqual(
+            prices[0]["product_entity_binding"]["product_entity_id"],
+            "#ak820-red",
+        )
+        self.assertEqual(prices[0]["product_entity_binding"]["selected_variant"], "red")
+        source = {**prices[0], "title": "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard"}
+        accepted, assessment, reason = market_research._validate_market_source(source, target)
+        self.assertTrue(accepted, reason)
+        self.assertEqual(assessment["status"], "verified")
+
+    def test_unbound_product_group_offer_is_rejected_when_variants_are_ambiguous(self):
+        target = "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard Red Switch"
+        html = """
+        <html><script type="application/ld+json">
+        {"@graph":[
+          {"@type":"ProductGroup","@id":"#ak820-group","name":"Ajazz AK820 Keyboard",
+           "model":"AK820","hasVariant":[{"@id":"#ak820-red"},{"@id":"#ak820-brown"}],
+           "offers":{"@type":"Offer","price":"2600","priceCurrency":"BDT"}},
+          {"@type":"Product","@id":"#ak820-red","name":"Ajazz AK820 Keyboard",
+           "brand":{"@type":"Brand","name":"Ajazz"},"model":"AK820","sku":"AK820-RED",
+           "color":"Red"},
+          {"@type":"Product","@id":"#ak820-brown","name":"Ajazz AK820 Keyboard",
+           "brand":{"@type":"Brand","name":"Ajazz"},"model":"AK820","sku":"AK820-BROWN",
+           "color":"Brown"}
+        ]}</script><body><main>
+          <h1>Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard</h1>
+          <select name="attribute_switch">
+            <option value="red">Red</option><option value="brown">Brown</option>
+          </select>
+        </main></body></html>
+        """
+        offer = market_research.extract_page_price(
+            html,
+            "shop.example",
+            product_description=target,
+        )[0]
+        source = {**offer, "title": "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard"}
+
+        accepted, assessment, reason = market_research._validate_market_source(source, target)
+
+        self.assertFalse(accepted)
+        self.assertEqual(assessment["status"], "unverified")
+        self.assertTrue((reason or "").startswith("ambiguous_product_entity_association:"))
+
+    def test_dom_product_container_binds_separate_specs_to_its_offer(self):
+        target = "Antec B550 550W 80+ Bronze Non-Modular Power Supply"
+        html = """
+        <html><body><main><div itemscope itemtype="https://schema.org/Product" itemid="#b550">
+          <h1 itemprop="name">Antec B550 550W Power Supply</h1>
+          <meta itemprop="brand" content="Antec"><meta itemprop="model" content="B550">
+          <div itemprop="offers" itemscope itemtype="https://schema.org/Offer" itemid="#offer">
+            <meta itemprop="price" content="4999"><meta itemprop="priceCurrency" content="BDT">
+            <link itemprop="availability" href="https://schema.org/InStock">
+          </div>
+          <table><tr><th>Efficiency</th><td>80+ Bronze</td></tr>
+            <tr><th>Modularity</th><td>Non-Modular</td></tr></table>
+        </div></main></body></html>
+        """
+
+        prices = market_research.extract_page_price(
+            html,
+            "shop.example",
+            product_description=target,
+        )
+
+        self.assertEqual(len(prices), 1)
+        binding = prices[0]["product_entity_binding"]
+        self.assertEqual(binding["association_method"], "microdata_product_offer")
+        self.assertEqual(binding["product_entity_id"], binding["price_entity_id"])
+        self.assertIn("80+ Bronze", binding["page_specifications"])
+        source = {**prices[0], "title": "Antec B550 550W Power Supply"}
+        accepted, assessment, reason = market_research._validate_market_source(source, target)
+        self.assertTrue(accepted, reason)
+        self.assertEqual(assessment["status"], "verified")
+
+
     def test_category_brand_layout_and_hot_swap_are_mandatory(self):
         target = "Ajazz AK820 75% Wired Hot-Swap Mechanical Keyboard Red Switch"
         wrong_category = assess_product_variant(
@@ -189,6 +569,194 @@ class MarketVariantAccuracyTests(unittest.TestCase):
         self.assertEqual(missing_material["status"], "unverified")
         self.assertIn("aluminum", missing_material["reason"])
 
+    def test_psu_wattage_efficiency_and_modularity_must_match(self):
+        target = "Antec B550 550W 80+ Bronze Non-Modular Power Supply"
+        verified = assess_product_variant(target, target)
+        wrong_wattage = assess_product_variant(
+            target,
+            "Antec B550 650W 80+ Bronze Non-Modular Power Supply",
+        )
+        wrong_efficiency = assess_product_variant(
+            target,
+            "Antec B550 550W 80+ Gold Non-Modular Power Supply",
+        )
+        wrong_modularity = assess_product_variant(
+            target,
+            "Antec B550 550W 80+ Bronze Fully Modular Power Supply",
+        )
+        missing_specs = assess_product_variant(target, "Antec B550 Power Supply")
+
+        self.assertEqual(verified["status"], "verified")
+        for result, feature in (
+            (wrong_wattage, "wattage"),
+            (wrong_efficiency, "efficiency"),
+            (wrong_modularity, "modularity"),
+        ):
+            self.assertEqual(result["status"], "mismatch")
+            self.assertIn(feature, result["reason"])
+        self.assertEqual(missing_specs["status"], "unverified")
+        self.assertIn("wattage_550", missing_specs["reason"])
+
+    def test_computer_case_category_model_and_form_factor_are_checked(self):
+        target = "MaxGreen Panora F3 M-ATX Mid-Tower"
+        verified = assess_product_variant(target, "MaxGreen Panora F3 M-ATX Mid-Tower Computer Case")
+        wrong_category = assess_product_variant(
+            target,
+            "MaxGreen Panora F3 Gaming Mouse",
+        )
+        missing_specs = assess_product_variant(
+            target,
+            "MaxGreen Panora F3 Computer Case",
+        )
+
+        self.assertEqual(verified["status"], "verified")
+        self.assertEqual(wrong_category["status"], "mismatch")
+        self.assertIn("product_category_mismatch", wrong_category["reason"])
+        self.assertEqual(missing_specs["status"], "unverified")
+        self.assertIn("case_form_factor_matx", missing_specs["reason"])
+
+    def test_motherboard_atx_and_matx_formats_are_not_combined(self):
+        target = "MSI A520M-A PRO AM4 AMD ATX Motherboard"
+        wrong_size = assess_product_variant(
+            target,
+            "MSI A520M-A PRO AM4 AMD ATX Motherboard; Form Factor: mATX",
+        )
+        missing_size = assess_product_variant(
+            target,
+            "MSI A520M-A PRO AMD Motherboard",
+        )
+        self.assertEqual(wrong_size["status"], "mismatch")
+        self.assertIn("motherboard_form_factor_mismatch", wrong_size["reason"])
+        self.assertEqual(missing_size["status"], "unverified")
+        self.assertIn("motherboard_form_factor_atx", missing_size["reason"])
+
+    def test_motherboard_title_without_bound_form_factor_spec_is_unverified(self):
+        target = "MSI A520M-A PRO AM4 AMD ATX Motherboard"
+        binding = {
+            "association_status": "unambiguous",
+            "product_entity_id": "msi-a520m-a-pro",
+            "price_entity_id": "msi-a520m-a-pro",
+            "entity_identity": target,
+            "entity_title": target,
+            "entity_category": "Motherboard",
+            "page_specifications": "",
+        }
+
+        accepted, assessment, reason = market_research._validate_market_source(
+            {
+                "title": target,
+                "url": "https://shop.example/msi-a520m-a-pro",
+                "price": 7500,
+                "currency": "BDT",
+                "price_source": "schema_org_product_offer",
+                "product_entity_binding": binding,
+            },
+            target,
+        )
+
+        self.assertFalse(accepted)
+        self.assertEqual(assessment["status"], "unverified")
+        self.assertEqual(
+            reason,
+            "required_specification_evidence_missing:motherboard_form_factor",
+        )
+
+    def test_team_delta_memory_family_capacity_speed_rgb_and_latency_are_checked(self):
+        target = "Team Delta RGB DDR4 8GB 3200MHz CL16 Desktop RAM"
+        verified = assess_product_variant(target, target)
+        wrong_family = assess_product_variant(
+            target,
+            "Team T-Create Classic RGB DDR4 8GB 3200MHz CL16 Desktop RAM",
+        )
+        wrong_speed = assess_product_variant(
+            target,
+            "Team Delta RGB DDR4 8GB 3600MHz CL16 Desktop RAM",
+        )
+        mixed_families = assess_product_variant(
+            target,
+            "Team Delta RGB DDR4 8GB 3200MHz CL16; nearby listing "
+            "Team T-Create Classic DDR4 8GB 3200MHz CL16 Desktop RAM",
+        )
+        missing_variant = assess_product_variant(
+            target,
+            "Team Delta DDR4 Desktop RAM",
+        )
+
+        self.assertEqual(verified["status"], "verified")
+        self.assertEqual(wrong_family["status"], "mismatch")
+        self.assertIn("memory_family_mismatch", wrong_family["reason"])
+        self.assertEqual(wrong_speed["status"], "mismatch")
+        self.assertIn("memory_speed_mismatch", wrong_speed["reason"])
+        self.assertEqual(mixed_families["status"], "mismatch")
+        self.assertIn("memory_family_mismatch", mixed_families["reason"])
+        self.assertEqual(missing_variant["status"], "unverified")
+        self.assertIn("rgb", missing_variant["reason"])
+        self.assertIn("capacity_8gb", missing_variant["reason"])
+        self.assertIn("memory_latency_16", missing_variant["reason"])
+
+    def test_ssd_capacity_must_match(self):
+        target = "Addlink S70 Lite 256GB NVMe SSD"
+        wrong_capacity = assess_product_variant(
+            target,
+            "Addlink S70 Lite 512GB NVMe SSD",
+        )
+        missing_capacity = assess_product_variant(
+            target,
+            "Addlink S70 Lite NVMe SSD",
+        )
+
+        self.assertEqual(wrong_capacity["status"], "mismatch")
+        self.assertIn("capacity_mismatch", wrong_capacity["reason"])
+        self.assertEqual(missing_capacity["status"], "unverified")
+        self.assertIn("capacity_256gb", missing_capacity["reason"])
+
+    def test_ssd_weight_decimal_is_not_misread_as_capacity(self):
+        target = "Addlink S70 Lite 256GB M.2 2280 PCIe NVMe SSD"
+        same_capacity_with_weight = assess_product_variant(
+            target,
+            "Addlink S70 Lite 256GB M.2 2280 PCIe NVMe SSD Capacity 256GB Weight 8.2g",
+        )
+
+        self.assertEqual(same_capacity_with_weight["status"], "verified")
+
+    def test_conflicting_listing_title_model_cannot_be_overridden_by_page_snippet(self):
+        target = "MaxGreen Panora F3 M-ATX Mid-Tower"
+        fake_result = {
+            "status": "analyzed",
+            "product_query": target,
+            "invoice_unit_price": 2450,
+            "invoice_currency": "BDT",
+            "sources": [{
+                "source_name": "techlandbd.com",
+                "title": "MaxGreen S19001 Mid-Tower M-ATX Gaming Case",
+                "search_snippet": "MaxGreen Panora F3 M-ATX Mid-Tower Case",
+                "url": "https://techlandbd.com/maxgreen-s19001-case",
+                "price": 700,
+                "currency": "BDT",
+                "price_source": "page_html",
+                "availability": "listed",
+            }],
+            "search_diagnostics": {},
+        }
+
+        with patch.object(
+            market_research,
+            "_ORIGINAL_ANALYZE_MARKET_PRICE_V29",
+            return_value=fake_result,
+        ):
+            result = market_research.analyze_market_price(
+                "Vendor",
+                target,
+                2450,
+                "BDT",
+            )
+
+        self.assertEqual(result["sources"], [])
+        self.assertEqual(
+            result["excluded_sources"][0]["exclusion_reason"],
+            "exact_model_not_found",
+        )
+
     def test_wrong_category_price_is_excluded_from_benchmark(self):
         target = "Ajazz AK820 75% Wired Mechanical Keyboard Red Switch"
         fake_result = {
@@ -199,6 +767,12 @@ class MarketVariantAccuracyTests(unittest.TestCase):
             "sources": [{
                 "source_name": "mouse-shop.example",
                 "title": "Ajazz AK820 Wired Gaming Mouse Red Switch",
+                "product_entity_binding": {
+                    "association_status": "unambiguous",
+                    "product_entity_id": "wrong-category",
+                    "price_entity_id": "wrong-category",
+                    "entity_identity": "Ajazz AK820 Wired Gaming Mouse Red Switch",
+                },
                 "url": "https://mouse-shop.example/ak820",
                 "price": 11000,
                 "currency": "BDT",
@@ -227,6 +801,10 @@ class MarketVariantAccuracyTests(unittest.TestCase):
         self.assertIn(
             "product_category_mismatch",
             result["excluded_sources"][0]["exclusion_reason"],
+        )
+        self.assertEqual(
+            result["search_diagnostics"]["exclusion_reason_counts"],
+            {"product_category_mismatch:mouse": 1},
         )
 
     def test_snippet_only_and_out_of_stock_prices_are_not_eligible(self):
@@ -278,6 +856,12 @@ class MarketVariantAccuracyTests(unittest.TestCase):
                 return {
                     "source_name": domain,
                     "title": title,
+                    "product_entity_binding": {
+                        "association_status": "unambiguous",
+                        "product_entity_id": domain,
+                        "price_entity_id": domain,
+                        "entity_identity": title,
+                    },
                     "url": f"https://{domain}/aj199",
                     "price": price,
                     "currency": "BDT",

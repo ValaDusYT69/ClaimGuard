@@ -26,7 +26,10 @@ from typing import Callable, Literal, overload
 
 from invoice.market.providers import search_searxng as _search_searxng_provider
 from invoice.market.query_builder import build_product_search_queries, is_cst_product
-from invoice.market.structured_data import extract_matching_product_offers
+from invoice.market.structured_data import (
+    extract_matching_dom_product_offers,
+    extract_matching_product_offers,
+)
 from invoice.market.variant_validation import (
     assess_product_variant as _assess_product_variant,
     classify_price_observation as _classify_price_observation,
@@ -34,6 +37,7 @@ from invoice.market.variant_validation import (
     is_statistical_price_outlier as _is_market_price_outlier,
     source_evidence_text as _market_source_evidence_text,
     market_identity_metadata as _market_identity_metadata,
+    has_conflicting_primary_model as _has_conflicting_primary_model,
 )
 from invoice.extraction.identity import normalize_product_identity
 from config import (
@@ -2249,9 +2253,75 @@ def extract_page_price(
             product_description,
         )
         if matching_offers:
+            verified_offers = []
+            for item in matching_offers:
+                binding = item.get("product_entity_binding")
+                if not isinstance(binding, dict) or binding.get("association_status") != "unambiguous":
+                    continue
+                entity_id = str(binding.get("product_entity_id") or "").strip()
+                price_entity_id = str(binding.get("price_entity_id") or "").strip()
+                if not entity_id or entity_id != price_entity_id:
+                    continue
+                evidence = _market_source_evidence_text({
+                    "product_name": binding.get("entity_identity"),
+                    "specifications": binding.get("page_specifications"),
+                    "variant": binding.get("selected_variant"),
+                })
+                category_evidence = " ".join(
+                    str(binding.get(key) or "")
+                    for key in ("entity_title", "entity_category")
+                ).strip() or str(binding.get("entity_identity") or "")
+                assessment = _assess_product_variant(
+                    product_description,
+                    evidence,
+                    category_evidence=category_evidence,
+                    brand_evidence=str(binding.get("entity_identity") or ""),
+                    specification_evidence=str(binding.get("page_specifications") or ""),
+                )
+                item["variant_assessment"] = assessment
+                if assessment.get("status") == "verified":
+                    verified_offers.append(item)
+            # If multiple JSON-LD variants are present, never let a cheaper
+            # sibling SKU win selection over a variant that actually matches.
+            if verified_offers:
+                return verified_offers
             # The page may contain recommendations or additional products.
             # Once a matching Product/Offer is found, return only its offers.
             return matching_offers
+        matching_dom_offers = extract_matching_dom_product_offers(
+            html,
+            product_description,
+        )
+        if matching_dom_offers:
+            verified_dom_offers = []
+            for item in matching_dom_offers:
+                binding = item.get("product_entity_binding")
+                if not isinstance(binding, dict) or binding.get("association_status") != "unambiguous":
+                    continue
+                entity_id = str(binding.get("product_entity_id") or "").strip()
+                price_entity_id = str(binding.get("price_entity_id") or "").strip()
+                if not entity_id or entity_id != price_entity_id:
+                    continue
+                evidence = _market_source_evidence_text({
+                    "product_name": binding.get("entity_identity"),
+                    "specifications": binding.get("page_specifications"),
+                    "variant": binding.get("selected_variant"),
+                })
+                category_evidence = " ".join(
+                    str(binding.get(key) or "")
+                    for key in ("entity_title", "entity_category")
+                ).strip() or str(binding.get("entity_identity") or "")
+                assessment = _assess_product_variant(
+                    product_description,
+                    evidence,
+                    category_evidence=category_evidence,
+                    brand_evidence=str(binding.get("entity_identity") or ""),
+                    specification_evidence=str(binding.get("page_specifications") or ""),
+                )
+                item["variant_assessment"] = assessment
+                if assessment.get("status") == "verified":
+                    verified_dom_offers.append(item)
+            return verified_dom_offers or matching_dom_offers
     else:
         matching_offers = []
 
@@ -2662,6 +2732,22 @@ def select_best_price(
     return prices[0]
 
 
+def _selected_price_identity_evidence(selected_price: dict) -> str:
+    context = str(selected_price.get("product_context") or "").strip()
+    if context:
+        return context
+
+    fields = (
+        "variant_evidence", "product_name", "brand", "model", "sku",
+        "mpn", "description", "variant", "variant_name", "specifications",
+        "attributes", "features",
+    )
+    return " ".join(
+        str(selected_price.get(field) or "").strip()
+        for field in fields
+        if selected_price.get(field) is not None
+    ).strip()
+
 
 # =========================================================
 # PAGE TEXT PREVIEW HELPER
@@ -2815,16 +2901,11 @@ def _passes_search_result_identity_prefilter(
     if not model_matches:
         return False
 
-    # Require a non-numeric identity hint when one is available.  This keeps a
-    # bare capacity hit from opening unrelated pages, while tolerating titles
-    # that omit the invoice's brand or reorder the model words.
-    identity_tokens = {
-        token
-        for token in product_tokens[:4]
-        if not any(character.isdigit() for character in token)
-    }
-    identity_match = identity_tokens & candidate_tokens
-    return bool(identity_match or len(model_matches) >= 2)
+    # A model hit is a discovery hint only: fetch the page and let the
+    # product-entity and category/variant gates decide eligibility. Requiring
+    # brand words here discarded retailer results whose snippets expose only
+    # the model/SKU before the product page could be inspected.
+    return True
 
 
 def has_strong_product_identity(
@@ -2890,7 +2971,11 @@ def analyze_candidate(
     )
 
     if not url:
-
+        _record_market_exclusion(
+            result,
+            {"status": "unverified", "reason": "search_result_url_missing"},
+            "search_result_url_missing",
+        )
         return None
 
     title = result.get(
@@ -2916,6 +3001,25 @@ def analyze_candidate(
         + domain
     )
 
+    def reject_candidate(
+        reason: str,
+        stage: str,
+        page_evidence: str = "",
+    ) -> None:
+        diagnostic = {
+            **result,
+            "source_name": domain or result.get("domain"),
+            "title": title,
+            "search_snippet": snippet,
+            "rejection_stage": stage,
+            "page_evidence_excerpt": page_evidence[:3000] or None,
+        }
+        _record_market_exclusion(
+            diagnostic,
+            {"status": "unverified", "reason": reason},
+            reason,
+        )
+
     # -----------------------------------------------------
     # Search-result prefilter.
     # Do NOT require dimensions here because marketplace snippets
@@ -2939,12 +3043,8 @@ def analyze_candidate(
         product_description,
         candidate_tokens,
     ):
-        _record_market_exclusion(
-            result,
-            {
-                "status": "unverified",
-                "reason": "search_result_identity_prefilter",
-            },
+        reject_candidate(
+            "search_result_identity_prefilter",
             "search_result_identity_prefilter",
         )
         return None
@@ -3030,6 +3130,12 @@ def analyze_candidate(
         product_description,
         combined_identity_text,
     )
+    page_discovery_match = bool(page_text) and _passes_search_result_identity_prefilter(
+        product_description,
+        set(tokenize(page_text[:40000])),
+    )
+    if not strong_identity and page_discovery_match:
+        strong_identity = True
 
     # Trusted official brand pages may use a compact model title such as
     # "Jack Rabbit- C1747" and omit "CST" from the product row.
@@ -3209,7 +3315,11 @@ def analyze_candidate(
             target_domain
             and search_identity_ok
         ):
-
+            reject_candidate(
+                "page_identity_not_verified",
+                "page_identity_validation",
+                page_text,
+            )
             return None
 
         strong_identity = True
@@ -3237,7 +3347,10 @@ def analyze_candidate(
         )
 
         if overlap < 3:
-
+            reject_candidate(
+                "search_identity_overlap_below_threshold",
+                "search_result_identity_validation",
+            )
             return None
 
     if page_text:
@@ -3252,8 +3365,17 @@ def analyze_candidate(
             page_confidence
         )
 
-    if confidence < MIN_MATCH_CONFIDENCE:
-
+    page_model_match = bool(
+        page_text
+        and set(extract_model_tokens(product_description))
+        & set(extract_model_tokens(page_text[:40000]))
+    )
+    if confidence < MIN_MATCH_CONFIDENCE and not page_model_match:
+        reject_candidate(
+            "page_identity_confidence_below_threshold",
+            "page_identity_validation",
+            page_text,
+        )
         return None
 
     # -----------------------------------------------------
@@ -3312,7 +3434,11 @@ def analyze_candidate(
         )
 
     if not prices:
-
+        reject_candidate(
+            "page_price_not_found",
+            "price_extraction",
+            page_text,
+        )
         return None
 
     selected_price = select_best_price(
@@ -3320,14 +3446,22 @@ def analyze_candidate(
     )
 
     if not selected_price:
-
+        reject_candidate(
+            "page_price_selection_failed",
+            "price_selection",
+            page_text,
+        )
         return None
 
     # Never allow non-positive observations into market statistics.
     if clean_price(
         str(selected_price.get("price"))
     ) is None:
-
+        reject_candidate(
+            "price_missing_or_invalid",
+            "price_validation",
+            page_text,
+        )
         return None
 
     currency = selected_price.get(
@@ -3363,7 +3497,11 @@ def analyze_candidate(
         currency = "BDT"
 
     if not currency:
-
+        reject_candidate(
+            "currency_missing_or_invalid",
+            "currency_validation",
+            page_text,
+        )
         return None
 
     observed_at = datetime.now(
@@ -3461,6 +3599,12 @@ def analyze_candidate(
 
         "search_snippet":
             snippet,
+
+        "variant_evidence":
+            _selected_price_identity_evidence(selected_price),
+
+        "product_entity_binding":
+            selected_price.get("product_entity_binding"),
 
         "retrieval_method":
             retrieval_method,
@@ -4029,6 +4173,8 @@ def extract_local_product_prices(
                     999999,
                 ),
 
+                "product_context": local_text,
+
             })
 
     if not candidates:
@@ -4070,6 +4216,8 @@ def extract_local_product_prices(
             "price": item.get("price"),
 
             "currency": item.get("currency"),
+
+            "product_context": item.get("product_context", ""),
 
         })
 
@@ -5281,6 +5429,10 @@ def analyze_direct_candidate(
         ),
 
         "search_snippet": page_text[:500],
+
+        "variant_evidence": _selected_price_identity_evidence(selected_price),
+
+        "product_entity_binding": selected_price.get("product_entity_binding"),
 
         "retrieval_method": retrieval_method,
 
@@ -8915,10 +9067,61 @@ def _market_exclusion_record(source: dict, assessment: dict | None, reason: str)
     # Keep sufficient evidence for the PDF/UI to explain why a listing was
     # excluded. Separate editions may be compared in their own panel only when
     # the price is page-verified; they never enter the requested edition stats.
+    binding = source.get("product_entity_binding")
+    if not isinstance(binding, dict):
+        binding = {}
+    if source.get("rejection_stage"):
+        stage = str(source.get("rejection_stage"))
+    elif reason == "search_result_identity_prefilter":
+        stage = "search_result_identity_prefilter"
+    elif reason.startswith(("ambiguous_product_entity_association", "product_price_entity_mismatch")):
+        stage = "product_entity_association"
+    elif reason in {
+        "price_missing_or_invalid", "price_out_of_range", "currency_missing_or_invalid",
+        "price_page_evidence_missing", "search_snippet_only_not_page_verified",
+        "out_of_stock", "price_not_found",
+    }:
+        stage = "page_price_validation"
+    elif reason in {"product_entity_association_missing"}:
+        stage = "product_entity_association"
+    elif assessment and assessment.get("status") in {"mismatch", "unverified"}:
+        stage = "page_variant_validation"
+    else:
+        stage = str(source.get("rejection_stage") or "candidate_analysis")
+
+    entity_id = str(binding.get("product_entity_id") or "")
+    price_entity_id = str(binding.get("price_entity_id") or "")
     return {
         "title": str(source.get("title") or source.get("search_title") or "Unverified product listing")[:300],
         "source_name": str(source.get("source_name") or source.get("domain") or "Unknown source")[:160],
         "url": str(source.get("url") or source.get("search_result_url") or "")[:1200],
+        "extracted_product_title": str(
+            source.get("product_name") or binding.get("entity_identity") or ""
+        )[:500] or None,
+        "brand": source.get("brand"),
+        "model": source.get("model"),
+        "sku": source.get("sku"),
+        "mpn": source.get("mpn"),
+        "product_identifier": source.get("product_identifier"),
+        "category": source.get("category"),
+        "specifications": str(
+            binding.get("page_specifications") or source.get("specifications") or ""
+        )[:3000],
+        "selected_variant": str(binding.get("selected_variant") or "")[:500] or None,
+        "evidence_sources": binding.get("evidence_sources") or {},
+        "price_extraction_method": source.get("price_source"),
+        "page_fetch_method": source.get("retrieval_method"),
+        "product_entity_id": entity_id or None,
+        "price_entity_id": price_entity_id or None,
+        "price_and_specifications_same_entity": bool(
+            entity_id and entity_id == price_entity_id
+        ),
+        "entity_association_status": binding.get("association_status"),
+        "entity_association_method": binding.get("association_method"),
+        "search_snippet_diagnostic_only": str(
+            source.get("search_snippet") or source.get("snippet") or ""
+        )[:500] or None,
+        "page_evidence_excerpt": str(source.get("page_evidence_excerpt") or "")[:3000] or None,
         "price": source.get("price"),
         "currency": source.get("currency"),
         "availability": source.get("availability"),
@@ -8926,6 +9129,7 @@ def _market_exclusion_record(source: dict, assessment: dict | None, reason: str)
         "source_type": source.get("source_type"),
         "match_confidence": source.get("match_confidence"),
         "variant_validation": assessment or {},
+        "first_rejection_stage": stage,
         "exclusion_reason": reason,
     }
 
@@ -8946,8 +9150,69 @@ def _record_market_exclusion(source: dict, assessment: dict | None, reason: str)
 
 
 def _validate_market_source(source: dict, product_description: str) -> tuple[bool, dict, str | None]:
-    evidence = _market_source_evidence_text(source)
-    assessment = _assess_product_variant(product_description, evidence)
+    primary_title = source.get("title") or source.get("search_title")
+    if _has_conflicting_primary_model(product_description, primary_title):
+        assessment = {
+            "status": "mismatch",
+            "reason": "exact_model_not_found",
+            "confidence": 0.0,
+        }
+        return False, assessment, assessment["reason"]
+
+    binding = source.get("product_entity_binding")
+    if isinstance(binding, dict):
+        if binding.get("association_status") != "unambiguous":
+            detail = str(binding.get("association_reason") or "product_or_variant_not_unique")
+            assessment = {
+                "status": "unverified",
+                "reason": f"ambiguous_product_entity_association:{detail}",
+                "confidence": 0.0,
+            }
+            return False, assessment, assessment["reason"]
+
+        product_entity_id = str(binding.get("product_entity_id") or "").strip()
+        price_entity_id = str(binding.get("price_entity_id") or "").strip()
+        if not product_entity_id or product_entity_id != price_entity_id:
+            assessment = {
+                "status": "unverified",
+                "reason": "product_price_entity_mismatch",
+                "confidence": 0.0,
+            }
+            return False, assessment, assessment["reason"]
+
+        page_identity = {
+            "product_name": binding.get("entity_identity"),
+            "specifications": binding.get("page_specifications"),
+            "variant": binding.get("selected_variant"),
+        }
+        evidence = _market_source_evidence_text(page_identity)
+    else:
+        # Structured variant flags are emitted by the existing page-specific
+        # parsers. Arbitrary strings, titles, and snippets are not evidence.
+        variant_flags = source.get("variant_evidence")
+        if not isinstance(variant_flags, dict) or not variant_flags:
+            assessment = {
+                "status": "unverified",
+                "reason": "product_entity_association_missing",
+                "confidence": 0.0,
+            }
+            return False, assessment, assessment["reason"]
+        evidence = _market_source_evidence_text({"variant_evidence": variant_flags})
+
+    if isinstance(binding, dict):
+        category_evidence = " ".join(
+            str(binding.get(key) or "")
+            for key in ("entity_title", "entity_category")
+        ).strip() or str(binding.get("entity_identity") or "")
+        assessment = _assess_product_variant(
+            product_description,
+            evidence,
+            category_evidence=category_evidence,
+            brand_evidence=str(binding.get("entity_identity") or ""),
+            specification_evidence=str(binding.get("page_specifications") or ""),
+        )
+    else:
+        assessment = _assess_product_variant(product_description, evidence)
     if assessment.get("status") != "verified":
         return False, assessment, str(assessment.get("reason") or "product_variant_not_verified")
 
@@ -9225,6 +9490,15 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
     diagnostics["independent_source_count"] = len(domains)
     diagnostics["variant_rejections"] = sum(1 for item in deduped_excluded if "variant" in str(item.get("exclusion_reason")))
     diagnostics["price_rejections"] = sum(1 for item in deduped_excluded if item.get("exclusion_reason") in {"out_of_stock", "price_missing_or_invalid", "price_out_of_range", "currency_missing_or_invalid", "search_snippet_only_not_page_verified", "statistical_price_outlier"})
+    exclusion_reason_counts: dict[str, int] = {}
+    rejection_stage_counts: dict[str, int] = {}
+    for item in deduped_excluded:
+        reason = str(item.get("exclusion_reason") or "unspecified")
+        exclusion_reason_counts[reason] = exclusion_reason_counts.get(reason, 0) + 1
+        stage = str(item.get("first_rejection_stage") or "unspecified")
+        rejection_stage_counts[stage] = rejection_stage_counts.get(stage, 0) + 1
+    diagnostics["exclusion_reason_counts"] = dict(sorted(exclusion_reason_counts.items()))
+    diagnostics["rejection_stage_counts"] = dict(sorted(rejection_stage_counts.items()))
     return result
 
 

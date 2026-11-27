@@ -31,10 +31,16 @@ _USER_CONFIRMED_OVERRIDES: tuple[dict[str, Any], ...] = (
 )
 
 _FEATURE_PATTERNS: dict[str, re.Pattern[str]] = {
+    "motherboard_form_factor_atx": re.compile(r"(?<![a-z0-9-])atx(?![a-z0-9])", re.I),
+    "motherboard_form_factor_matx": re.compile(r"\b(?:micro[\s-]*atx|m[\s.-]*atx)\b", re.I),
+    "motherboard_form_factor_itx": re.compile(r"\b(?:mini[\s-]*itx|itx)\b", re.I),
+    "cpu_tray": re.compile(r"\b(?:tray|oem)\b", re.I),
+    "cpu_retail_box": re.compile(r"\b(?:retail\s+box(?:ed)?|boxed\s+(?:cpu|processor))\b", re.I),
     "tri_mode": re.compile(r"\b(?:tri[\s-]*mode|3[\s-]*mode|three[\s-]*mode)\b", re.I),
     "dual_mode": re.compile(r"\b(?:dual[\s-]*mode|2[\s-]*mode|two[\s-]*mode)\b", re.I),
     "wired": re.compile(r"\bwired\b", re.I),
     "wireless": re.compile(r"\bwireless\b", re.I),
+    "rgb": re.compile(r"\brgb\b", re.I),
     "2_4ghz": re.compile(r"\b2\s*[.]?\s*4\s*(?:ghz|g)\b", re.I),
     "bluetooth": re.compile(r"\bbluetooth\b|\bbt\s*(?:4|5|5\.\d)\b", re.I),
     "carbon_fiber": re.compile(r"\bcarbon[\s-]*fiber\b|\bcfrp\b", re.I),
@@ -73,6 +79,11 @@ _CATEGORY_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("keyboard", re.compile(r"\bkeyboards?\b", re.I)),
     ("mouse", re.compile(r"\b(?:mouse|mice)\b", re.I)),
     ("monitor", re.compile(r"\b(?:monitors?|displays?)\b", re.I)),
+    ("power_supply", re.compile(r"\b(?:power\s+suppl(?:y|ies)|psu)\b", re.I)),
+    ("computer_case", re.compile(
+        r"\b(?:(?:computer|pc)\s+)?cases?\b|\bchassis\b|\b(?:full|mid|mini|micro)[\s-]?tower\b",
+        re.I,
+    )),
     ("gpu", re.compile(r"\b(?:gpu|graphics cards?|video cards?)\b", re.I)),
     ("cpu", re.compile(r"\b(?:cpu|processors?)\b", re.I)),
     ("storage", re.compile(r"\b(?:ssd|hdd|nvme|storage drives?|flash drives?)\b", re.I)),
@@ -142,6 +153,13 @@ def _models(text: str) -> set[str]:
     }
 
 
+def has_conflicting_primary_model(product_description: str | None, candidate_title: str | None) -> bool:
+    """Detect an explicit listing-title model that conflicts with the target."""
+    target_models = _models(str(product_description or ""))
+    title_models = _models(str(candidate_title or ""))
+    return bool(target_models and title_models and not (target_models & title_models))
+
+
 def _ryzen_models(text: str) -> set[str]:
     """Return Ryzen SKU tokens, including numeric-leading SKUs such as 5700G."""
     return {
@@ -151,7 +169,49 @@ def _ryzen_models(text: str) -> set[str]:
 
 
 def _features(text: str) -> set[str]:
-    return {name for name, pattern in _FEATURE_PATTERNS.items() if pattern.search(text or "")}
+    value = text or ""
+    features = {name for name, pattern in _FEATURE_PATTERNS.items() if pattern.search(value)}
+    for match in re.finditer(r"\b(\d{3,4})\s*(?:w|watts?)\b", value, re.I):
+        features.add(f"wattage_{int(match.group(1))}")
+    for match in re.finditer(
+        r"\b80\s*(?:\+\s*|plus\s*)?(white|bronze|silver|gold|platinum|titanium)\b",
+        value,
+        re.I,
+    ):
+        features.add(f"efficiency_80plus_{match.group(1).casefold()}")
+    for match in re.finditer(r"\b(?:fully|semi|non)[\s-]*modular\b", value, re.I):
+        features.add(f"modularity_{re.sub(r'[\s-]+', '_', match.group(0).casefold())}")
+    for match in re.finditer(r"\bddr\s*([345])\b", value, re.I):
+        features.add(f"memory_generation_ddr{match.group(1)}")
+    for match in re.finditer(r"(?<![\d.])(\d{1,3})\s*(?:gb|g)\b", value, re.I):
+        features.add(f"capacity_{int(match.group(1))}gb")
+    for match in re.finditer(r"\b(\d{3,5})\s*(?:mhz|mt/s)\b", value, re.I):
+        features.add(f"memory_speed_{int(match.group(1))}")
+    for match in re.finditer(r"\bcl\s*(\d{1,2})\b", value, re.I):
+        features.add(f"memory_latency_{int(match.group(1))}")
+    for family, pattern in (
+        ("delta", r"\bdelta\b"),
+        ("tforce", r"\bt[\s-]*force\b"),
+        ("tcreate", r"\bt[\s-]*create\b"),
+        ("elite", r"\belite\b"),
+        ("vulcan", r"\bvulcan\b"),
+        ("dark", r"\bdark\b"),
+    ):
+        if re.search(pattern, value, re.I):
+            features.add(f"memory_family_{family}")
+
+    form_factor = re.search(
+        r"\b(e[\s-]?atx|micro[\s-]?atx|m[\s-]?atx|mini[\s-]?itx|itx|atx)\b",
+        value,
+        re.I,
+    )
+    if form_factor:
+        normalized = re.sub(r"[\s-]+", "", form_factor.group(0).casefold())
+        features.add(f"case_form_factor_{normalized}")
+    tower = re.search(r"\b(full|mid|mini|micro)[\s-]?tower\b", value, re.I)
+    if tower:
+        features.add(f"case_tower_{tower.group(1).casefold()}_tower")
+    return features
 
 
 def _category(text: str) -> str | None:
@@ -231,7 +291,14 @@ def _separate_aj199_edition(candidate: str, candidate_features: set[str]) -> str
     return None
 
 
-def assess_product_variant(product: str | None, candidate_text: str | None) -> dict[str, Any]:
+def assess_product_variant(
+    product: str | None,
+    candidate_text: str | None,
+    *,
+    category_evidence: str | None = None,
+    brand_evidence: str | None = None,
+    specification_evidence: str | None = None,
+) -> dict[str, Any]:
     """Return verified/mismatch/unverified identity with explicit edition rules."""
     target = str(product or "").strip()
     candidate = str(candidate_text or "").strip()
@@ -239,7 +306,7 @@ def assess_product_variant(product: str | None, candidate_text: str | None) -> d
         return {"status": "unverified", "reason": "missing_identity_evidence", "confidence": 0.0}
 
     target_category = _category(target)
-    candidate_category = _category(candidate)
+    candidate_category = _category(category_evidence) if category_evidence else _category(candidate)
     if target_category and candidate_category and target_category != candidate_category:
         return {
             "status": "mismatch",
@@ -278,11 +345,15 @@ def assess_product_variant(product: str | None, candidate_text: str | None) -> d
         }
 
     target_brand = _brand(target)
-    candidate_brand = _known_brand(candidate)
+    candidate_brand_text = str(brand_evidence or candidate)
+    candidate_brand = _known_brand(candidate_brand_text)
     if (
         target_brand
         and candidate_brand is None
-        and re.search(rf"(?<![a-z0-9]){re.escape(target_brand)}(?![a-z0-9])", candidate.casefold())
+        and re.search(
+            rf"(?<![a-z0-9]){re.escape(target_brand)}(?![a-z0-9])",
+            candidate_brand_text.casefold(),
+        )
     ):
         candidate_brand = target_brand
     if target_brand and candidate_brand and target_brand != candidate_brand:
@@ -329,6 +400,23 @@ def assess_product_variant(product: str | None, candidate_text: str | None) -> d
     target_features = _features(target)
     candidate_features = _features(candidate)
     override = _override_for(target)
+
+    if target_category == "motherboard" and specification_evidence is not None:
+        target_form_factors = {
+            feature for feature in target_features
+            if feature.startswith("motherboard_form_factor_")
+        }
+        specification_form_factors = {
+            feature for feature in _features(specification_evidence)
+            if feature.startswith("motherboard_form_factor_")
+        }
+        if target_form_factors and not specification_form_factors:
+            return {
+                "status": "unverified",
+                "reason": "required_specification_evidence_missing:motherboard_form_factor",
+                "expected_variant": sorted(target_form_factors),
+                "confidence": 0.0,
+            }
 
     if (
         "ajazz" in target.casefold()
@@ -396,12 +484,39 @@ def assess_product_variant(product: str | None, candidate_text: str | None) -> d
 
     # Generic material SKU attributes remain hard requirements.
     critical_features = {
-        "tri_mode", "dual_mode", "wired", "wireless", "2_4ghz", "bluetooth",
+        "tri_mode", "dual_mode", "wired", "wireless", "2_4ghz", "bluetooth", "rgb",
         "carbon_fiber", "sensor_3311", "sensor_3395", "aj199_max", "aj199_pro",
         "hot_swap", "layout_75", "aluminum", "stainless_steel", "titanium",
         "plastic", "leather", "wood", "ceramic", "glass",
     } | _SWITCH_FEATURES
     required = target_features & critical_features
+    if target_category == "power_supply":
+        required |= {
+            feature for feature in target_features
+            if feature.startswith(("wattage_", "efficiency_80plus_", "modularity_"))
+        }
+    elif target_category == "computer_case":
+        required |= {
+            feature for feature in target_features
+            if feature.startswith(("case_form_factor_", "case_tower_"))
+        }
+    elif target_category == "memory":
+        required |= {
+            feature for feature in target_features
+            if feature.startswith((
+                "capacity_", "memory_generation_", "memory_speed_",
+                "memory_latency_", "memory_family_",
+            ))
+        }
+    elif target_category == "storage":
+        required |= {feature for feature in target_features if feature.startswith("capacity_")}
+    elif target_category == "motherboard":
+        required |= {
+            feature for feature in target_features
+            if feature.startswith("motherboard_form_factor_")
+        }
+    elif target_category == "cpu":
+        required |= target_features & {"cpu_tray", "cpu_retail_box"}
     if required:
         conflicts: set[str] = set()
         if "aj199_max" in required and "aj199_max" not in candidate_features:
@@ -422,17 +537,38 @@ def assess_product_variant(product: str | None, candidate_text: str | None) -> d
             conflicts.add("wired")
         if "hot_swap" in required and "not_hot_swap" in candidate_features:
             conflicts.add("not_hot_swap")
+        if "cpu_tray" in required and "cpu_retail_box" in candidate_features:
+            conflicts.add("cpu_package_retail_box")
+        if "cpu_retail_box" in required and "cpu_tray" in candidate_features:
+            conflicts.add("cpu_package_tray")
         for switch in _SWITCH_FEATURES:
             if switch in required:
                 conflicts.update((candidate_features & _SWITCH_FEATURES) - {switch})
         for feature in ("sensor_3311", "sensor_3395"):
             if feature in required and (candidate_features & {"sensor_3311", "sensor_3395"}) - {feature}:
                 conflicts.update((candidate_features & {"sensor_3311", "sensor_3395"}) - {feature})
+        for prefix, label in (
+            ("wattage_", "wattage"),
+            ("efficiency_80plus_", "efficiency"),
+            ("modularity_", "modularity"),
+            ("case_form_factor_", "case_form_factor"),
+            ("case_tower_", "case_tower"),
+            ("capacity_", "capacity"),
+            ("memory_generation_", "memory_generation"),
+            ("memory_speed_", "memory_speed"),
+            ("memory_latency_", "memory_latency"),
+            ("memory_family_", "memory_family"),
+            ("motherboard_form_factor_", "motherboard_form_factor"),
+        ):
+            target_values = {feature for feature in required if feature.startswith(prefix)}
+            candidate_values = {feature for feature in candidate_features if feature.startswith(prefix)}
+            if target_values and candidate_values - target_values:
+                conflicts.add(f"{label}_mismatch")
         if conflicts:
             return {"status": "mismatch", "reason": "variant_mismatch:" + ",".join(sorted(conflicts)), "confidence": 0.0}
-        missing = required - candidate_features
-        if missing:
-            return {"status": "unverified", "reason": "required_variant_evidence_missing:" + ",".join(sorted(missing)), "confidence": 0.0}
+        missing_features = required - candidate_features
+        if missing_features:
+            return {"status": "unverified", "reason": "required_variant_evidence_missing:" + ",".join(sorted(missing_features)), "confidence": 0.0}
     elif candidate_features & {"tri_mode", "dual_mode"}:
         return {"status": "unverified", "reason": "candidate_has_unconfirmed_variant", "confidence": 0.0}
 

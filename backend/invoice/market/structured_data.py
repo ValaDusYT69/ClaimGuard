@@ -146,6 +146,12 @@ _SPECIFICATION_LABEL_RE = re.compile(
     r"storage|type|ports|power)\b",
     re.IGNORECASE,
 )
+_PRODUCT_SPECIFICATION_SECTION_RE = re.compile(
+    r"(?:specification|product.?spec|key.?feature|technical.?detail|"
+    r"(?:module|product)[\s_-]*features?(?:[\s_-]*(?:description|list))?|"
+    r"feature[\s_-]*description)",
+    re.IGNORECASE,
+)
 _FINANCIAL_TABLE_RE = re.compile(
     r"\b(?:installment|monthly|charges|overall cost|emi)\b",
     re.IGNORECASE,
@@ -157,6 +163,19 @@ def _walk_page(node: _PageNode):
     for child in node.children:
         if isinstance(child, _PageNode):
             yield from _walk_page(child)
+
+
+def _inside_related_scope(node: _PageNode, scope: _PageNode) -> bool:
+    current: _PageNode | None = node
+    while current is not None and current is not scope:
+        marker = " ".join(
+            current.attrs.get(key, "")
+            for key in ("class", "id", "role")
+        )
+        if _RELATED_SCOPE_RE.search(marker):
+            return True
+        current = current.parent
+    return False
 
 
 def _page_text(node: _PageNode, *, in_variant_selector: bool = False) -> str:
@@ -183,32 +202,24 @@ def _page_specification_text(scope: _PageNode) -> str:
     nodes = list(_walk_page(scope))
     tables = [
         node for node in nodes
-        if node.tag == "table"
+        if node.tag == "table" and not _inside_related_scope(node, scope)
     ]
     relevant_tables = []
     for node in tables:
         text = _page_text(node)
         if (
             text
-            and not _RELATED_SCOPE_RE.search(
-                " ".join(node.attrs.get(key, "") for key in ("class", "id", "role"))
-            )
             and not _FINANCIAL_TABLE_RE.search(text)
             and _SPECIFICATION_LABEL_RE.search(text)
         ):
             relevant_tables.append(text)
-    if relevant_tables:
-        return " ".join(relevant_tables)[:12000]
 
     marked = [
         node for node in nodes
-        if _RELATED_SCOPE_RE.search(
-            " ".join(node.attrs.get(key, "") for key in ("class", "id", "role"))
-        ) is None
+        if not _inside_related_scope(node, scope)
         and re.search(
-            r"(?:specification|product.?spec|key.?feature|technical.?detail)",
+            _PRODUCT_SPECIFICATION_SECTION_RE,
             " ".join(node.attrs.get(key, "") for key in ("class", "id", "role")),
-            re.IGNORECASE,
         )
     ]
     smallest = [
@@ -218,7 +229,12 @@ def _page_specification_text(scope: _PageNode) -> str:
             for other in marked
         )
     ]
-    return " ".join(_page_text(node) for node in smallest if _page_text(node))[:12000]
+    evidence_blocks = relevant_tables + [
+        text for node in smallest
+        if (text := _page_text(node))
+    ]
+    unique_blocks = list(dict.fromkeys(evidence_blocks))
+    return " ".join(unique_blocks)[:12000]
 
 
 def _variant_state(scope: _PageNode) -> tuple[str, list[str]]:
@@ -227,7 +243,7 @@ def _variant_state(scope: _PageNode) -> tuple[str, list[str]]:
     nodes = list(_walk_page(scope))
 
     for node in nodes:
-        if node.tag != "select":
+        if node.tag != "select" or _inside_related_scope(node, scope):
             continue
         label = " ".join(
             node.attrs.get(key, "")
@@ -248,7 +264,7 @@ def _variant_state(scope: _PageNode) -> tuple[str, list[str]]:
 
     input_groups: dict[str, list[_PageNode]] = {}
     for node in nodes:
-        if node.tag != "input":
+        if node.tag != "input" or _inside_related_scope(node, scope):
             continue
         input_type = node.attrs.get("type", "").casefold()
         label = " ".join(
@@ -309,6 +325,154 @@ def _primary_page_scope(html: str, product_description: str) -> tuple[_PageNode,
     return scope, visible, selected_variant, ambiguities
 
 
+def _price_value_in_text(text: str, price: float) -> bool:
+    if not text or not re.search(
+        r"(?:৳|\b(?:bdt|taka|tk\.?|price|selling price|our price|sale price)\b)",
+        text,
+        re.IGNORECASE,
+    ):
+        return False
+    for raw_value in re.findall(r"(?<![\w])([0-9][0-9,]*(?:\.[0-9]{1,2})?)(?![\w])", text):
+        if _number(raw_value) == price:
+            return True
+    return False
+
+
+def _is_struck_through_price(scope: _PageNode, price: float) -> bool:
+    struck_tags = {"del", "s", "strike"}
+    struck_marker = re.compile(
+        r"(?:old|regular|original|was|crossed|list)[\s_-]*price|price[\s_-]*(?:old|regular|original|was)",
+        re.IGNORECASE,
+    )
+    for node in _walk_page(scope):
+        if _inside_related_scope(node, scope):
+            continue
+        marker = " ".join(node.attrs.get(key, "") for key in ("class", "id", "itemprop"))
+        if node.tag not in struck_tags and not struck_marker.search(marker):
+            continue
+        text = _page_text(node)
+        if not text:
+            text = " ".join(
+                node.attrs.get(key, "")
+                for key in ("content", "value", "data-price")
+            )
+        values = re.findall(r"(?<![\w])([0-9][0-9,]*(?:\.[0-9]{1,2})?)(?![\w])", text)
+        if any(_number(value) == price for value in values):
+            return True
+    return False
+
+
+def _page_scope_price_matches(scope: _PageNode, price: float) -> bool:
+    price_marker = re.compile(
+        r"(?:price|selling|sale|amount|current)",
+        re.IGNORECASE,
+    )
+    for node in _walk_page(scope):
+        if _inside_related_scope(node, scope):
+            continue
+        marker = " ".join(
+            node.attrs.get(key, "")
+            for key in ("class", "id", "itemprop", "aria-label")
+        )
+        if not price_marker.search(marker):
+            continue
+        text = _page_text(node)
+        if not text:
+            text = " ".join(
+                node.attrs.get(key, "")
+                for key in ("content", "value", "data-price")
+            )
+        if _price_value_in_text(f"{text} price", price):
+            return True
+    return False
+
+
+def build_page_local_product_binding(
+    html: str,
+    product_description: str,
+    price: float,
+    *,
+    price_context: str = "",
+    page_url: str = "",
+    allow_reader_context: bool = False,
+) -> dict[str, Any]:
+    """Bind page-extracted price/specification evidence to one primary product."""
+    page_scope = _primary_page_scope(html, product_description)
+    if page_scope is None:
+        return {
+            "association_status": "ambiguous",
+            "association_reason": "unique_product_page_scope_missing_or_identity_unverified",
+            "association_method": "unique_primary_product_page_scope",
+            "evidence_sources": {},
+        }
+
+    scope, visible, selected_variant, ambiguities = page_scope
+    heading_nodes = [
+        node for node in _walk_page(scope)
+        if node.tag == "h1" and not _RELATED_SCOPE_RE.search(
+            " ".join(node.attrs.get(key, "") for key in ("class", "id", "role"))
+        )
+    ]
+    heading = _page_text(heading_nodes[0]) if len(heading_nodes) == 1 else ""
+    specifications = _page_specification_text(scope)
+    identity_id = f"unique-primary-product-page:{page_url or heading}"
+    price_context_matches_product = bool(
+        price_context
+        and _identity_score(product_description, price_context)[1]
+        and _price_value_in_text(price_context, price)
+        and (_price_value_in_text(visible, price) or allow_reader_context)
+    )
+    price_matches_scope = _page_scope_price_matches(scope, price)
+    price_is_associated = (
+        price_context_matches_product or price_matches_scope
+    ) and not _is_struck_through_price(scope, price)
+
+    reasons = list(ambiguities)
+    if not price_is_associated:
+        reasons.append("price_not_located_in_unique_product_scope")
+
+    return {
+        "association_status": "ambiguous" if reasons else "unambiguous",
+        "association_reason": ";".join(reasons) if reasons else None,
+        "association_method": "unique_primary_product_page_scope",
+        "product_entity_id": identity_id,
+        "price_entity_id": identity_id,
+        "entity_identity": heading,
+        "entity_title": heading,
+        "entity_category": visible[:3000],
+        "entity_brand": f"{heading} {specifications}".strip(),
+        "page_specifications": specifications,
+        "selected_variant": selected_variant,
+        "evidence_sources": {
+            "entity_identity": "unique_primary_page_heading",
+            "entity_title": "unique_primary_page_heading",
+            "entity_category": "unique_primary_product_page_scope",
+            "entity_brand": (
+                "unique_primary_page_heading_and_specifications"
+                if specifications
+                else "unique_primary_page_heading"
+            ),
+            "page_specifications": (
+                "unique_product_page_specifications"
+                if specifications
+                else None
+            ),
+            "selected_variant": "selected_dom_variant" if selected_variant else None,
+            "price": (
+                "same_url_reader_product_context"
+                if allow_reader_context and price_context_matches_product
+                else "same_product_local_price_context"
+                if price_context_matches_product
+                else "unique_product_page_price_element"
+                if price_matches_scope
+                else None
+            ),
+            "page_scope": "unique_primary_product_page",
+        },
+        "page_evidence_excerpt": visible[:3000],
+    }
+
+
 def _page_entity_binding(
     html: str,
     product_description: str,
@@ -316,6 +480,7 @@ def _page_entity_binding(
     entity_id: str,
     entity_title: str = "",
     entity_category: str = "",
+    entity_brand: str = "",
 ) -> dict[str, Any]:
     page_scope = _primary_page_scope(html, product_description)
     if page_scope is None:
@@ -327,6 +492,7 @@ def _page_entity_binding(
             "entity_identity": product_identity,
             "entity_title": entity_title,
             "entity_category": entity_category,
+            "entity_brand": entity_brand,
             "page_specifications": "",
             "selected_variant": "",
             "evidence_sources": {
@@ -348,13 +514,14 @@ def _page_entity_binding(
         "entity_identity": product_identity,
         "entity_title": entity_title,
         "entity_category": entity_category,
+        "entity_brand": entity_brand,
         "page_specifications": specifications,
         "selected_variant": selected_variant,
         "evidence_sources": {
             "entity_identity": "jsonld_product",
             "entity_title": "jsonld_product_name" if entity_title else None,
             "entity_category": "jsonld_product_category" if entity_category else None,
-            "page_specifications": "dom_specification_table" if specifications else None,
+            "page_specifications": "unique_product_page_specifications" if specifications else None,
             "selected_variant": "selected_dom_variant" if selected_variant else None,
         },
     }
@@ -551,8 +718,6 @@ def extract_matching_product_offers(html: str, product_description: str) -> list
             else "in_stock" if "instock" in availability_raw
             else "unknown"
         )
-        if availability == "out_of_stock":
-            return
 
         entity_id = _identifier(node, f"jsonld-product:{id(node)}")
         offer_id = _identifier(offer, f"{entity_id}#offer:{len(accepted)}")
@@ -569,6 +734,7 @@ def extract_matching_product_offers(html: str, product_description: str) -> list
             entity_id,
             str(node.get("name") or ""),
             str(node.get("category") or ""),
+            brand,
         )
         if ambiguous_reason:
             binding["association_status"] = "ambiguous"
@@ -734,14 +900,19 @@ def extract_matching_dom_product_offers(html: str, product_description: str) -> 
             if price is None or not currency:
                 continue
             availability_nodes = _itemprop_nodes(offer_node, "availability")
-            availability_raw = _dom_value(availability_nodes[0]).casefold() if availability_nodes else ""
+            availability_raw = (
+                str(
+                    availability_nodes[0].attrs.get("href")
+                    or _dom_value(availability_nodes[0])
+                ).casefold()
+                if availability_nodes
+                else ""
+            )
             availability = (
                 "out_of_stock" if "outofstock" in availability_raw
                 else "in_stock" if "instock" in availability_raw
                 else "unknown"
             )
-            if availability == "out_of_stock":
-                continue
 
             page_scope = _primary_page_scope(html, product_description)
             selected_variant = page_scope[2] if page_scope else ""
@@ -756,6 +927,7 @@ def extract_matching_dom_product_offers(html: str, product_description: str) -> 
                 "entity_identity": identity,
                 "entity_title": identity_fields["name"],
                 "entity_category": identity_fields["category"],
+                "entity_brand": brand,
                 "page_specifications": _page_specification_text(node),
                 "selected_variant": selected_variant,
                 "evidence_sources": {
@@ -763,7 +935,7 @@ def extract_matching_dom_product_offers(html: str, product_description: str) -> 
                     "entity_title": "dom_product_name" if identity_fields["name"] else None,
                     "entity_category": "dom_product_category" if identity_fields["category"] else None,
                     "page_specifications": (
-                        "same_dom_product_specification_table"
+                        "same_dom_product_page_specifications"
                         if _page_specification_text(node)
                         else None
                     ),

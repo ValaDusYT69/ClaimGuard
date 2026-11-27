@@ -701,6 +701,15 @@ def _report_value(value: Any, limit: int = 12000) -> str:
     return text
 
 
+def _report_availability(value: Any) -> str:
+    normalized = str(value or "").casefold().replace("-", "_").replace(" ", "_")
+    if normalized in {"out_of_stock", "sold_out", "unavailable", "not_available"}:
+        return "Out of stock (not currently purchasable)"
+    if normalized in {"available", "listed", "in_stock"}:
+        return "Listed / available"
+    return _report_value(value or "Availability unknown")
+
+
 def _report_link(url: Any, style: ParagraphStyle) -> Paragraph:
     value = str(url or "").strip()
     try:
@@ -729,7 +738,7 @@ def _report_source_rows(
         domain = source.get("source_name") or source.get("domain") or "Unknown domain"
         price = source.get("price")
         currency = source.get("currency") or ""
-        availability = source.get("availability") or "Not stated"
+        availability = _report_availability(source.get("availability"))
         source_type = source.get("source_type") or source.get("source_type_label") or "Not stated"
         price_source = source.get("price_source") or source.get("retrieval_method") or "Not stated"
         confidence = source.get("match_confidence")
@@ -747,7 +756,7 @@ def _report_source_rows(
         reason = source.get("exclusion_reason")
         detail_lines = [
             f"Price: {_report_value(price)} {currency}".strip(),
-            f"Availability: {_report_value(availability)}",
+            f"Availability: {availability}",
             f"Source type: {_report_value(source_type)}",
             f"Price evidence: {_report_value(price_source)}",
             f"Identity confidence: {confidence_text}",
@@ -836,6 +845,28 @@ def _report_add_market_product(
     sources = market.get("sources") if isinstance(market.get("sources"), list) else []
     excluded = market.get("excluded_sources") if isinstance(market.get("excluded_sources"), list) else []
     related = market.get("related_edition_comparisons") if isinstance(market.get("related_edition_comparisons"), list) else []
+    displayed_sources = sources[:6]
+    remaining_evidence_rows = max(0, 6 - len(displayed_sources))
+    displayed_related: list[tuple[dict[str, Any], list[dict[str, Any]]]] = []
+    for edition in related:
+        if not isinstance(edition, dict):
+            continue
+        edition_sources = edition.get("sources") if isinstance(edition.get("sources"), list) else []
+        visible_sources = edition_sources[:remaining_evidence_rows]
+        remaining_evidence_rows -= len(visible_sources)
+        displayed_related.append((edition, visible_sources))
+    displayed_excluded = excluded[:remaining_evidence_rows]
+    hidden_evidence_count = (
+        len(sources) - len(displayed_sources)
+        + sum(
+            max(
+                0,
+                len(edition.get("sources") or []) - len(visible_sources),
+            )
+            for edition, visible_sources in displayed_related
+        )
+        + len(excluded) - len(displayed_excluded)
+    )
     comparison = market.get("price_comparison") if isinstance(market.get("price_comparison"), dict) else {}
     domains = market.get("market_quality", {}).get("independent_domains")
     if domains is None:
@@ -870,7 +901,7 @@ def _report_add_market_product(
     ))
 
     story.append(_section(f"5.{index}.1 Accepted price evidence ({len(sources)})", styles))
-    story.append(_report_source_rows(sources, styles, "No price observations were accepted for this exact edition."))
+    story.append(_report_source_rows(displayed_sources, styles, "No price observations were accepted for this exact edition."))
 
     if related:
         story.append(_section(f"5.{index}.2 Other editions — separate comparison only", styles))
@@ -878,11 +909,8 @@ def _report_add_market_product(
             "Different editions are shown for context only. Their prices are never combined with this invoice edition's average, lowest, highest, median or risk benchmark.",
             styles["note"],
         ))
-        for related_index, edition in enumerate(related, start=1):
-            if not isinstance(edition, dict):
-                continue
+        for related_index, (edition, visible_sources) in enumerate(displayed_related, start=1):
             related_stats = edition.get("market_statistics") if isinstance(edition.get("market_statistics"), dict) else {}
-            related_sources = edition.get("sources") if isinstance(edition.get("sources"), list) else []
             related_currency = related_stats.get("currency") or currency
             story.append(_kv_table([
                 ("Separate edition", _report_value(edition.get("edition_label"))),
@@ -895,11 +923,16 @@ def _report_add_market_product(
                 ("Included in target benchmark", _report_value(edition.get("included_in_target_benchmark"))),
                 ("Message", _report_value(edition.get("message"))),
             ], styles))
-            story.append(_report_source_rows(related_sources, styles, "No page-verified prices for this separate edition."))
+            story.append(_report_source_rows(visible_sources, styles, "No page-verified prices for this separate edition."))
 
     if excluded:
         story.append(_section(f"5.{index}.3 Excluded / unverified listings ({len(excluded)})", styles))
-        story.append(_report_source_rows(excluded, styles, "No listings were excluded."))
+        story.append(_report_source_rows(displayed_excluded, styles, "No listings were excluded."))
+    if hidden_evidence_count:
+        story.append(Paragraph(
+            f"{hidden_evidence_count} additional market listings were not shown.",
+            styles["small"],
+        ))
 
 
 def build_invoice_report(invoice: dict[str, Any]) -> bytes:
@@ -1629,6 +1662,24 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
             item = record["item"]
             item_market = record["market"]
             sources = record["sources"]
+            displayed_sources = sources[:6]
+            excluded_sources = (
+                item_market.get("excluded_sources")
+                if isinstance(item_market.get("excluded_sources"), list)
+                else []
+            )
+            displayed_excluded = excluded_sources[:max(0, 6 - len(displayed_sources))]
+            item_search_diagnostics = (
+                item_market.get("search_diagnostics")
+                if isinstance(item_market.get("search_diagnostics"), dict)
+                else {}
+            )
+            hidden_evidence_count = (
+                len(sources) - len(displayed_sources)
+                + len(excluded_sources) - len(displayed_excluded)
+                + int(item_search_diagnostics.get("search_results_excluded_by_relevance") or 0)
+                + int(item_search_diagnostics.get("search_results_not_fetched_due_to_candidate_cap") or 0)
+            )
             product_name = txt(item.get("product"), "Product")
             story.append(Paragraph(escape(product_name), styles["product"]))
             market_label = item_market.get("market_product_label")
@@ -1637,7 +1688,7 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
             for edition in item_market.get("related_edition_comparisons") or []:
                 if isinstance(edition, dict) and edition.get("edition_label"):
                     story.append(Paragraph(escape(str(edition["edition_label"])), styles["small"]))
-            for excluded_source in item_market.get("excluded_sources") or []:
+            for excluded_source in displayed_excluded:
                 if isinstance(excluded_source, dict):
                     excluded_text = excluded_source.get("title") or excluded_source.get("source_name")
                     if excluded_text:
@@ -1727,7 +1778,7 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
                 Paragraph("AVAILABILITY", styles["table_head"]),
                 Paragraph("LINK", styles["table_head"]),
             ]]
-            for source in sources:
+            for source in displayed_sources:
                 if not isinstance(source, dict):
                     continue
                 url = str(source.get("url") or "").strip()
@@ -1736,7 +1787,7 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
                 source_rows.append([
                     Paragraph(escape(txt(domain)), styles["table"]),
                     Paragraph(escape(money(source.get("price"), str(source.get("currency") or currency))), styles["table"]),
-                    Paragraph(escape(txt(source.get("availability"))), styles["table"]),
+                    Paragraph(escape(_report_availability(source.get("availability"))), styles["table"]),
                     source_link,
                 ])
             source_table = Table(source_rows, colWidths=[45 * mm, 35 * mm, 45 * mm, 55 * mm], repeatRows=1)
@@ -1749,12 +1800,17 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
                 ("TOPPADDING", (0, 0), (-1, -1), 5), ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
             ]))
             story.extend([source_table, Spacer(1, 6)])
+            if hidden_evidence_count:
+                story.append(Paragraph(
+                    f"{hidden_evidence_count} additional market listings were not shown.",
+                    styles["small"],
+                ))
     else:
         story.append(Spacer(1, 9))
         if line_items and not matched_product_analyses:
             note_text = "Market research has not been run for these products yet. Use the Re-run OCR & Market Check action in the invoice details page. The PDF does not reuse an old market result unless its product identity matches."
         else:
-            note_text = "No comparable web price passed the current product, model, variant, currency and availability checks. ClaimGuard has deliberately left the market average and percentage blank rather than compare a different or unverified product."
+            note_text = "No comparable web price passed the current product, model, variant, currency and page-price checks. Stock status is reported separately. ClaimGuard has deliberately left the market average and percentage blank rather than compare a different or unverified product."
         story.append(Paragraph(escape(note_text), styles["note"]))
 
     # Keep reviewer and validation information concise and understandable.

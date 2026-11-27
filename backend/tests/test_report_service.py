@@ -195,6 +195,108 @@ class ComprehensiveInvoiceReportTests(unittest.TestCase):
         self.assertIn("Keyboard", text)
         self.assertIn("Mouse", text)
 
+    def test_market_report_limits_visible_listings_and_summarizes_the_rest(self):
+        sources = [
+            {
+                "source_name": f"retailer-{index:02}.example",
+                "url": f"https://retailer-{index:02}.example/product",
+                "price": 2500 + index,
+                "currency": "BDT",
+                "availability": "listed",
+            }
+            for index in range(10)
+        ]
+        excluded = [
+            {
+                "title": f"excluded-listing-{index:02}",
+                "source_name": f"excluded-{index:02}.example",
+                "url": f"https://excluded-{index:02}.example/product",
+                "exclusion_reason": "variant_mismatch",
+            }
+            for index in range(8)
+        ]
+        text = self._extract({
+            "invoice_id": "INV-LIMITED-MARKET",
+            "extracted_data": {
+                "invoice_number": "INV-LIMITED-MARKET",
+                "currency": "BDT",
+                "line_items": [
+                    {"product": "Widget X1", "quantity": 1, "unit_price": 2600, "line_amount": 2600}
+                ],
+            },
+            "market_analysis": {
+                "product_analyses": [
+                    {
+                        "product": "Widget X1",
+                        "market": {
+                            "market_statistics": {"currency": "BDT", "average": 2504.5},
+                            "market_quality": {"independent_domains": 10},
+                            "sources": sources,
+                            "excluded_sources": excluded,
+                            "search_diagnostics": {
+                                "search_results_excluded_by_relevance": 4,
+                                "search_results_not_fetched_due_to_candidate_cap": 3,
+                            },
+                        },
+                    }
+                ],
+            },
+        })
+
+        for index in range(6):
+            self.assertIn(f"retailer-{index:02}.example", text)
+        self.assertNotIn("retailer-06.example", text)
+        self.assertNotIn("excluded-listing-00", text)
+        self.assertIn("19 additional market listings were not shown", text)
+
+    def test_out_of_stock_market_price_is_labeled_not_purchasable(self):
+        text = self._extract({
+            "invoice_id": "INV-OOS-MARKET",
+            "extracted_data": {
+                "invoice_number": "INV-OOS-MARKET",
+                "currency": "BDT",
+                "line_items": [
+                    {
+                        "product": "MSI A520M-A PRO Motherboard",
+                        "quantity": 1,
+                        "unit_price": 7500,
+                        "line_amount": 7500,
+                    }
+                ],
+            },
+            "market_analysis": {
+                "product_analyses": [
+                    {
+                        "product": "MSI A520M-A PRO Motherboard",
+                        "invoice_unit_price": 7500,
+                        "market": {
+                            "market_statistics": {
+                                "currency": "BDT",
+                                "average": 7000,
+                                "lowest": 7000,
+                                "highest": 7000,
+                                "median": 7000,
+                            },
+                            "sources": [
+                                {
+                                    "title": "MSI A520M-A PRO Motherboard",
+                                    "source_name": "retailer.example",
+                                    "url": "https://retailer.example/msi-a520m-a-pro",
+                                    "price": 7000,
+                                    "currency": "BDT",
+                                    "availability": "out_of_stock",
+                                    "price_source": "page_html",
+                                }
+                            ],
+                        },
+                    }
+                ]
+            },
+        })
+
+        self.assertIn("Out of stock (not currently purchasable)", text)
+        self.assertIn("7,000", text)
+
 
 if __name__ == "__main__":
     unittest.main()

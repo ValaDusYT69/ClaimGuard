@@ -172,6 +172,16 @@ def _features(text: str) -> set[str]:
     value = text or ""
     features = {name for name, pattern in _FEATURE_PATTERNS.items() if pattern.search(value)}
     for match in re.finditer(r"\b(\d{3,4})\s*(?:w|watts?)\b", value, re.I):
+        preceding_text = value[max(0, match.start() - 80):match.start()]
+        minimum_power_labels = list(re.finditer(
+            r"\bmin(?:imum)?\.?\s+(?:input\s+)?power\b",
+            preceding_text,
+            re.I,
+        ))
+        if minimum_power_labels:
+            text_after_label = preceding_text[minimum_power_labels[-1].end():]
+            if not re.search(r"\b\d{3,4}\s*(?:w|watts?)\b", text_after_label, re.I):
+                continue
         features.add(f"wattage_{int(match.group(1))}")
     for match in re.finditer(
         r"\b80\s*(?:\+\s*|plus\s*)?(white|bronze|silver|gold|platinum|titanium)\b",
@@ -614,7 +624,7 @@ def effective_search_query(product: str | None) -> str:
 
 
 def classify_price_observation(source: dict[str, Any]) -> tuple[bool, str | None]:
-    """Allow only positive, currency-backed, in-stock page-level observations."""
+    """Allow positive, currency-backed page-level price observations."""
     try:
         price = float(source.get("price"))
     except (TypeError, ValueError):
@@ -624,9 +634,6 @@ def classify_price_observation(source: dict[str, Any]) -> tuple[bool, str | None
     currency = str(source.get("currency") or "").strip().upper()
     if not currency or len(currency) != 3:
         return False, "currency_missing_or_invalid"
-    availability = str(source.get("availability") or "").casefold().replace("-", "_").replace(" ", "_")
-    if availability in {"out_of_stock", "sold_out", "unavailable", "not_available"}:
-        return False, "out_of_stock"
     price_source = str(source.get("price_source") or "").casefold()
     verified_page_sources = {
         "page_html", "local_product_context", "structured_product_page",

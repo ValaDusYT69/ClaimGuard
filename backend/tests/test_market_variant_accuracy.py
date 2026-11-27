@@ -118,6 +118,238 @@ class MarketVariantAccuracyTests(unittest.TestCase):
         self.assertIn("cpu_tray", assessment["reason"])
         self.assertEqual(reason, assessment["reason"])
 
+    def test_product_page_price_and_separate_specification_table_share_one_entity(self):
+        target = "MSI A520M-A PRO Micro-ATX Motherboard"
+        html = """
+        <html><body><main>
+          <h1>MSI A520M-A PRO Motherboard</h1>
+          <div class="current-price">BDT 7,700</div>
+          <table><tr><th>Form Factor</th><td>Micro-ATX</td></tr></table>
+        </main></body></html>
+        """
+
+        binding = market_research.build_page_local_product_binding(
+            html,
+            target,
+            7700,
+            page_url="https://shop.example/msi-a520m-a-pro",
+        )
+        source = {
+            "title": "MSI A520M-A PRO Motherboard",
+            "source_name": "shop.example",
+            "url": "https://shop.example/msi-a520m-a-pro",
+            "price": 7700,
+            "currency": "BDT",
+            "price_source": "page_html",
+            "availability": "listed",
+            "product_entity_binding": binding,
+        }
+
+        accepted, assessment, reason = market_research._validate_market_source(source, target)
+
+        self.assertTrue(accepted, reason)
+        self.assertEqual(assessment["status"], "verified")
+        self.assertEqual(binding["product_entity_id"], binding["price_entity_id"])
+        self.assertIn("Form Factor", binding["page_specifications"])
+        self.assertEqual(binding["evidence_sources"]["price"], "unique_product_page_price_element")
+
+    def test_related_card_and_crossed_out_prices_cannot_bind_to_product_page(self):
+        target = "MSI A520M-A PRO Micro-ATX Motherboard"
+        related_card_html = """
+        <html><body><main>
+          <h1>MSI A520M-A PRO Motherboard</h1>
+          <table><tr><th>Form Factor</th><td>Micro-ATX</td></tr></table>
+          <section class="related-products">
+            <h2>Other products</h2><span class="price">BDT 7,700</span>
+            <table><tr><th>Form Factor</th><td>ATX</td></tr></table>
+          </section>
+        </main></body></html>
+        """
+        related_binding = market_research.build_page_local_product_binding(
+            related_card_html,
+            target,
+            7700,
+            price_context="MSI A520M-A PRO Motherboard BDT 7,700",
+            page_url="https://shop.example/msi-a520m-a-pro",
+        )
+        self.assertEqual(related_binding["association_status"], "ambiguous")
+        self.assertIn("price_not_located_in_unique_product_scope", related_binding["association_reason"])
+        self.assertNotIn(
+            "Form Factor ATX",
+            related_binding.get("page_specifications", ""),
+        )
+        accepted, _, reason = market_research._validate_market_source(
+            {
+                "title": "MSI A520M-A PRO Motherboard",
+                "source_name": "shop.example",
+                "price": 7700,
+                "currency": "BDT",
+                "price_source": "page_html",
+                "product_entity_binding": related_binding,
+            },
+            target,
+        )
+        self.assertFalse(accepted)
+        self.assertEqual(
+            reason,
+            "ambiguous_product_entity_association:price_not_located_in_unique_product_scope",
+        )
+
+        crossed_out_html = """
+        <html><body><main>
+          <h1>MSI A520M-A PRO Motherboard</h1>
+          <del class="old-price">BDT 7,700</del>
+          <div class="current-price">BDT 8,000</div>
+          <table><tr><th>Form Factor</th><td>Micro-ATX</td></tr></table>
+        </main></body></html>
+        """
+        crossed_binding = market_research.build_page_local_product_binding(
+            crossed_out_html,
+            target,
+            7700,
+            page_url="https://shop.example/msi-a520m-a-pro",
+        )
+        self.assertEqual(crossed_binding["association_status"], "ambiguous")
+        self.assertIn("price_not_located_in_unique_product_scope", crossed_binding["association_reason"])
+
+    def test_unresolved_page_variant_selector_keeps_local_binding_ambiguous(self):
+        target = "MSI A520M-A PRO Micro-ATX Motherboard"
+        html = """
+        <html><body><main>
+          <h1>MSI A520M-A PRO Motherboard</h1>
+          <div class="current-price">BDT 7,700</div>
+          <select name="model">
+            <option value="standard">Standard</option>
+            <option value="alternate">Alternate</option>
+          </select>
+          <table><tr><th>Form Factor</th><td>Micro-ATX</td></tr></table>
+        </main></body></html>
+        """
+
+        binding = market_research.build_page_local_product_binding(html, target, 7700)
+
+        self.assertEqual(binding["association_status"], "ambiguous")
+        self.assertIn("variant_selector_unresolved:model", binding["association_reason"])
+
+    def test_jina_reader_retries_same_page_when_direct_html_has_no_price(self):
+        target = "MSI A520M-A PRO Micro-ATX Motherboard"
+        html = """
+        <html><body><main>
+          <h1>MSI A520M-A PRO Motherboard</h1>
+          <table><tr><th>Form Factor</th><td>Micro-ATX</td></tr></table>
+        </main></body></html>
+        """
+        result = {
+            "url": "https://www.startech.com.bd/msi-a520m-a-pro",
+            "domain": "startech.com.bd",
+            "title": "MSI Motherboard price",
+            "snippet": "MSI mainboard listing",
+        }
+        rendered = (
+            "MSI A520M-A PRO Motherboard. Form Factor: Micro-ATX. "
+            "Price: BDT 7,700. Add to cart."
+        )
+        with patch.object(
+            market_research,
+            "_fetch_for_provider",
+            return_value=(html.encode(), result["url"]),
+        ) as fetch, patch.object(
+            market_research,
+            "fetch_url_via_jina",
+            return_value=rendered,
+        ) as jina:
+            source = market_research.analyze_candidate(result, target)
+
+        fetch.assert_called_once()
+        jina.assert_called_once_with(result["url"])
+        self.assertIsNotNone(source)
+        self.assertEqual(source["retrieval_method"], "jina_reader")
+        self.assertEqual(source["price"], 7700)
+        self.assertEqual(source["product_entity_binding"]["association_status"], "unambiguous")
+
+    def test_jina_reader_cannot_replace_direct_page_identity_with_a_sibling_model(self):
+        target = "MSI A520M-A PRO Micro-ATX Motherboard"
+        html = """
+        <html><body><main>
+          <h1>MSI A520M-A PRO Motherboard</h1>
+          <table><tr><th>Form Factor</th><td>Micro-ATX</td></tr></table>
+        </main></body></html>
+        """
+        result = {
+            "url": "https://www.startech.com.bd/msi-a520m-a-pro",
+            "domain": "startech.com.bd",
+            "title": "MSI Motherboard price",
+            "snippet": "MSI mainboard listing",
+        }
+        with patch.object(
+            market_research,
+            "_fetch_for_provider",
+            return_value=(html.encode(), result["url"]),
+        ), patch.object(
+            market_research,
+            "fetch_url_via_jina",
+            return_value="MSI A320M motherboard price BDT 7,700",
+        ):
+            source = market_research.analyze_candidate(result, target)
+
+        self.assertIsNone(source)
+
+    def test_out_of_stock_jsonld_and_dom_offers_are_retained_as_observations(self):
+        target = "Antec B550 550W 80+ Bronze Non-Modular Power Supply"
+        title = "Antec B550 550W 80+ Bronze Non-Modular Power Supply"
+        specifications = (
+            "Output Capacity: 550W. Efficiency: 80 Plus Bronze. "
+            "Modularity: Non-Modular."
+        )
+        jsonld_html = f"""
+        <html><body><main>
+          <h1>{title}</h1>
+          <script type="application/ld+json">
+            {{"@type":"Product","@id":"#b550","name":"{title}",
+             "brand":{{"@type":"Brand","name":"Antec"}},"model":"B550",
+             "category":"Power Supply","offers":{{"@type":"Offer",
+             "price":"6500","priceCurrency":"BDT",
+             "availability":"https://schema.org/OutOfStock"}}}}
+          </script>
+          <table><tr><th>Specifications</th><td>{specifications}</td></tr></table>
+        </main></body></html>
+        """
+        jsonld_prices = market_research.extract_page_price(
+            jsonld_html,
+            "shop.example",
+            product_description=target,
+        )
+        self.assertEqual(len(jsonld_prices), 1)
+        self.assertEqual(jsonld_prices[0]["availability"], "out_of_stock")
+        jsonld_source = {
+            **jsonld_prices[0],
+            "title": title,
+            "source_name": "shop.example",
+            "url": "https://shop.example/antec-b550",
+            "retrieval_method": "direct_http",
+        }
+        accepted, _, reason = market_research._validate_market_source(jsonld_source, target)
+        self.assertTrue(accepted, reason)
+
+        dom_html = f"""
+        <html><body><main>
+          <article itemscope itemtype="https://schema.org/Product">
+            <h1 itemprop="name">{title}</h1>
+            <meta itemprop="brand" content="Antec">
+            <meta itemprop="model" content="B550">
+            <div itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+              <meta itemprop="price" content="6500">
+              <meta itemprop="priceCurrency" content="BDT">
+              <link itemprop="availability" href="https://schema.org/OutOfStock">
+            </div>
+            <table><tr><th>Specifications</th><td>{specifications}</td></tr></table>
+          </article>
+        </main></body></html>
+        """
+        dom_prices = market_research.extract_matching_dom_product_offers(dom_html, target)
+        self.assertEqual(len(dom_prices), 1)
+        self.assertEqual(dom_prices[0]["availability"], "out_of_stock")
+
     def test_psu_minimum_system_power_does_not_override_rated_output(self):
         target = "Antec B Series B550 550W 80+ Bronze Non-Modular Power Supply"
         page_evidence = (
@@ -1039,13 +1271,68 @@ class MarketVariantAccuracyTests(unittest.TestCase):
             {"product_category_mismatch:mouse": 1},
         )
 
-    def test_snippet_only_and_out_of_stock_prices_are_not_eligible(self):
+    def test_snippet_only_is_rejected_but_out_of_stock_price_is_an_observation(self):
         base = {"price": 2600, "currency": "BDT", "price_source": "page_html", "availability": "listed"}
         self.assertEqual(classify_price_observation(base), (True, None))
         snippet = {**base, "price_source": "search_result_fallback"}
         self.assertEqual(classify_price_observation(snippet)[1], "search_snippet_only_not_page_verified")
         out = {**base, "availability": "out_of_stock"}
-        self.assertEqual(classify_price_observation(out)[1], "out_of_stock")
+        self.assertEqual(classify_price_observation(out), (True, None))
+
+    def test_out_of_stock_observations_are_in_market_statistics_but_not_available(self):
+        target = "MSI A520M-A PRO Motherboard"
+
+        def source(domain, price, availability):
+            entity_id = f"product:{domain}"
+            return {
+                "title": target,
+                "source_name": domain,
+                "url": f"https://{domain}/msi-a520m-a-pro",
+                "price": price,
+                "currency": "BDT",
+                "price_source": "page_html",
+                "availability": availability,
+                "product_entity_binding": {
+                    "association_status": "unambiguous",
+                    "product_entity_id": entity_id,
+                    "price_entity_id": entity_id,
+                    "entity_identity": target,
+                    "entity_title": target,
+                    "entity_category": "Motherboard",
+                    "entity_brand": "MSI",
+                    "page_specifications": "",
+                    "selected_variant": "",
+                },
+            }
+
+        fake_result = {
+            "sources": [
+                source("retailer-a.example", 7000, "out_of_stock"),
+                source("retailer-b.example", 8000, "in_stock"),
+            ],
+            "excluded_sources": [],
+            "invoice_currency": "BDT",
+            "invoice_unit_price": 7500,
+            "search_diagnostics": {},
+        }
+        with patch.object(
+            market_research,
+            "_ORIGINAL_ANALYZE_MARKET_PRICE_V29",
+            return_value=fake_result,
+        ):
+            result = market_research.analyze_market_price(
+                "Vendor",
+                target,
+                7500,
+                "BDT",
+            )
+
+        self.assertEqual(len(result["sources"]), 2)
+        self.assertEqual(result["market_statistics"]["lowest"], 7000)
+        self.assertEqual(result["market_statistics"]["highest"], 8000)
+        self.assertEqual(result["market_statistics"]["average"], 7500)
+        self.assertEqual(result["market_statistics"]["median"], 7500)
+        self.assertEqual(result["sources"][0]["availability"], "out_of_stock")
 
     def test_extreme_price_outlier_filter_only_runs_with_five_or_more_sources(self):
         prices = [2500, 2600, 2700, 2800, 2900]

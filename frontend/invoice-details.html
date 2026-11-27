@@ -3626,7 +3626,8 @@ body.theme-reviewer .error-state{
                             Market reference rule
                         </strong>
                         Only exact-model, variant-verified, page-checked prices from independent stores are
-                        included. Out-of-stock, mismatched, and search-snippet-only prices are excluded.
+                        included. Page-verified out-of-stock prices remain observations but are not currently
+                        purchasable; mismatched and search-snippet-only prices are excluded.
                     </div>
 
                     <div
@@ -4911,7 +4912,7 @@ body.theme-reviewer .error-state{
             ) {
 
                 return [
-                    "Out of stock",
+                    "Out of stock (not currently purchasable)",
                     "market-availability-out"
                 ];
 
@@ -5704,6 +5705,51 @@ body.theme-reviewer .error-state{
                         const itemRelatedEditions = Array.isArray(itemMarket.related_edition_comparisons)
                             ? itemMarket.related_edition_comparisons
                             : [];
+                        const maxEvidenceCards = 6;
+                        const displayedMarketSources = itemMarketSources.slice(0, maxEvidenceCards);
+                        let remainingEvidenceCards = maxEvidenceCards - displayedMarketSources.length;
+                        const displayedEvidenceKeys = new Set(
+                            displayedMarketSources.map(source => String(
+                                source.url || `${source.source_name || ""}|${source.title || ""}`,
+                            )),
+                        );
+                        const displayedRelatedEditions = itemRelatedEditions.map(edition => {
+                            const editionSources = Array.isArray(edition.sources) ? edition.sources : [];
+                            const uniqueEditionSources = editionSources.filter(source => {
+                                const key = String(
+                                    source.url || `${source.source_name || ""}|${source.title || ""}`,
+                                );
+                                if (displayedEvidenceKeys.has(key)) {
+                                    return false;
+                                }
+                                displayedEvidenceKeys.add(key);
+                                return true;
+                            });
+                            const visibleSources = uniqueEditionSources.slice(0, remainingEvidenceCards);
+                            remainingEvidenceCards -= visibleSources.length;
+                            return {
+                                ...edition,
+                                displayed_sources: visibleSources,
+                                hidden_source_count: uniqueEditionSources.length - visibleSources.length,
+                            };
+                        });
+                        const uniqueExcludedSources = itemExcludedSources.filter(source => {
+                            const key = String(
+                                source.url || `${source.source_name || ""}|${source.title || ""}`,
+                            );
+                            if (displayedEvidenceKeys.has(key)) {
+                                return false;
+                            }
+                            displayedEvidenceKeys.add(key);
+                            return true;
+                        });
+                        const displayedExcludedSources = uniqueExcludedSources.slice(0, remainingEvidenceCards);
+                        const additionalHiddenEvidence =
+                            Math.max(0, itemMarketSources.length - displayedMarketSources.length)
+                            + uniqueExcludedSources.length - displayedExcludedSources.length
+                            + displayedRelatedEditions.reduce((sum, edition) => sum + edition.hidden_source_count, 0)
+                            + (Number(itemDiagnostics.search_results_excluded_by_relevance) || 0)
+                            + (Number(itemDiagnostics.search_results_not_fetched_due_to_candidate_cap) || 0);
                         const safeProductName = escapeHtml(displayProductName(
                             {
                                 ...item,
@@ -5722,6 +5768,9 @@ body.theme-reviewer .error-state{
                                     </span>
                                 </div>
                                 ${itemVariantNotice ? `<div class="market-validation-note">${escapeHtml(itemVariantNotice)}</div>` : ""}
+                                ${itemMarket.status === "search_failed" && itemMarket.message
+                                    ? `<div class="market-validation-note">${escapeHtml(itemMarket.message)}</div>`
+                                    : ""}
                                 <div class="market-product-analysis-metrics">
                                     <div class="market-product-analysis-metric">
                                         <span>Invoice unit price</span>
@@ -5779,22 +5828,22 @@ body.theme-reviewer .error-state{
                                         : ""}
                                 </div>
                                 <details class="market-product-sources">
-                                    <summary>View verified store prices (${formatNumber(itemSources.length)})</summary>
+                                    <summary>View verified price observations (${formatNumber(itemSources.length)})</summary>
                                     <div class="market-product-sources-body">
                                         ${itemMarketSources.length
-                                            ? itemMarketSources.map(source => renderMarketSource(source, itemCurrency)).join("")
+                                            ? displayedMarketSources.map(source => renderMarketSource(source, itemCurrency)).join("")
                                             : `<div class="market-empty">No source passed exact model, variant and price checks.</div>`}
                                     </div>
                                 </details>
-                                ${itemRelatedEditions.length ? `
+                                ${displayedRelatedEditions.length ? `
                                     <details class="market-product-sources market-related-editions">
                                         <summary>Compare other AJ199 editions separately (${formatNumber(itemRelatedEditions.reduce((sum, edition) => sum + (Number(edition.source_count) || 0), 0))} page-verified listings)</summary>
                                         <div class="market-product-sources-body">
                                             <div class="market-validation-note">These are different editions, not equivalent to the invoice item. Their prices are displayed separately and never affect this product's average, lowest, highest, median or risk benchmark.</div>
-                                            ${itemRelatedEditions.map(edition => {
+                                            ${displayedRelatedEditions.map(edition => {
                                                 const editionStats = edition.market_statistics || {};
                                                 const editionCurrency = editionStats.currency || itemCurrency;
-                                                const editionSources = Array.isArray(edition.sources) ? edition.sources : [];
+                                                const editionSources = edition.displayed_sources || [];
                                                 return `
                                                     <section class="market-related-edition-block">
                                                         <h4>${escapeHtml(edition.edition_label || "Other AJ199 edition")}</h4>
@@ -5806,6 +5855,7 @@ body.theme-reviewer .error-state{
                                                                 : "Not enough independent verified listings for separate edition statistics."}
                                                         </div>
                                                         ${editionSources.map(source => renderMarketSource(source, editionCurrency)).join("")}
+                                                        ${edition.hidden_source_count ? `<div class="market-validation-note">${formatNumber(edition.hidden_source_count)} additional listings for this edition were not displayed.</div>` : ""}
                                                     </section>
                                                 `;
                                             }).join("")}
@@ -5814,12 +5864,13 @@ body.theme-reviewer .error-state{
                                 ` : ""}
                                 ${itemExcludedSources.length ? `
                                     <details class="market-product-sources market-excluded-sources">
-                                        <summary>Excluded / unverified listings (${formatNumber(itemExcludedSources.length)})</summary>
+                                        <summary>Excluded / unverified listings (${formatNumber(displayedExcludedSources.length)} shown)</summary>
                                         <div class="market-product-sources-body">
-                                            ${itemExcludedSources.map(source => renderMarketSource(source, itemCurrency)).join("")}
+                                            ${displayedExcludedSources.map(source => renderMarketSource(source, itemCurrency)).join("")}
                                         </div>
                                     </details>
                                 ` : ""}
+                                ${additionalHiddenEvidence ? `<div class="market-validation-note">${formatNumber(additionalHiddenEvidence)} additional excluded or unverified results were not displayed.</div>` : ""}
                             </article>
                         `;
                     }).join("")}

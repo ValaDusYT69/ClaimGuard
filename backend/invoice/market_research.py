@@ -27,6 +27,7 @@ from typing import Callable, Literal, overload
 from invoice.market.providers.serper import search_serper as _search_serper_provider
 from invoice.market.query_builder import build_product_search_queries, is_cst_product
 from invoice.market.structured_data import (
+    build_page_local_product_binding,
     extract_matching_dom_product_offers,
     extract_matching_product_offers,
 )
@@ -1431,14 +1432,19 @@ def _rank_market_search_results(
         title = str(raw_result.get("title") or "")
         snippet = str(raw_result.get("snippet") or "")
         evidence = f"{title} {snippet} {url}"
+        if _has_conflicting_primary_model(product_description, title):
+            continue
         result_models = extract_model_tokens(evidence)
         model_hits = target_models & result_models
-        if target_models and not model_hits:
+        if target_models and not model_hits and not _plausible_local_retailer_identity(
+            product_description,
+            evidence,
+        ):
             continue
         if not target_models and not _passes_search_result_identity_prefilter(
             product_description,
             set(tokenize(evidence)),
-        ):
+        ) and not _plausible_local_retailer_identity(product_description, evidence):
             continue
 
         title_models = target_models & extract_model_tokens(title)
@@ -1455,6 +1461,7 @@ def _rank_market_search_results(
             re.search(r"\b(?:bdt|taka|price)\b|৳", f"{title} {snippet}", re.IGNORECASE)
         )
         rank = (
+            0 if model_hits else 1,
             0 if last_segment_model_hits else 1 if url_model_hits else 2,
             0 if is_local_retailer else 1,
             -len(title_models),
@@ -1483,6 +1490,37 @@ def _rank_market_search_results(
         if len(selected) >= max(1, limit):
             break
     return selected
+
+
+def _plausible_local_retailer_identity(
+    product_description: str,
+    candidate_text: str,
+) -> bool:
+    """Allow a brand/family plus category hint to reach retailer-page checks."""
+    target_tokens = set(tokenize(product_description))
+    candidate_tokens = set(tokenize(candidate_text))
+    model_tokens: set[str] = set()
+    for model in extract_model_tokens(product_description):
+        model_tokens.update(tokenize(model))
+
+    category_groups = (
+        (r"\b(?:motherboard|mainboard)\b", {"motherboard", "mainboard"}),
+        (r"\b(?:case|casing|chassis|tower)\b", {"case", "cases", "casing", "chassis", "tower"}),
+        (r"\b(?:ram|memory|ddr[345])\b", {"ram", "memory"}),
+        (r"\b(?:power\s+supply|psu)\b", {"power", "supply", "psu"}),
+        (r"\b(?:processor|cpu|ryzen)\b", {"processor", "cpu"}),
+        (r"\b(?:ssd|solid\s+state\s+drive)\b", {"ssd", "storage"}),
+        (r"\bkeyboard\b", {"keyboard", "keyboards"}),
+        (r"\bmouse\b", {"mouse", "mice"}),
+        (r"\b(?:monitor|display)\b", {"monitor", "display"}),
+    )
+    category_tokens: set[str] = set()
+    for pattern, synonyms in category_groups:
+        if re.search(pattern, product_description, re.IGNORECASE):
+            category_tokens.update(synonyms)
+
+    identity_tokens = target_tokens - model_tokens - category_tokens
+    return bool(category_tokens & candidate_tokens) and bool(identity_tokens & candidate_tokens)
 
 
 def search_web(
@@ -3130,9 +3168,24 @@ def analyze_candidate(
         tokenize(candidate_text)
     )
 
+    candidate_domain = (domain or get_domain(url)).lower().strip()
+    is_local_retailer_candidate = (
+        candidate_domain in RETAILER_DOMAINS
+        or candidate_domain.endswith(".bd")
+    )
+    if _has_conflicting_primary_model(product_description, title):
+        reject_candidate(
+            "exact_model_not_found",
+            "search_result_identity_validation",
+        )
+        return None
+
     if not _passes_search_result_identity_prefilter(
         product_description,
         candidate_tokens,
+    ) and not (
+        is_local_retailer_candidate
+        and _plausible_local_retailer_identity(product_description, candidate_text)
     ):
         reject_candidate(
             "search_result_identity_prefilter",
@@ -3467,73 +3520,128 @@ def analyze_candidate(
     # Price extraction from page first.
     # -----------------------------------------------------
 
-    prices = []
-
-    if html:
-
-        # For category/listing pages, local product context is safer
-        # than blindly taking the first JSON-LD/meta price from the page.
-        listing_like = (
-            "/product" in url.lower()
-            and not re.search(
-                r"/products/[^/]+$|/products/[^/?]+\.html",
-                url.lower(),
+    def extract_candidate_page_prices(page_html: str, page_content: str) -> list[dict]:
+        page_prices: list[dict] = []
+        if page_html:
+            listing_like = (
+                "/product" in url.lower()
+                and not re.search(
+                    r"/products/[^/]+$|/products/[^/?]+\.html",
+                    url.lower(),
+                )
             )
-        )
-
-        if listing_like:
-
-            prices = extract_local_product_prices(
-                page_text,
+            if listing_like:
+                page_prices = extract_local_product_prices(
+                    page_content,
+                    product_description,
+                    domain,
+                )
+            if not page_prices:
+                page_prices = extract_page_price(
+                    page_html,
+                    domain,
+                    product_description=product_description,
+                )
+        if not page_prices and page_content:
+            page_prices = extract_local_product_prices(
+                page_content,
                 product_description,
                 domain,
             )
+        if not page_prices and page_content:
+            page_prices = extract_prices_from_text(page_content)
+        if not page_prices and page_content:
+            page_prices = extract_price_from_source_text(page_content, domain)
+        return page_prices
 
-        if not prices:
-
-            prices = extract_page_price(
-                html,
-                domain,
-                product_description=product_description,
-            )
-
-    if not prices and page_text:
-
-        prices = extract_local_product_prices(
-            page_text,
+    def bind_page_price(
+        price_data: dict,
+        *,
+        allow_reader_context: bool = False,
+    ) -> dict:
+        existing_binding = price_data.get("product_entity_binding")
+        if isinstance(existing_binding, dict):
+            return existing_binding
+        raw_price = price_data.get("price")
+        if raw_price is None:
+            amount = 0.0
+        else:
+            amount = float(raw_price)
+        return build_page_local_product_binding(
+            html,
             product_description,
-            domain,
+            amount,
+            price_context=str(price_data.get("product_context") or ""),
+            page_url=url,
+            allow_reader_context=allow_reader_context,
         )
 
-    if not prices and page_text:
-
-        prices = extract_prices_from_text(
-            page_text
-        )
-
-    if not prices and page_text:
-
-        prices = extract_price_from_source_text(
-            page_text,
-            domain,
-        )
-
-    if not prices:
-        reject_candidate(
-            "page_price_not_found",
-            "price_extraction",
-            page_text,
-        )
-        return None
-
-    selected_price = select_best_price(
-        prices
+    prices = extract_candidate_page_prices(html, page_text)
+    selected_price = select_best_price(prices) if prices else None
+    page_binding = (
+        bind_page_price(selected_price)
+        if selected_price
+        else None
     )
+
+    # A non-empty direct page can still omit its current price from the
+    # returned HTML. Try Jina once for this same URL, then repeat page identity,
+    # price extraction, and page-scope association using only its page text.
+    needs_reader_fallback = (
+        retrieval_method == "direct_http"
+        and bool(page_text)
+        and (
+            selected_price is None
+            or not isinstance(page_binding, dict)
+            or page_binding.get("association_status") != "unambiguous"
+        )
+    )
+    if needs_reader_fallback:
+        rendered_text = fetch_url_via_jina(url)
+        if rendered_text:
+            rendered_models = set(extract_model_tokens(rendered_text[:40000]))
+            target_models = set(extract_model_tokens(product_description))
+            reader_identity_matches = (
+                not _has_conflicting_primary_model(product_description, rendered_text[:40000])
+                and (
+                    has_strong_product_identity(product_description, rendered_text[:40000])
+                    or _passes_search_result_identity_prefilter(
+                        product_description,
+                        set(tokenize(rendered_text[:40000])),
+                    )
+                )
+                and (not target_models or bool(target_models & rendered_models))
+            )
+            if reader_identity_matches:
+                reader_prices = extract_candidate_page_prices("", rendered_text)
+                reader_price = select_best_price(reader_prices) if reader_prices else None
+                if reader_price:
+                    reader_binding = bind_page_price(
+                        reader_price,
+                        allow_reader_context=True,
+                    )
+                    if (
+                        selected_price is None
+                        or reader_binding.get("association_status") == "unambiguous"
+                    ):
+                        selected_price = reader_price
+                        page_binding = reader_binding
+                        page_text = rendered_text
+                        retrieval_method = "jina_reader"
+                        combined_identity_text = rendered_text
+                        strong_identity = True
+                        confidence = max(
+                            confidence,
+                            calculate_strict_product_confidence(
+                                product_description,
+                                rendered_text[:40000],
+                            ),
+                        )
 
     if not selected_price:
         reject_candidate(
-            "page_price_selection_failed",
-            "price_selection",
+            "page_price_not_found",
+            "price_extraction",
             page_text,
         )
         return None
@@ -3686,30 +3794,32 @@ def analyze_candidate(
             snippet,
 
         "variant_evidence":
-            _selected_price_identity_evidence(selected_price),
+            {
+                "page_identity": page_binding.get("entity_identity"),
+                "page_specifications": page_binding.get("page_specifications"),
+                "selected_variant": page_binding.get("selected_variant"),
+                "evidence_sources": page_binding.get("evidence_sources"),
+            }
+            if isinstance(page_binding, dict)
+            and page_binding.get("association_status") == "unambiguous"
+            else {},
 
         "product_entity_binding":
-            selected_price.get("product_entity_binding"),
+            page_binding,
 
         "retrieval_method":
             retrieval_method,
 
         "price_source":
             (
-                "local_product_context"
-                if prices
-                and page_text
-                and any(
-                    key in url.lower()
-                    for key in (
-                        "/product",
-                        "/products",
-                    )
+                selected_price.get("price_source")
+                or (
+                    "local_product_context"
+                    if selected_price.get("product_context")
+                    else "page_html"
+                    if html
+                    else "jina_reader_page"
                 )
-                else
-                "page_html"
-                if html and prices
-                else "search_result"
             ),
 
         "official_brand":
@@ -9737,7 +9847,7 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
             if usable else
             "Some sources passed identity and price checks, but at least two independent verified stores are required for a reliable benchmark."
             if accepted_sources else
-            "No price passed exact product, variant, availability and page-price validation."
+            "No price passed exact product, variant, entity-association and page-price validation."
         ),
         "market_quality": {
             "accepted_price_observations": len(accepted_sources),
@@ -9748,7 +9858,8 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
             "rules": [
                 "Exact model evidence required when the invoice includes a model code.",
                 "Material variants must be explicitly verified; mismatches and unknown variants are excluded.",
-                "Out-of-stock and search-snippet-only prices are excluded from statistics.",
+                "Page-verified out-of-stock prices are included as observations and are not currently purchasable.",
+                "Search-snippet-only prices are excluded from statistics.",
                 "One observation per independent retailer domain is counted.",
                 "Extreme statistical outliers are excluded only with at least five verified domains.",
             ],

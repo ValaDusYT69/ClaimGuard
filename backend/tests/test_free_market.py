@@ -55,7 +55,7 @@ class FreeMarketResearchTests(unittest.TestCase):
         self.assertIn('(keyboard or "mechanical keyboard")', focused)
         self.assertNotIn("star tech", focused)
         self.assertNotIn("hot-swap black mechanical keyboard as red switch", focused)
-        self.assertLess(len(focused), 100)
+        self.assertLess(len(focused), 140)
 
     def test_psu_and_case_queries_include_category_and_material_specs(self):
         psu_queries = build_product_search_queries(
@@ -66,6 +66,9 @@ class FreeMarketResearchTests(unittest.TestCase):
         psu_retailer_query = psu_queries[0]
         self.assertIn('"antec b550"', psu_retailer_query.casefold())
         self.assertIn('(psu or "power supply")', psu_retailer_query.casefold())
+        self.assertIn("550w", psu_retailer_query.casefold())
+        self.assertIn("80+ bronze", psu_retailer_query.casefold())
+        self.assertIn("non-modular", psu_retailer_query.casefold())
         self.assertNotIn("trusttech", psu_retailer_query.casefold())
 
         case_queries = build_product_search_queries(
@@ -85,8 +88,11 @@ class FreeMarketResearchTests(unittest.TestCase):
         )
         self.assertEqual(len(ram_queries), 1)
         ram_retailer_query = ram_queries[0]
-        self.assertIn('"team delta rgb" ddr4', ram_retailer_query.casefold())
+        self.assertIn('"team delta rgb"', ram_retailer_query.casefold())
+        self.assertIn("ddr4", ram_retailer_query.casefold())
         self.assertIn("(ram or memory)", ram_retailer_query.casefold())
+        for attribute in ("8gb", "ddr4", "3200mhz", "cl16"):
+            self.assertIn(attribute, ram_retailer_query.casefold())
 
     def test_motherboard_query_uses_exact_model_and_short_category_synonyms(self):
         queries = build_product_search_queries(
@@ -181,6 +187,38 @@ class FreeMarketResearchTests(unittest.TestCase):
         self.assertEqual(
             [result["url"] for result in ranked[:3]],
             [result["url"] for result in exact_model_results],
+        )
+
+    def test_search_ranking_keeps_plausible_local_results_without_model_and_rejects_conflicts(self):
+        from invoice import market_research
+
+        target = "MSI A520M-A PRO ATX Motherboard"
+        results = [
+            {
+                "title": "MSI Motherboard price in Bangladesh",
+                "url": "https://www.startech.com.bd/motherboard",
+                "snippet": "MSI mainboard product listings",
+            },
+            {
+                "title": "MSI A320M-A PRO Motherboard",
+                "url": "https://www.techlandbd.com/msi-a320m-a-pro",
+                "snippet": "MSI motherboard price",
+            },
+            {
+                "title": "MSI A520M-A PRO Motherboard",
+                "url": "https://www.skyland.com.bd/msi-a520m-a-pro",
+                "snippet": "MSI motherboard price",
+            },
+        ]
+
+        ranked = market_research._rank_market_search_results(results, target)
+
+        self.assertEqual(
+            [result["url"] for result in ranked],
+            [
+                "https://www.skyland.com.bd/msi-a520m-a-pro",
+                "https://www.startech.com.bd/motherboard",
+            ],
         )
 
     def test_market_search_uses_serper_only(self):

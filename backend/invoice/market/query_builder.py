@@ -49,7 +49,7 @@ def _keyboard_variant_query(product: str, model_phrase: str) -> str:
     if not model_phrase or not re.search(r"\bkeyboards?\b", product, re.IGNORECASE):
         return ""
 
-    terms = [model_phrase]
+    terms = [f'"{model_phrase}"']
     layout = re.search(r"\b(\d{2,3})\s*(?:%|percent)(?!\w)", product, re.IGNORECASE)
     if layout:
         terms.append(f"{layout.group(1)}%")
@@ -79,7 +79,8 @@ def _power_supply_query_phrase(product: str, brand_and_model: str) -> str:
         term for term in brand_and_model.split()
         if not re.fullmatch(r"\d{3,4}w", term, re.IGNORECASE)
     ]
-    terms = [" ".join(model_terms)]
+    model_phrase = " ".join(model_terms)
+    terms = [f'"{model_phrase}"']
     wattage = re.search(r"\b\d{3,4}\s*(?:w|watts?)\b", product, re.IGNORECASE)
     if wattage:
         terms.append(re.sub(r"\s+", "", wattage.group(0)).upper())
@@ -104,10 +105,7 @@ def _computer_case_query_phrase(product: str) -> str:
         re.IGNORECASE,
     ):
         return ""
-    terms = [product.split()[0]]
-    model = re.search(r"\b([a-z][a-z0-9]+)\s+([a-z]?\d+[a-z0-9-]*)\b", product, re.IGNORECASE)
-    if model:
-        terms.extend((model.group(1), model.group(2)))
+    terms = [f'"{_model_phrase(product)}"']
     form_factor = re.search(
         r"\b(?:e[\s-]?atx|micro[\s-]?atx|m[\s-]?atx|mini[\s-]?itx|itx|atx)\b",
         product,
@@ -125,7 +123,17 @@ def _computer_case_query_phrase(product: str) -> str:
 def _memory_query_phrase(product: str) -> str:
     if not re.search(r"\b(?:ram|memory|ddr[345])\b", product, re.IGNORECASE):
         return ""
-    return product[:160]
+    terms = [f'"{_model_phrase(product)}"']
+    for pattern in (
+        r"\b\d{1,4}\s*GB\b",
+        r"\bDDR[345]\b",
+        r"\b\d{3,5}\s*MHz\b",
+        r"\bCL\s*\d{1,2}\b",
+    ):
+        match = re.search(pattern, product, re.IGNORECASE)
+        if match:
+            terms.append(re.sub(r"\s+", "", match.group(0)).upper())
+    return " ".join(terms)
 
 
 def _is_specification_token(token: str) -> bool:
@@ -254,10 +262,16 @@ def build_product_search_queries(vendor_name: str | None, product_description: s
     else:
         model_phrase = _model_phrase(product)
 
-    query_parts = [f'"{model_phrase}"']
-    if re.search(r"\b(?:tray|oem)\b", product, re.IGNORECASE):
+    psu_phrase = _power_supply_query_phrase(product, model_phrase)
+    case_phrase = _computer_case_query_phrase(product)
+    memory_phrase = _memory_query_phrase(product)
+    keyboard_phrase = _keyboard_variant_query(product, model_phrase)
+
+    specific_phrase = psu_phrase or case_phrase or memory_phrase or keyboard_phrase
+    query_parts = [specific_phrase or f'"{model_phrase}"']
+    if not specific_phrase and re.search(r"\b(?:tray|oem)\b", product, re.IGNORECASE):
         query_parts.append('"Tray Box"')
-    if re.search(r"\bmemory\b|\bram\b|\bddr[345]\b", product, re.IGNORECASE):
+    if not specific_phrase and re.search(r"\bmemory\b|\bram\b|\bddr[345]\b", product, re.IGNORECASE):
         generation = re.search(r"\bDDR[345]\b", product, re.IGNORECASE)
         if generation:
             query_parts.append(generation.group(0).upper())

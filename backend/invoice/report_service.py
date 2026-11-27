@@ -707,6 +707,8 @@ def _report_availability(value: Any) -> str:
         return "Out of stock (not currently purchasable)"
     if normalized in {"available", "listed", "in_stock"}:
         return "Listed / available"
+    if normalized in {"", "unknown", "not_stated"}:
+        return "Availability unknown"
     return _report_value(value or "Availability unknown")
 
 
@@ -759,6 +761,8 @@ def _report_source_rows(
             f"Availability: {availability}",
             f"Source type: {_report_value(source_type)}",
             f"Price evidence: {_report_value(price_source)}",
+            f"Match / specification status: {_report_value(source.get('market_comparison_status') or source.get('specification_status'))}",
+            f"Comparison group: {_report_value(source.get('comparison_group'))}",
             f"Identity confidence: {confidence_text}",
             f"Variant validation: {validation_text}",
         ]
@@ -843,29 +847,39 @@ def _report_add_market_product(
     stats = market.get("market_statistics") if isinstance(market.get("market_statistics"), dict) else {}
     currency = stats.get("currency") or market.get("invoice_currency") or "BDT"
     sources = market.get("sources") if isinstance(market.get("sources"), list) else []
+    model_sources = market.get("model_level_sources") if isinstance(market.get("model_level_sources"), list) else sources
+    difference_groups = market.get("specification_difference_groups") if isinstance(market.get("specification_difference_groups"), list) else []
     excluded = market.get("excluded_sources") if isinstance(market.get("excluded_sources"), list) else []
     related = market.get("related_edition_comparisons") if isinstance(market.get("related_edition_comparisons"), list) else []
-    displayed_sources = sources[:6]
-    remaining_evidence_rows = max(0, 6 - len(displayed_sources))
-    displayed_related: list[tuple[dict[str, Any], list[dict[str, Any]]]] = []
-    for edition in related:
-        if not isinstance(edition, dict):
-            continue
-        edition_sources = edition.get("sources") if isinstance(edition.get("sources"), list) else []
-        visible_sources = edition_sources[:remaining_evidence_rows]
-        remaining_evidence_rows -= len(visible_sources)
-        displayed_related.append((edition, visible_sources))
-    displayed_excluded = excluded[:remaining_evidence_rows]
+    all_observations = list(model_sources)
+    all_observations.extend(
+        source
+        for group in difference_groups
+        if isinstance(group, dict)
+        for source in (group.get("sources") or [])
+        if isinstance(source, dict)
+    )
+    all_observations.extend(
+        source
+        for edition in related
+        if isinstance(edition, dict)
+        for source in (edition.get("sources") or [])
+        if isinstance(source, dict)
+    )
+    unique_observations: list[dict[str, Any]] = []
+    seen_observations: set[str] = set()
+    for source in all_observations:
+        key = str(source.get("url") or f"{source.get('source_name')}|{source.get('title')}")
+        if key not in seen_observations:
+            seen_observations.add(key)
+            unique_observations.append(source)
+    displayed_sources = unique_observations[:8]
+    displayed_related = [
+        edition for edition in related if isinstance(edition, dict)
+    ]
     hidden_evidence_count = (
-        len(sources) - len(displayed_sources)
-        + sum(
-            max(
-                0,
-                len(edition.get("sources") or []) - len(visible_sources),
-            )
-            for edition, visible_sources in displayed_related
-        )
-        + len(excluded) - len(displayed_excluded)
+        max(0, len(unique_observations) - len(displayed_sources))
+        + len(excluded)
     )
     comparison = market.get("price_comparison") if isinstance(market.get("price_comparison"), dict) else {}
     domains = market.get("market_quality", {}).get("independent_domains")
@@ -899,9 +913,20 @@ def _report_add_market_product(
         f"Market match confidence: {_report_value(market.get('market_match_confidence', market.get('market_match_confidence_score')))}",
         styles["small"],
     ))
+    model_stats = market.get("model_level_statistics") if isinstance(market.get("model_level_statistics"), dict) else {}
+    model_domains = int(market.get("model_level_independent_domains") or 0)
+    model_average = model_stats.get("average") if model_domains >= 2 else None
+    story.append(Paragraph(
+        f"{'Indicative ' if market.get('model_level_is_indicative') else ''}Model-Level Comparison: "
+        f"{len(model_sources)} observations across {model_domains} independent domains; "
+        f"average {_safe_number(model_average)}, lowest {_safe_number(model_stats.get('lowest'))}, "
+        f"highest {_safe_number(model_stats.get('highest'))}, median {_safe_number(model_stats.get('median'))}. "
+        "Different material specifications are shown separately.",
+        styles["small"],
+    ))
 
-    story.append(_section(f"5.{index}.1 Accepted price evidence ({len(sources)})", styles))
-    story.append(_report_source_rows(displayed_sources, styles, "No price observations were accepted for this exact edition."))
+    story.append(_section(f"5.{index}.1 Page-verified market observations ({len(unique_observations)})", styles))
+    story.append(_report_source_rows(displayed_sources, styles, "No page-verified price observations were accepted."))
 
     if related:
         story.append(_section(f"5.{index}.2 Other editions — separate comparison only", styles))
@@ -909,7 +934,7 @@ def _report_add_market_product(
             "Different editions are shown for context only. Their prices are never combined with this invoice edition's average, lowest, highest, median or risk benchmark.",
             styles["note"],
         ))
-        for related_index, (edition, visible_sources) in enumerate(displayed_related, start=1):
+        for related_index, edition in enumerate(displayed_related, start=1):
             related_stats = edition.get("market_statistics") if isinstance(edition.get("market_statistics"), dict) else {}
             related_currency = related_stats.get("currency") or currency
             story.append(_kv_table([
@@ -923,11 +948,7 @@ def _report_add_market_product(
                 ("Included in target benchmark", _report_value(edition.get("included_in_target_benchmark"))),
                 ("Message", _report_value(edition.get("message"))),
             ], styles))
-            story.append(_report_source_rows(visible_sources, styles, "No page-verified prices for this separate edition."))
 
-    if excluded:
-        story.append(_section(f"5.{index}.3 Excluded / unverified listings ({len(excluded)})", styles))
-        story.append(_report_source_rows(displayed_excluded, styles, "No listings were excluded."))
     if hidden_evidence_count:
         story.append(Paragraph(
             f"{hidden_evidence_count} additional market listings were not shown.",
@@ -1181,18 +1202,21 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
             matched_product_analyses[index] = entry
         item_market = entry.get("market") if isinstance(entry.get("market"), dict) else {}
         sources = item_market.get("sources") if isinstance(item_market.get("sources"), list) else []
+        model_sources = item_market.get("model_level_sources") if isinstance(item_market.get("model_level_sources"), list) else []
+        difference_groups = item_market.get("specification_difference_groups") if isinstance(item_market.get("specification_difference_groups"), list) else []
         stats = item_market.get("market_statistics") if isinstance(item_market.get("market_statistics"), dict) else {}
         domains = _independent_domains(item_market, sources)
-        if sources:
+        if sources or model_sources or difference_groups:
             if stats.get("average") is not None and domains >= 2:
                 market_verified_count += 1
-            # Show accepted source links even when one summary statistic is
-            # missing; the report must not hide available evidence.
+            # Keep partial model-level and separate-conflict observations visible.
             market_covered.append({"index": index, "item": item, "market": item_market, "sources": sources})
 
     if legacy_single_product_market and line_items:
         legacy_sources = legacy_single_product_market.get("sources") or []
-        if legacy_sources:
+        legacy_model_sources = legacy_single_product_market.get("model_level_sources") or []
+        legacy_difference_groups = legacy_single_product_market.get("specification_difference_groups") or []
+        if legacy_sources or legacy_model_sources or legacy_difference_groups:
             legacy_stats = legacy_single_product_market.get("market_statistics") if isinstance(legacy_single_product_market.get("market_statistics"), dict) else {}
             if legacy_stats.get("average") is not None:
                 market_verified_count = 1
@@ -1208,7 +1232,9 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
     # those links even when structured line items are unavailable.
     if not market_covered:
         top_level_sources = market.get("sources") if isinstance(market.get("sources"), list) else []
-        if top_level_sources:
+        top_level_model_sources = market.get("model_level_sources") if isinstance(market.get("model_level_sources"), list) else []
+        top_level_differences = market.get("specification_difference_groups") if isinstance(market.get("specification_difference_groups"), list) else []
+        if top_level_sources or top_level_model_sources or top_level_differences:
             fallback_item = line_items[0] if line_items else {
                 "product": extracted.get("product_description") or "Invoice market evidence",
                 "unit_price": extracted.get("unit_price"),
@@ -1662,21 +1688,51 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
             item = record["item"]
             item_market = record["market"]
             sources = record["sources"]
-            displayed_sources = sources[:6]
-            excluded_sources = (
-                item_market.get("excluded_sources")
-                if isinstance(item_market.get("excluded_sources"), list)
+            model_sources = (
+                item_market.get("model_level_sources")
+                if isinstance(item_market.get("model_level_sources"), list)
+                else sources
+            )
+            difference_groups = (
+                item_market.get("specification_difference_groups")
+                if isinstance(item_market.get("specification_difference_groups"), list)
                 else []
             )
-            displayed_excluded = excluded_sources[:max(0, 6 - len(displayed_sources))]
+            evidence_sources: list[dict[str, Any]] = []
+            seen_evidence_urls: set[str] = set()
+            grouped_observations = list(model_sources)
+            grouped_observations.extend(
+                source
+                for group in difference_groups
+                if isinstance(group, dict)
+                for source in (group.get("sources") or [])
+                if isinstance(source, dict)
+            )
+            grouped_observations.extend(
+                source
+                for edition in (item_market.get("related_edition_comparisons") or [])
+                if isinstance(edition, dict)
+                for source in (edition.get("sources") or [])
+                if isinstance(source, dict)
+            )
+            grouped_observations.extend(
+                source for source in (item_market.get("excluded_sources") or [])
+                if isinstance(source, dict)
+            )
+            for source in grouped_observations:
+                source_key = str(source.get("url") or f"{source.get('source_name')}|{source.get('title')}")
+                if source_key in seen_evidence_urls:
+                    continue
+                seen_evidence_urls.add(source_key)
+                evidence_sources.append(source)
+            displayed_sources = evidence_sources[:8]
             item_search_diagnostics = (
                 item_market.get("search_diagnostics")
                 if isinstance(item_market.get("search_diagnostics"), dict)
                 else {}
             )
             hidden_evidence_count = (
-                len(sources) - len(displayed_sources)
-                + len(excluded_sources) - len(displayed_excluded)
+                len(evidence_sources) - len(displayed_sources)
                 + int(item_search_diagnostics.get("search_results_excluded_by_relevance") or 0)
                 + int(item_search_diagnostics.get("search_results_not_fetched_due_to_candidate_cap") or 0)
             )
@@ -1688,13 +1744,6 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
             for edition in item_market.get("related_edition_comparisons") or []:
                 if isinstance(edition, dict) and edition.get("edition_label"):
                     story.append(Paragraph(escape(str(edition["edition_label"])), styles["small"]))
-            for excluded_source in displayed_excluded:
-                if isinstance(excluded_source, dict):
-                    excluded_text = excluded_source.get("title") or excluded_source.get("source_name")
-                    if excluded_text:
-                        story.append(Paragraph(escape(str(excluded_text)), styles["small"]))
-                    if excluded_source.get("exclusion_reason"):
-                        story.append(Paragraph(escape(str(excluded_source["exclusion_reason"])), styles["small"]))
             stats = item_market.get("market_statistics") if isinstance(item_market.get("market_statistics"), dict) else {}
             item_currency = stats.get("currency") or currency
             invoice_unit = item.get("unit_price")
@@ -1745,6 +1794,38 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
                 ("TOPPADDING", (0, 0), (-1, -1), 5), ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
             ]))
             story.extend([metric_table, Spacer(1, 3)])
+            model_stats = item_market.get("model_level_statistics") if isinstance(item_market.get("model_level_statistics"), dict) else {}
+            model_domain_value = item_market.get("model_level_independent_domains")
+            if model_domain_value is None:
+                model_domain_value = (item_market.get("market_quality") or {}).get("model_level_independent_domains")
+            if model_domain_value is None:
+                model_domain_value = _independent_domains(item_market, model_sources)
+            model_domains = int(model_domain_value or 0)
+            model_currency = model_stats.get("currency") or item_currency
+            model_average = model_stats.get("average") if model_domains >= 2 else None
+            model_label = (
+                "Indicative Model-Level Comparison"
+                if item_market.get("model_level_is_indicative")
+                else "Model-Level Comparison"
+            )
+            story.append(Paragraph(
+                f"{model_label}: {len(model_sources)} page-verified observation(s) across {model_domains} independent retailer domain(s). "
+                f"Average: {money(model_average, model_currency)}; "
+                f"lowest: {money(model_stats.get('lowest'), model_currency)}; "
+                f"highest: {money(model_stats.get('highest'), model_currency)}; "
+                f"median: {money(model_stats.get('median'), model_currency)}. "
+                "Unknown optional specifications are labeled and excluded from the exact-variant benchmark; explicit conflicts are shown separately.",
+                styles["small"],
+            ))
+            comparison_counts = item_market.get("comparison_counts") if isinstance(item_market.get("comparison_counts"), dict) else {}
+            story.append(Paragraph(
+                f"Results found: {comparison_counts.get('candidate_results_found', 0)}; "
+                f"page-verified prices: {comparison_counts.get('page_verified_prices', len(evidence_sources))}; "
+                f"incomplete specifications: {comparison_counts.get('incomplete_specifications', 0)}; "
+                f"out of stock: {comparison_counts.get('out_of_stock_prices', 0)}; "
+                f"availability unknown: {comparison_counts.get('unknown_availability_prices', 0)}.",
+                styles["small"],
+            ))
             confidence_value = item_market.get("market_match_confidence")
             if confidence_value is None:
                 confidence_value = item_market.get("market_match_confidence_score")
@@ -1774,8 +1855,9 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
                 story.append(Paragraph("Different editions are shown for context only. Similar but different product editions are excluded from this product's average and are not used for the price difference.", styles["small"]))
             source_rows = [[
                 Paragraph("SOURCE", styles["table_head"]),
-                Paragraph("OBSERVED PRICE", styles["table_head"]),
+                Paragraph("PRICE / EVIDENCE", styles["table_head"]),
                 Paragraph("AVAILABILITY", styles["table_head"]),
+                Paragraph("MATCH / SPECS", styles["table_head"]),
                 Paragraph("LINK", styles["table_head"]),
             ]]
             for source in displayed_sources:
@@ -1784,13 +1866,26 @@ def build_invoice_report(invoice: dict[str, Any]) -> bytes:
                 url = str(source.get("url") or "").strip()
                 domain = source.get("source_name") or source.get("domain") or (_report_urlsplit(url).netloc if url else "Source")
                 source_link = Paragraph("<link href=\"%s\" color=\"#315CEB\">Open listing</link>" % escape(url, {"\"": "&quot;"}), styles["source"]) if url.startswith(("http://", "https://")) else Paragraph("-", styles["table"])
+                raw_match_status = str(source.get("market_comparison_status") or source.get("specification_status") or "")
+                match_status = {
+                    "exact_variant_confirmed": "Exact variant confirmed",
+                    "optional_specifications_unknown": "Specifications not confirmed",
+                    "specification_difference": "Specification difference",
+                }.get(raw_match_status, raw_match_status.replace("_", " ") or "Not stated")
+                group_label = str(source.get("comparison_group") or "")
+                match_detail = escape(match_status.replace("_", " "))
+                if group_label:
+                    match_detail += f"<br/>{escape(group_label)}"
+                if source.get("exclusion_reason"):
+                    match_detail += f"<br/>{escape(str(source['exclusion_reason']))}"
                 source_rows.append([
-                    Paragraph(escape(txt(domain)), styles["table"]),
-                    Paragraph(escape(money(source.get("price"), str(source.get("currency") or currency))), styles["table"]),
+                    Paragraph(escape(str(domain)) + "<br/>" + escape(str(source.get("title") or "")[:180]), styles["table"]),
+                    Paragraph(escape(money(source.get("price"), str(source.get("currency") or currency))) + "<br/>" + escape(str(source.get("price_source") or source.get("retrieval_method") or "Not stated")[:100]), styles["table"]),
                     Paragraph(escape(_report_availability(source.get("availability"))), styles["table"]),
+                    Paragraph(match_detail, styles["table"]),
                     source_link,
                 ])
-            source_table = Table(source_rows, colWidths=[45 * mm, 35 * mm, 45 * mm, 55 * mm], repeatRows=1)
+            source_table = Table(source_rows, colWidths=[38 * mm, 40 * mm, 34 * mm, 42 * mm, 26 * mm], repeatRows=1)
             source_table.setStyle(TableStyle([
                 ("BACKGROUND", (0, 0), (-1, 0), palette["blue"]),
                 ("BOX", (0, 0), (-1, -1), 0.5, palette["line"]),

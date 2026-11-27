@@ -411,6 +411,211 @@ class MarketVariantAccuracyTests(unittest.TestCase):
         self.assertEqual(assessment["reason"], "variant_mismatch:motherboard_form_factor_mismatch")
         self.assertEqual(reason, assessment["reason"])
 
+    def test_invoice_product_brand_precedes_chipset_brand_mentions(self):
+        target = "MSI A520M-A PRO AM4 AMD ATX Motherboard"
+        assessment = assess_product_variant(
+            target,
+            "MSI A520M-A PRO ATX Motherboard",
+            category_evidence="Motherboard",
+            brand_evidence="AMD A520",
+            specification_evidence="Form Factor: ATX",
+        )
+
+        self.assertEqual(assessment["status"], "mismatch")
+        self.assertEqual(assessment["expected_brand"], "msi")
+        self.assertEqual(assessment["observed_brand"], "amd")
+        self.assertEqual(assessment["reason"], "brand_mismatch:amd")
+
+    def test_chipset_brand_metadata_does_not_override_page_product_brand(self):
+        target = "MSI A520M-A PRO Micro-ATX Motherboard"
+        entity_id = "msi-a520m-pro"
+        source = {
+            "title": "MSI A520M-A PRO Micro-ATX Motherboard",
+            "source_name": "shop.example",
+            "url": "https://shop.example/msi-a520m-a-pro",
+            "price": 7700,
+            "currency": "BDT",
+            "price_source": "page_html",
+            "product_entity_binding": {
+                "association_status": "unambiguous",
+                "product_entity_id": entity_id,
+                "price_entity_id": entity_id,
+                "entity_identity": "MSI A520M-A PRO Micro-ATX Motherboard AMD A520",
+                "entity_title": "MSI A520M-A PRO Micro-ATX Motherboard AMD A520",
+                "entity_brand": "AMD",
+                "entity_category": "Motherboard",
+                "page_specifications": "Form Factor: Micro-ATX",
+            },
+        }
+
+        accepted, assessment, reason = market_research._validate_market_source(source, target)
+
+        self.assertTrue(accepted, reason)
+        self.assertEqual(assessment["status"], "verified")
+
+    def test_unknown_optional_specs_enter_only_model_level_comparison(self):
+        target = "Antec B550 550W 80+ Bronze Non-Modular Power Supply"
+
+        def source_for(domain, price):
+            entity_id = f"{domain}-antec-b550"
+            return {
+                "title": "Antec B550 Power Supply",
+                "source_name": domain,
+                "url": f"https://{domain}/antec-b550",
+                "price": price,
+                "currency": "BDT",
+                "price_source": "page_html",
+                "retrieval_method": "direct_http",
+                "availability": "unknown",
+                "match_confidence": 0.9,
+                "product_entity_binding": {
+                    "association_status": "unambiguous",
+                    "product_entity_id": entity_id,
+                    "price_entity_id": entity_id,
+                    "entity_identity": "Antec B550 Power Supply",
+                    "entity_title": "Antec B550 Power Supply",
+                    "entity_brand": "Antec",
+                    "entity_category": "Power Supply",
+                    "page_specifications": "",
+                    "selected_variant": "",
+                },
+            }
+
+        sources = [source_for("shop-one.example", 6500), source_for("shop-two.example", 7000)]
+        context = {"excluded_sources": [], "excluded_keys": set()}
+        token = market_research._MARKET_VARIANT_CONTEXT.set(context)
+        try:
+            with patch.object(
+                market_research,
+                "_ORIGINAL_ANALYZE_CANDIDATE_V29",
+                side_effect=sources,
+            ):
+                for _ in sources:
+                    self.assertIsNone(market_research.analyze_candidate({}, target))
+        finally:
+            market_research._MARKET_VARIANT_CONTEXT.reset(token)
+
+        result = market_research._rebuild_market_result(
+            {
+                "sources": [],
+                "invoice_currency": "BDT",
+                "invoice_unit_price": 6800,
+                "search_diagnostics": {},
+            },
+            target,
+            context,
+        )
+
+        self.assertEqual(result["sources"], [])
+        self.assertFalse(result["usable_for_risk_calculation"])
+        self.assertEqual(result["model_level_independent_domains"], 2)
+        self.assertEqual(result["model_level_statistics"]["average"], 6750)
+        self.assertTrue(result["model_level_is_indicative"])
+        self.assertEqual(result["comparison_counts"]["incomplete_specifications"], 2)
+        self.assertEqual(result["comparison_counts"]["unknown_availability_prices"], 2)
+
+        one_source_result = market_research._rebuild_market_result(
+            {
+                "sources": [],
+                "invoice_currency": "BDT",
+                "search_diagnostics": {},
+            },
+            target,
+            {
+                "model_level_sources": context["model_level_sources"][:1],
+                "excluded_sources": [],
+                "excluded_keys": set(),
+            },
+        )
+        self.assertIsNone(one_source_result["model_level_statistics"]["average"])
+
+    def test_material_variant_conflict_is_retained_separately_not_benchmarked(self):
+        target = "MSI A520M-A PRO ATX Motherboard"
+        entity_id = "shop-example-msi-a520m"
+        source = {
+            "title": "MSI A520M-A PRO Micro-ATX Motherboard",
+            "source_name": "shop.example",
+            "url": "https://shop.example/msi-a520m-a-pro",
+            "price": 7700,
+            "currency": "BDT",
+            "price_source": "page_html",
+            "retrieval_method": "direct_http",
+            "availability": "out_of_stock",
+            "match_confidence": 0.9,
+            "product_entity_binding": {
+                "association_status": "unambiguous",
+                "product_entity_id": entity_id,
+                "price_entity_id": entity_id,
+                "entity_identity": "MSI A520M-A PRO Motherboard",
+                "entity_title": "MSI A520M-A PRO Motherboard",
+                "entity_brand": "MSI",
+                "entity_category": "Motherboard",
+                "page_specifications": "Form Factor: Micro-ATX",
+                "selected_variant": "",
+            },
+        }
+        context = {"excluded_sources": [], "excluded_keys": set()}
+        token = market_research._MARKET_VARIANT_CONTEXT.set(context)
+        try:
+            with patch.object(
+                market_research,
+                "_ORIGINAL_ANALYZE_CANDIDATE_V29",
+                return_value=source,
+            ):
+                self.assertIsNone(market_research.analyze_candidate({}, target))
+        finally:
+            market_research._MARKET_VARIANT_CONTEXT.reset(token)
+
+        result = market_research._rebuild_market_result(
+            {"sources": [], "invoice_currency": "BDT", "search_diagnostics": {}},
+            target,
+            context,
+        )
+
+        self.assertEqual(result["model_level_sources"], [])
+        self.assertEqual(result["sources"], [])
+        self.assertEqual(len(result["specification_difference_groups"]), 1)
+        group = result["specification_difference_groups"][0]
+        self.assertIn("motherboard form factor mismatch", group["label"].casefold())
+        self.assertEqual(group["sources"][0]["availability"], "out_of_stock")
+        self.assertEqual(result["comparison_counts"]["out_of_stock_prices"], 1)
+
+    def test_unknown_specs_do_not_allow_snippet_only_price_into_model_snapshot(self):
+        target = "Antec B550 550W 80+ Bronze Non-Modular Power Supply"
+        source = {
+            "title": "Antec B550 Power Supply",
+            "source_name": "shop.example",
+            "url": "https://shop.example/antec-b550",
+            "price": 6500,
+            "currency": "BDT",
+            "price_source": "search_result",
+            "search_snippet": "Antec B550 BDT 6500",
+            "product_entity_binding": {
+                "association_status": "unambiguous",
+                "product_entity_id": "antec-b550",
+                "price_entity_id": "antec-b550",
+                "entity_identity": "Antec B550 Power Supply",
+                "entity_title": "Antec B550 Power Supply",
+                "entity_brand": "Antec",
+                "entity_category": "Power Supply",
+                "page_specifications": "",
+            },
+        }
+        context = {"excluded_sources": [], "excluded_keys": set()}
+        token = market_research._MARKET_VARIANT_CONTEXT.set(context)
+        try:
+            with patch.object(
+                market_research,
+                "_ORIGINAL_ANALYZE_CANDIDATE_V29",
+                return_value=source,
+            ):
+                self.assertIsNone(market_research.analyze_candidate({}, target))
+        finally:
+            market_research._MARKET_VARIANT_CONTEXT.reset(token)
+
+        self.assertEqual(context.get("model_level_sources"), None)
+        self.assertEqual(context["excluded_sources"][0]["exclusion_reason"], "search_snippet_only_not_page_verified")
+
     def test_ryzen_5700g_uses_one_variant_specific_search(self):
         queries = build_product_search_queries(
             "Example Vendor",
@@ -421,16 +626,9 @@ class MarketVariantAccuracyTests(unittest.TestCase):
         self.assertIn("(processor OR CPU)", queries[0])
         self.assertNotIn("Star Tech", queries[0])
 
-    def test_analysis_uses_one_query_and_caps_candidate_fetches_at_six(self):
+    def test_analysis_uses_one_query_and_caps_candidate_fetches_at_twelve(self):
         target = "MSI A520M-A PRO Motherboard"
-        domains = [
-            "startech.com.bd",
-            "techlandbd.com",
-            "skyland.com.bd",
-            "pchouse.com.bd",
-            "ryans.com",
-            "ultratech.com.bd",
-        ]
+        domains = [f"retailer{index}.com.bd" for index in range(14)]
 
         def result_for(domain):
             return {
@@ -483,22 +681,14 @@ class MarketVariantAccuracyTests(unittest.TestCase):
             )
 
         self.assertEqual(search.call_count, 1)
-        self.assertEqual(candidate.call_count, 6)
+        self.assertEqual(candidate.call_count, 12)
         self.assertEqual(result["search_diagnostics"]["queries_attempted"], 1)
-        self.assertEqual(result["search_diagnostics"]["candidates_checked"], 6)
-        self.assertEqual(result["search_diagnostics"]["independent_source_count"], 6)
+        self.assertEqual(result["search_diagnostics"]["candidates_checked"], 12)
+        self.assertEqual(result["search_diagnostics"]["independent_source_count"], 12)
 
-    def test_analysis_fetches_at_most_six_distinct_retailers(self):
+    def test_analysis_fetches_at_most_twelve_distinct_retailers(self):
         target = "MSI A520M-A PRO Motherboard"
-        domains = [
-            "startech.com.bd",
-            "techlandbd.com",
-            "skyland.com.bd",
-            "pchouse.com.bd",
-            "ryans.com",
-            "ultratech.com.bd",
-            "trusttechbd.com",
-        ]
+        domains = [f"retailer{index}.com.bd" for index in range(14)]
         results = [
             {
                 "title": target,
@@ -520,10 +710,10 @@ class MarketVariantAccuracyTests(unittest.TestCase):
             )
 
         self.assertEqual(search.call_count, 1)
-        self.assertEqual(candidate.call_count, 6)
+        self.assertEqual(candidate.call_count, 12)
         self.assertEqual(result["search_diagnostics"]["queries_attempted"], 1)
-        self.assertEqual(result["search_diagnostics"]["search_candidates_selected"], 6)
-        self.assertEqual(result["search_diagnostics"]["search_results_not_fetched_due_to_candidate_cap"], 1)
+        self.assertEqual(result["search_diagnostics"]["search_candidates_selected"], 12)
+        self.assertEqual(result["search_diagnostics"]["search_results_not_fetched_due_to_candidate_cap"], 2)
 
     def test_search_snippet_price_is_never_accepted_without_page_evidence(self):
         result = {
@@ -1173,6 +1363,22 @@ class MarketVariantAccuracyTests(unittest.TestCase):
         self.assertIn("capacity_mismatch", wrong_capacity["reason"])
         self.assertEqual(missing_capacity["status"], "unverified")
         self.assertIn("capacity_256gb", missing_capacity["reason"])
+
+    def test_ssd_unknown_interface_is_retained_but_conflict_is_rejected(self):
+        target = "Addlink S70 Lite 256GB M.2 PCIe NVMe SSD"
+        unknown_interface = assess_product_variant(
+            target,
+            "Addlink S70 Lite 256GB SSD",
+        )
+        different_interface = assess_product_variant(
+            target,
+            "Addlink S70 Lite 256GB M.2 SATA SSD",
+        )
+
+        self.assertEqual(unknown_interface["status"], "unverified")
+        self.assertIn("storage_interface_nvme", unknown_interface["reason"])
+        self.assertEqual(different_interface["status"], "mismatch")
+        self.assertIn("storage_interface_mismatch", different_interface["reason"])
 
     def test_ssd_weight_decimal_is_not_misread_as_capacity(self):
         target = "Addlink S70 Lite 256GB M.2 2280 PCIe NVMe SSD"

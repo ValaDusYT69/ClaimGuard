@@ -45,7 +45,7 @@ class SerperProviderTests(unittest.TestCase):
                     "link": f"https://shop{index}.com.bd/product",
                     "snippet": f"Preview {index}",
                 }
-                for index in range(12)
+                for index in range(24)
             ] + [{
                 "title": "Malformed URL",
                 "link": "javascript:alert(1)",
@@ -76,7 +76,7 @@ class SerperProviderTests(unittest.TestCase):
                 "q": '"MSI A520M-A PRO" price Bangladesh',
                 "gl": "bd",
                 "hl": "en",
-                "num": 10,
+                "num": 20,
             },
         )
         self.assertEqual(timeout, 10.0)
@@ -85,6 +85,8 @@ class SerperProviderTests(unittest.TestCase):
         self.assertEqual(results[0]["domain"], "shop0.com.bd")
         self.assertEqual(results[0]["snippet"], "Preview 0")
         self.assertEqual(results[0]["engine"], "serper")
+        self.assertEqual(len(results), 20)
+        self.assertEqual(diagnostics["result_count"], 20)
         self.assertEqual(diagnostics["requests_sent"], 1)
         self.assertNotIn("unit-test-key", repr(diagnostics))
 

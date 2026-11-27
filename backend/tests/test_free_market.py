@@ -153,8 +153,24 @@ class FreeMarketResearchTests(unittest.TestCase):
 
         self.assertEqual(
             [result["domain"] for result in ranked],
-            ["startech.com.bd", "techlandbd.com"],
+            ["startech.com.bd", "techlandbd.com", "hardware.example.com"],
         )
+
+    def test_localized_serper_model_result_on_non_bd_domain_is_not_dropped(self):
+        from invoice import market_research
+
+        ranked = market_research._rank_market_search_results(
+            [{
+                "title": "MSI A520M-A PRO Motherboard",
+                "url": "https://independentshop.example/products/msi-a520m-a-pro",
+                "snippet": "Product listing",
+                "engine": "serper",
+            }],
+            "MSI A520M-A PRO Motherboard",
+        )
+
+        self.assertEqual(len(ranked), 1)
+        self.assertTrue(ranked[0]["localized_retailer_candidate"])
 
     def test_search_ranking_prefers_model_listing_urls_before_category_pages(self):
         from invoice import market_research

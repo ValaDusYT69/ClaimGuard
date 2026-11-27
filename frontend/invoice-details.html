@@ -5141,6 +5141,26 @@ body.theme-reviewer .error-state{
                 source.url
                 || "";
 
+            const comparisonStatus =
+                source.market_comparison_status;
+
+            const comparisonLabel =
+                comparisonStatus === "exact_variant_confirmed"
+                    ? "Exact variant confirmed"
+                    : comparisonStatus === "optional_specifications_unknown"
+                        ? "Specifications not confirmed"
+                        : comparisonStatus === "specification_difference"
+                            ? "Specification difference"
+                            : "";
+
+            if (comparisonLabel) {
+                notes.push(comparisonLabel);
+            }
+
+            if (comparisonStatus === "specification_difference" && source.comparison_group) {
+                notes.push(`Separate group: ${source.comparison_group}.`);
+            }
+
 
             return `
 
@@ -5171,6 +5191,12 @@ body.theme-reviewer .error-state{
                                         confidenceText
                                     )}
                                 </span>
+
+                                ${comparisonLabel ? `
+                                    <span class="market-confidence-badge">
+                                        ${escapeHtml(comparisonLabel)}
+                                    </span>
+                                ` : ""}
 
                                 <span
                                     class="market-availability-badge ${
@@ -5334,6 +5360,73 @@ body.theme-reviewer .error-state{
                 normalizeMarketSources(
                     market
                 );
+
+            const modelSources = Array.isArray(market.model_level_sources)
+                ? market.model_level_sources
+                : null;
+            const differenceGroups = Array.isArray(market.specification_difference_groups)
+                ? market.specification_difference_groups
+                : [];
+            if (modelSources || differenceGroups.length) {
+                const modelStats = market.model_level_statistics || {};
+                const observationCounts = market.comparison_counts || {};
+                const modelDomains = Number(market.model_level_independent_domains || 0);
+                const exactDomains = Number(
+                    market.market_quality?.independent_domains
+                    ?? market.search_diagnostics?.independent_source_count
+                    ?? sources.length
+                );
+                const exactStats = market.market_statistics || {};
+                const modelReliable = modelDomains >= 2 && modelStats.average !== null && modelStats.average !== undefined;
+                const exactReliable = exactDomains >= 2 && exactStats.average !== null && exactStats.average !== undefined;
+                const maxCards = 8;
+                const visibleModelSources = (modelSources || sources).slice(0, maxCards);
+                let remainingCards = maxCards - visibleModelSources.length;
+                const visibleDifferences = differenceGroups.map(group => {
+                    const groupSources = Array.isArray(group.sources) ? group.sources : [];
+                    const displayed = groupSources.slice(0, remainingCards);
+                    remainingCards -= displayed.length;
+                    return {
+                        ...group,
+                        displayed_sources: displayed,
+                        hidden_source_count: groupSources.length - displayed.length,
+                    };
+                });
+                container.innerHTML = `
+                    <div class="market-source-group">
+                        <h3>${market.model_level_is_indicative ? "Indicative Model-Level Comparison" : "Model-Level Comparison"}</h3>
+                        <p>${formatNumber((modelSources || sources).length)} page-verified observations · ${formatNumber(modelDomains)} independent retailer domains. ${modelReliable ? `Average ${formatCurrency(modelStats.average, market.invoice_currency || modelStats.currency)} · Low ${formatCurrency(modelStats.lowest, market.invoice_currency || modelStats.currency)} · High ${formatCurrency(modelStats.highest, market.invoice_currency || modelStats.currency)} · Median ${formatCurrency(modelStats.median, market.invoice_currency || modelStats.currency)}.` : "A comparison average requires at least two independent retailer domains."}</p>
+                        <div class="market-source-list">
+                            ${visibleModelSources.length
+                                ? visibleModelSources.map(source => renderMarketSource(source, market.invoice_currency || modelStats.currency)).join("")
+                                : `<div class="market-empty">No page-verified model-level price observations were accepted.</div>`}
+                        </div>
+                    </div>
+                    <div class="market-source-group">
+                        <h3>Exact-Variant Benchmark</h3>
+                        <p>${formatNumber(sources.length)} confirmed exact-variant observations · ${formatNumber(exactDomains)} independent domains. ${exactReliable ? `Average ${formatCurrency(exactStats.average, market.invoice_currency || exactStats.currency)} · Low ${formatCurrency(exactStats.lowest, market.invoice_currency || exactStats.currency)} · High ${formatCurrency(exactStats.highest, market.invoice_currency || exactStats.currency)} · Median ${formatCurrency(exactStats.median, market.invoice_currency || exactStats.currency)}.` : "At least two independent exact-variant domains are required for a benchmark."}</p>
+                    </div>
+                    <p class="market-methodology">
+                        Results found: ${formatNumber(observationCounts.candidate_results_found || 0)} ·
+                        Page-verified prices: ${formatNumber(observationCounts.page_verified_prices || 0)} ·
+                        Incomplete specifications: ${formatNumber(observationCounts.incomplete_specifications || 0)} ·
+                        Out of stock: ${formatNumber(observationCounts.out_of_stock_prices || 0)} ·
+                        Availability unknown: ${formatNumber(observationCounts.unknown_availability_prices || 0)}.
+                    </p>
+                    ${visibleDifferences.filter(group => group.displayed_sources.length).map(group => `
+                        <div class="market-source-group">
+                            <h3>Specification difference: ${escapeHtml(group.label || "Different variant")}</h3>
+                            <div class="market-source-list">
+                                ${group.displayed_sources.map(source => renderMarketSource(source, market.invoice_currency || source.currency)).join("")}
+                            </div>
+                        </div>
+                    `).join("")}
+                    ${visibleModelSources.length + visibleDifferences.reduce((count, group) => count + group.displayed_sources.length, 0) >= maxCards
+                        ? `<p class="market-methodology">Additional observations are available in the product analysis diagnostics.</p>`
+                        : ""}
+                `;
+                return;
+            }
 
 
             if (!sources.length) {
@@ -5533,7 +5626,11 @@ body.theme-reviewer .error-state{
             const isMultiProduct = productAnalyses.length > 1;
             const productCountWithSources = productAnalyses.filter(item => {
                 const itemMarket = item.market || {};
-                return Array.isArray(itemMarket.sources) && itemMarket.sources.length > 0;
+                return (
+                    (Array.isArray(itemMarket.sources) && itemMarket.sources.length > 0)
+                    || (Array.isArray(itemMarket.model_level_sources) && itemMarket.model_level_sources.length > 0)
+                    || (Array.isArray(itemMarket.specification_difference_groups) && itemMarket.specification_difference_groups.length > 0)
+                );
             }).length;
 
             const productSearchRan = productAnalyses.length > 0;
@@ -5698,14 +5795,19 @@ body.theme-reviewer .error-state{
                                     ? "Invoice unit price is below the observed market reference."
                                     : "Invoice unit price matches the observed market reference."
                             : "No verified price difference is available for this product.";
-                        const itemMarketSources = normalizeMarketSources(itemMarket);
+                        const itemMarketSources = Array.isArray(itemMarket.model_level_sources)
+                            ? itemMarket.model_level_sources
+                            : normalizeMarketSources(itemMarket);
+                        const itemDifferenceGroups = Array.isArray(itemMarket.specification_difference_groups)
+                            ? itemMarket.specification_difference_groups
+                            : [];
                         const itemExcludedSources = Array.isArray(itemMarket.excluded_sources)
                             ? itemMarket.excluded_sources
                             : [];
                         const itemRelatedEditions = Array.isArray(itemMarket.related_edition_comparisons)
                             ? itemMarket.related_edition_comparisons
                             : [];
-                        const maxEvidenceCards = 6;
+                        const maxEvidenceCards = 8;
                         const displayedMarketSources = itemMarketSources.slice(0, maxEvidenceCards);
                         let remainingEvidenceCards = maxEvidenceCards - displayedMarketSources.length;
                         const displayedEvidenceKeys = new Set(
@@ -5713,6 +5815,26 @@ body.theme-reviewer .error-state{
                                 source.url || `${source.source_name || ""}|${source.title || ""}`,
                             )),
                         );
+                        const displayedDifferenceGroups = itemDifferenceGroups.map(group => {
+                            const groupSources = Array.isArray(group.sources) ? group.sources : [];
+                            const uniqueGroupSources = groupSources.filter(source => {
+                                const key = String(
+                                    source.url || `${source.source_name || ""}|${source.title || ""}`,
+                                );
+                                if (displayedEvidenceKeys.has(key)) {
+                                    return false;
+                                }
+                                displayedEvidenceKeys.add(key);
+                                return true;
+                            });
+                            const visibleSources = uniqueGroupSources.slice(0, remainingEvidenceCards);
+                            remainingEvidenceCards -= visibleSources.length;
+                            return {
+                                ...group,
+                                displayed_sources: visibleSources,
+                                hidden_source_count: uniqueGroupSources.length - visibleSources.length,
+                            };
+                        });
                         const displayedRelatedEditions = itemRelatedEditions.map(edition => {
                             const editionSources = Array.isArray(edition.sources) ? edition.sources : [];
                             const uniqueEditionSources = editionSources.filter(source => {
@@ -5746,6 +5868,14 @@ body.theme-reviewer .error-state{
                         const displayedExcludedSources = uniqueExcludedSources.slice(0, remainingEvidenceCards);
                         const additionalHiddenEvidence =
                             Math.max(0, itemMarketSources.length - displayedMarketSources.length)
+                            + itemDifferenceGroups.reduce(
+                                (sum, group) => sum + (Array.isArray(group.sources) ? group.sources.length : 0),
+                                0,
+                            )
+                            - displayedDifferenceGroups.reduce(
+                                (sum, group) => sum + group.displayed_sources.length,
+                                0,
+                            )
                             + uniqueExcludedSources.length - displayedExcludedSources.length
                             + displayedRelatedEditions.reduce((sum, edition) => sum + edition.hidden_source_count, 0)
                             + (Number(itemDiagnostics.search_results_excluded_by_relevance) || 0)
@@ -5758,13 +5888,29 @@ body.theme-reviewer .error-state{
                             `Product ${index + 1}`,
                         ));
                         const itemVariantNotice = itemMarket.market_variant_notice || "";
+                        const itemModelStats = itemMarket.model_level_statistics || {};
+                        const modelLevelDomains = Number(
+                            itemMarket.model_level_independent_domains
+                            ?? itemMarket.market_quality?.model_level_independent_domains
+                            ?? itemMarketSources.length
+                        );
+                        const hasReliableModelLevel =
+                            modelLevelDomains >= 2
+                            && itemModelStats.average !== null
+                            && itemModelStats.average !== undefined;
+                        const itemCounts = itemMarket.comparison_counts || {};
+                        const incompleteSpecifications = Number(itemCounts.incomplete_specifications || 0);
 
                         return `
                             <article class="market-product-analysis-card">
                                 <div class="market-product-analysis-header">
                                     <div class="market-product-analysis-name">${safeProductName}</div>
-                                    <span class="market-product-analysis-state ${itemSources.length ? "" : "unavailable"}">
-                                        ${itemSources.length ? `${formatNumber(itemSources.length)} VERIFIED OFFERS` : "NO VERIFIED OFFERS"}
+                                    <span class="market-product-analysis-state ${itemSources.length || itemMarketSources.length ? "" : "unavailable"}">
+                                        ${itemSources.length
+                                            ? `${formatNumber(itemSources.length)} EXACT-VARIANT OFFERS`
+                                            : itemMarketSources.length
+                                                ? `${formatNumber(itemMarketSources.length)} MODEL-LEVEL OFFERS`
+                                                : "NO VERIFIED OFFERS"}
                                     </span>
                                 </div>
                                 ${itemVariantNotice ? `<div class="market-validation-note">${escapeHtml(itemVariantNotice)}</div>` : ""}
@@ -5815,11 +5961,38 @@ body.theme-reviewer .error-state{
                                 </div>
                                 <div class="market-product-analysis-note">
                                     ${hasComparablePrices
-                                        ? "Statistics use accepted price observations from at least two independent domains."
+                                        ? "Exact-variant statistics use confirmed specifications from at least two independent domains."
                                         : itemSources.length
                                             ? `Only ${formatNumber(independentDomains)} independent source domain(s) were accepted. A reliable average and price difference require at least two.`
-                                            : "No reliable comparable price observations were accepted. Market statistics are unavailable, not zero."}
+                                            : itemMarketSources.length
+                                                ? "Model-level observations are shown separately; they do not contribute to the exact-variant risk benchmark."
+                                                : "No reliable comparable price observations were accepted. Market statistics are unavailable, not zero."}
                                     Match confidence measures product/source identity evidence. Price alignment measures closeness to the observed average. Price risk contribution is a rule-based deviation signal (maximum 30 points), not a fraud probability or ML accuracy.
+                                </div>
+                                <div class="market-product-analysis-metrics">
+                                    <div class="market-product-analysis-metric">
+                                        <span>${itemMarket.model_level_is_indicative ? "Indicative Model-Level Average" : "Model-Level Average"}</span>
+                                        <strong>${hasReliableModelLevel ? formatCurrency(itemModelStats.average, itemCurrency) : "Needs 2 domains"}</strong>
+                                    </div>
+                                    <div class="market-product-analysis-metric">
+                                        <span>Model-level low / high</span>
+                                        <strong>${hasReliableModelLevel ? `${formatCurrency(itemModelStats.lowest, itemCurrency)} / ${formatCurrency(itemModelStats.highest, itemCurrency)}` : "Not enough sources"}</strong>
+                                    </div>
+                                    <div class="market-product-analysis-metric">
+                                        <span>Model-level median</span>
+                                        <strong>${hasReliableModelLevel ? formatCurrency(itemModelStats.median, itemCurrency) : "Not enough sources"}</strong>
+                                    </div>
+                                    <div class="market-product-analysis-metric">
+                                        <span>Model-level retailer domains</span>
+                                        <strong>${formatNumber(modelLevelDomains)}</strong>
+                                    </div>
+                                </div>
+                                <div class="market-product-analysis-note">
+                                    Results found: ${formatNumber(itemCounts.candidate_results_found ?? itemDiagnostics.search_results_found ?? 0)} ·
+                                    Page-verified prices: ${formatNumber(itemCounts.page_verified_prices ?? itemMarketSources.length)} ·
+                                    Incomplete specifications: ${formatNumber(incompleteSpecifications)} ·
+                                    Out of stock: ${formatNumber(itemCounts.out_of_stock_prices || 0)} ·
+                                    Availability unknown: ${formatNumber(itemCounts.unknown_availability_prices || 0)}.
                                 </div>
                                 <div class="market-product-analysis-delta">
                                     ${escapeHtml(itemDeltaText)}
@@ -5828,13 +6001,27 @@ body.theme-reviewer .error-state{
                                         : ""}
                                 </div>
                                 <details class="market-product-sources">
-                                    <summary>View verified price observations (${formatNumber(itemSources.length)})</summary>
+                                    <summary>View model-level page-verified observations (${formatNumber(itemMarketSources.length)})</summary>
                                     <div class="market-product-sources-body">
                                         ${itemMarketSources.length
                                             ? displayedMarketSources.map(source => renderMarketSource(source, itemCurrency)).join("")
-                                            : `<div class="market-empty">No source passed exact model, variant and price checks.</div>`}
+                                            : `<div class="market-empty">No source passed page-level product identity and price checks.</div>`}
                                     </div>
                                 </details>
+                                ${displayedDifferenceGroups.some(group => group.displayed_sources.length) ? `
+                                    <details class="market-product-sources market-related-editions" open>
+                                        <summary>Material specification differences (${formatNumber(itemDifferenceGroups.reduce((sum, group) => sum + (Number(group.source_count) || 0), 0))} listings; excluded from both benchmarks)</summary>
+                                        <div class="market-product-sources-body">
+                                            ${displayedDifferenceGroups.filter(group => group.displayed_sources.length).map(group => `
+                                                <section class="market-related-edition-block">
+                                                    <h4>${escapeHtml(group.label || "Different specification")}</h4>
+                                                    <div class="market-related-edition-stats">These page-verified listings are not mixed into model-level or exact-variant statistics.</div>
+                                                    ${group.displayed_sources.map(source => renderMarketSource(source, itemCurrency)).join("")}
+                                                </section>
+                                            `).join("")}
+                                        </div>
+                                    </details>
+                                ` : ""}
                                 ${displayedRelatedEditions.length ? `
                                     <details class="market-product-sources market-related-editions">
                                         <summary>Compare other AJ199 editions separately (${formatNumber(itemRelatedEditions.reduce((sum, edition) => sum + (Number(edition.source_count) || 0), 0))} page-verified listings)</summary>

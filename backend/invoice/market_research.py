@@ -72,10 +72,10 @@ JINA_READER_URL_PREFIX = (
 
 REQUEST_TIMEOUT = 8
 
-MAX_SEARCH_RESULTS = 10
+MAX_SEARCH_RESULTS = 20
 
 MAX_SEARCH_QUERIES_PER_PRODUCT = 1
-MAX_CANDIDATES_PER_PRODUCT = 6
+MAX_CANDIDATES_PER_PRODUCT = 12
 MAX_TOTAL_SEARCH_RESULTS = MAX_CANDIDATES_PER_PRODUCT
 
 MAX_PAGE_BYTES = (
@@ -1425,10 +1425,6 @@ def _rank_market_search_results(
             for blocked in BLOCKED_MARKET_SEARCH_DOMAINS
         ):
             continue
-        is_local_retailer = domain in RETAILER_DOMAINS
-        if not is_local_retailer and not domain.endswith(".bd"):
-            continue
-
         title = str(raw_result.get("title") or "")
         snippet = str(raw_result.get("snippet") or "")
         evidence = f"{title} {snippet} {url}"
@@ -1436,6 +1432,22 @@ def _rank_market_search_results(
             continue
         result_models = extract_model_tokens(evidence)
         model_hits = target_models & result_models
+        is_local_retailer = domain in RETAILER_DOMAINS or domain.endswith(".bd")
+        localized_context = bool(re.search(
+            r"\b(?:bangladesh|bdt|taka)\b|৳",
+            f"{title} {snippet}",
+            re.IGNORECASE,
+        ))
+        localized_search = (
+            str(raw_result.get("search_country") or "").casefold() == "bd"
+            or str(raw_result.get("engine") or "").casefold() == "serper"
+        )
+        if not (
+            is_local_retailer
+            or localized_context
+            or (localized_search and bool(model_hits))
+        ):
+            continue
         if target_models and not model_hits and not _plausible_local_retailer_identity(
             product_description,
             evidence,
@@ -1477,6 +1489,9 @@ def _rank_market_search_results(
         result = dict(raw_result)
         result["url"] = url
         result["domain"] = domain
+        result["localized_retailer_candidate"] = bool(
+            is_local_retailer or localized_context or localized_search
+        )
         ranked.append((rank, result, domain))
 
     ranked.sort(key=lambda entry: entry[0])
@@ -2396,9 +2411,10 @@ def extract_page_price(
                     product_description,
                     evidence,
                     category_evidence=category_evidence,
-                    brand_evidence=str(
-                        binding.get("entity_brand") or binding.get("entity_identity") or ""
-                    ),
+                    brand_evidence=" ".join(
+                        str(binding.get(key) or "")
+                        for key in ("entity_title", "entity_identity", "entity_brand")
+                    ).strip(),
                     specification_evidence=str(binding.get("page_specifications") or ""),
                 )
                 item["variant_assessment"] = assessment
@@ -2438,9 +2454,10 @@ def extract_page_price(
                     product_description,
                     evidence,
                     category_evidence=category_evidence,
-                    brand_evidence=str(
-                        binding.get("entity_brand") or binding.get("entity_identity") or ""
-                    ),
+                    brand_evidence=" ".join(
+                        str(binding.get(key) or "")
+                        for key in ("entity_title", "entity_identity", "entity_brand")
+                    ).strip(),
                     specification_evidence=str(binding.get("page_specifications") or ""),
                 )
                 item["variant_assessment"] = assessment
@@ -3172,6 +3189,7 @@ def analyze_candidate(
     is_local_retailer_candidate = (
         candidate_domain in RETAILER_DOMAINS
         or candidate_domain.endswith(".bd")
+        or bool(result.get("localized_retailer_candidate"))
     )
     if _has_conflicting_primary_model(product_description, title):
         reject_candidate(
@@ -3661,17 +3679,11 @@ def analyze_candidate(
         "currency"
     )
 
-    visible = (
-        page_text
-        or snippet
-        or ""
-    )
+    visible = page_text or ""
 
     if (
         not currency
-        and domain.endswith(
-            ".bd"
-        )
+        and is_local_retailer_candidate
         and (
             "৳" in visible
             or re.search(
@@ -3679,10 +3691,13 @@ def analyze_candidate(
                 visible,
                 re.IGNORECASE
             )
-            or re.search(
+            or (
+                domain.endswith(".bd")
+                and re.search(
                 r"(?:our\s+)?price\s*[:\-]?\s*[0-9]",
                 visible,
                 re.IGNORECASE
+                )
             )
         )
     ):
@@ -9438,6 +9453,9 @@ def _market_exclusion_record(source: dict, assessment: dict | None, reason: str)
         "availability": source.get("availability"),
         "price_source": source.get("price_source"),
         "source_type": source.get("source_type"),
+        "market_comparison_status": source.get("market_comparison_status"),
+        "specification_status": source.get("specification_status"),
+        "comparison_group": source.get("comparison_group"),
         "match_confidence": source.get("match_confidence"),
         "variant_validation": assessment or {},
         "first_rejection_stage": stage,
@@ -9570,9 +9588,10 @@ def _validate_market_source(source: dict, product_description: str) -> tuple[boo
             product_description,
             evidence,
             category_evidence=category_evidence,
-            brand_evidence=str(
-                binding.get("entity_brand") or binding.get("entity_identity") or ""
-            ),
+            brand_evidence=" ".join(
+                str(binding.get(key) or "")
+                for key in ("entity_title", "entity_identity", "entity_brand")
+            ).strip(),
             specification_evidence=str(binding.get("page_specifications") or ""),
         )
     else:
@@ -9597,8 +9616,77 @@ def _validate_market_source(source: dict, product_description: str) -> tuple[boo
         source["match_confidence"] = assessed_confidence
     source["market_identity_confidence"] = assessed_confidence
     source["variant_validation"] = assessment
+    source["market_comparison_status"] = "exact_variant_confirmed"
+    source["specification_status"] = "confirmed"
+    source["comparison_group"] = "Exact-variant benchmark"
     source["market_eligible"] = True
     return True, assessment, None
+
+
+def _non_exact_market_status(assessment: dict) -> str | None:
+    """Classify page-bound model matches without weakening exact variant checks."""
+    status = str(assessment.get("status") or "")
+    reason = str(assessment.get("reason") or "")
+    if status == "unverified" and (
+        reason == "aj199_edition_not_explicitly_identified"
+        or reason == "candidate_has_unconfirmed_variant"
+        or reason.startswith((
+            "required_variant_evidence_missing:",
+            "required_specification_evidence_missing:",
+            "required_carbon_fiber_tri_mode_evidence_missing:",
+        ))
+    ):
+        return "optional_specifications_unknown"
+    if status == "mismatch" and (
+        reason.startswith("variant_mismatch:")
+        or reason.startswith("separate_edition:")
+    ):
+        return "specification_difference"
+    return None
+
+
+def _retain_non_exact_market_observation(
+    source: dict,
+    assessment: dict,
+    context: dict | None,
+) -> bool:
+    comparison_status = _non_exact_market_status(assessment)
+    if comparison_status is None:
+        return False
+    price_ok, price_reason = _classify_price_observation(source)
+    if not price_ok:
+        _record_market_exclusion(
+            source,
+            assessment,
+            price_reason or "price_not_eligible",
+        )
+        return True
+
+    confidence = float(source.get("match_confidence") or 0.0)
+    source["legacy_match_confidence"] = source.get("match_confidence")
+    source["market_identity_confidence"] = confidence
+    source["variant_validation"] = assessment
+    source["market_eligible"] = False
+    source["market_comparison_status"] = comparison_status
+
+    if comparison_status == "optional_specifications_unknown":
+        source["specification_status"] = "unknown"
+        source["comparison_group"] = "Indicative model-level comparison"
+        if context is not None:
+            context.setdefault("model_level_sources", []).append(dict(source))
+        return True
+
+    source["specification_status"] = "conflicting"
+    reason = str(assessment.get("reason") or "variant_mismatch")
+    source["comparison_group"] = (
+        assessment.get("separate_edition")
+        or reason.removeprefix("variant_mismatch:").replace("_", " ").capitalize()
+    )
+    if context is not None:
+        context.setdefault("specification_difference_sources", []).append(dict(source))
+    if reason.startswith("separate_edition:"):
+        _record_market_exclusion(source, assessment, reason)
+    return True
 
 
 def analyze_candidate(result: dict, product_description: str) -> dict | None:
@@ -9616,6 +9704,10 @@ def analyze_candidate(result: dict, product_description: str) -> dict | None:
         _record_market_candidate_metrics(source, context)
     accepted, assessment, reason = _validate_market_source(source, product_description)
     if not accepted:
+        if _retain_non_exact_market_observation(source, assessment, context):
+            if context is not None:
+                _record_market_candidate_metrics(source, context)
+            return None
         _record_market_exclusion(source, assessment, reason or "not_verified")
         return None
     return source
@@ -9636,6 +9728,10 @@ def analyze_direct_candidate(result: dict, product_description: str) -> dict | N
         _record_market_candidate_metrics(source, context)
     accepted, assessment, reason = _validate_market_source(source, product_description)
     if not accepted:
+        if _retain_non_exact_market_observation(source, assessment, context):
+            if context is not None:
+                _record_market_candidate_metrics(source, context)
+            return None
         _record_market_exclusion(source, assessment, reason or "not_verified")
         return None
     return source
@@ -9708,6 +9804,31 @@ def _build_related_edition_comparisons(
     return comparisons
 
 
+def _source_rank_for_domain(source: dict) -> tuple[int, float, int, int]:
+    try:
+        confidence = float(source.get("match_confidence") or 0)
+    except (TypeError, ValueError):
+        confidence = 0.0
+    return (
+        1 if source.get("market_comparison_status") == "exact_variant_confirmed" else 0,
+        confidence,
+        1 if source.get("direct_source") else 0,
+        1 if source.get("official_brand") else 0,
+    )
+
+
+def _dedupe_sources_by_domain(sources: list[dict]) -> list[dict]:
+    by_domain: dict[str, dict] = {}
+    for source in sources:
+        domain = _market_source_domain(source)
+        if not domain:
+            continue
+        current = by_domain.get(domain)
+        if current is None or _source_rank_for_domain(source) > _source_rank_for_domain(current):
+            by_domain[domain] = source
+    return list(by_domain.values())
+
+
 def _rebuild_market_result(result: dict, product_description: str, context: dict) -> dict:
     original_sources = result.get("sources") if isinstance(result.get("sources"), list) else []
     accepted_by_domain: dict[str, dict] = {}
@@ -9729,17 +9850,7 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
             _record_market_exclusion(source, assessment, "source_domain_missing")
             continue
         current = accepted_by_domain.get(domain)
-        rank = (
-            float(source.get("match_confidence") or 0),
-            1 if source.get("direct_source") else 0,
-            1 if source.get("official_brand") else 0,
-        )
-        current_rank = (
-            float(current.get("match_confidence") or 0),
-            1 if current.get("direct_source") else 0,
-            1 if current.get("official_brand") else 0,
-        ) if current else None
-        if current is None or rank > current_rank:
+        if current is None or _source_rank_for_domain(source) > _source_rank_for_domain(current):
             if current is not None:
                 _record_market_exclusion(current, current.get("variant_validation"), "duplicate_retailer_domain")
             accepted_by_domain[domain] = source
@@ -9771,6 +9882,84 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
             deduped_excluded.append(item)
 
     statistics = calculate_market_statistics(accepted_sources)
+    domain_values = []
+    for source in accepted_sources:
+        domain = _market_source_domain(source)
+        if isinstance(domain, str) and domain:
+            domain_values.append(domain)
+    domains = sorted(set(domain_values))
+    if len(domains) < 2:
+        statistics["average"] = None
+    invoice_currency = str(result.get("invoice_currency") or "").upper().strip()
+
+    model_observations = list(accepted_sources)
+    model_candidates = context.get("model_level_sources")
+    if not isinstance(model_candidates, list):
+        model_candidates = []
+    for source in model_candidates:
+        source_currency = str(source.get("currency") or "").upper().strip()
+        if invoice_currency and source_currency and source_currency != invoice_currency:
+            _record_market_exclusion(source, source.get("variant_validation"), "currency_mismatch")
+            continue
+        model_observations.append(source)
+    model_level_sources = _dedupe_sources_by_domain(model_observations)
+    model_level_statistics = calculate_market_statistics(model_level_sources)
+    model_domain_values = []
+    for source in model_level_sources:
+        domain = _market_source_domain(source)
+        if isinstance(domain, str) and domain:
+            model_domain_values.append(domain)
+    model_level_domains = sorted(set(model_domain_values))
+    if len(model_level_domains) < 2:
+        model_level_statistics["average"] = None
+
+    specification_groups: dict[tuple[str, str, str], dict] = {}
+    difference_candidates = context.get("specification_difference_sources")
+    if not isinstance(difference_candidates, list):
+        difference_candidates = []
+    for source in difference_candidates:
+        assessment = source.get("variant_validation") or {}
+        reason = str(assessment.get("reason") or "")
+        if reason.startswith("separate_edition:"):
+            continue
+        source_currency = str(source.get("currency") or "").upper().strip()
+        if invoice_currency and source_currency and source_currency != invoice_currency:
+            _record_market_exclusion(source, assessment, "currency_mismatch")
+            continue
+        expected = "|".join(sorted(str(item) for item in assessment.get("expected_variant") or []))
+        observed = "|".join(sorted(str(item) for item in assessment.get("observed_variant") or []))
+        group_key = (reason, expected, observed)
+        group = specification_groups.setdefault(group_key, {
+            "label": source.get("comparison_group") or "Material specification difference",
+            "by_domain": {},
+        })
+        domain = _market_source_domain(source)
+        if domain:
+            current = group["by_domain"].get(domain)
+            if current is None or _source_rank_for_domain(source) > _source_rank_for_domain(current):
+                group["by_domain"][domain] = source
+    specification_difference_groups = []
+    for _, group in sorted(specification_groups.items(), key=lambda item: item[0]):
+        group_sources = list(group["by_domain"].values())
+        group_domains = sorted(group["by_domain"])
+        group_stats = (
+            calculate_market_statistics(group_sources)
+            if len(group_domains) >= 2
+            else {
+                "currency": str(group_sources[0].get("currency") or "").upper() if group_sources else None,
+                "lowest": None, "highest": None, "average": None, "median": None,
+            }
+        )
+        specification_difference_groups.append({
+            "label": group["label"],
+            "sources": group_sources,
+            "source_count": len(group_sources),
+            "independent_domains": len(group_domains),
+            "market_statistics": group_stats,
+            "included_in_model_level_comparison": False,
+            "included_in_exact_variant_benchmark": False,
+        })
+
     currency = statistics.get("currency")
     invoice_price = result.get("invoice_unit_price")
     try:
@@ -9779,14 +9968,14 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
         invoice_price = None
     difference = None
     difference_percent = None
-    if invoice_price is not None and statistics.get("average") is not None:
+    average_value = statistics.get("average")
+    if invoice_price is not None and average_value is not None:
         if not result.get("invoice_currency") or result.get("invoice_currency") == currency:
-            average = float(statistics["average"])
+            average = float(average_value)
             difference = round(invoice_price - average, 2)
             if average > 0:
                 difference_percent = round((difference / average) * 100, 2)
 
-    domains = sorted({_market_source_domain(source) for source in accepted_sources if _market_source_domain(source)})
     marketplace = [source for source in accepted_sources if source.get("source_type") == "marketplace"]
     retailers = [source for source in accepted_sources if source.get("source_type") == "retailer"]
     official = [source for source in accepted_sources if source.get("source_type") == "official_brand"]
@@ -9798,8 +9987,11 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
     # Match confidence summarizes accepted retailer identity-confidence values.
     confidences = []
     for source in accepted_sources:
+        confidence_value = source.get("match_confidence")
+        if confidence_value is None:
+            continue
         try:
-            value = float(source.get("match_confidence"))
+            value = float(confidence_value)
             if 0.0 <= value <= 1.0:
                 confidences.append(value)
         except (TypeError, ValueError, AttributeError):
@@ -9816,11 +10008,54 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
         deduped_excluded,
         result.get("invoice_currency"),
     )
+    incomplete_specification_count = sum(
+        1 for source in model_level_sources
+        if source.get("market_comparison_status") == "optional_specifications_unknown"
+    )
+    visible_observations = (
+        model_level_sources
+        + [
+            source
+            for group in specification_difference_groups
+            for source in group["sources"]
+        ]
+        + [
+            source
+            for edition in related_edition_comparisons
+            for source in edition["sources"]
+        ]
+    )
     result.update({
         "market_product_label": identity_metadata.get("label") if identity_metadata else product_description,
         "market_variant_notice": identity_metadata.get("notice") if identity_metadata else None,
         "market_variant_override": identity_metadata.get("override") if identity_metadata else None,
         "sources": accepted_sources,
+        "exact_variant_statistics": statistics,
+        "model_level_sources": model_level_sources,
+        "model_level_statistics": model_level_statistics,
+        "model_level_independent_domains": len(model_level_domains),
+        "model_level_is_indicative": incomplete_specification_count > 0,
+        "specification_difference_groups": specification_difference_groups,
+        "comparison_counts": {
+            "candidate_results_found": int(
+                (result.get("search_diagnostics") or {}).get("search_results_found") or 0
+            ),
+            "page_verified_prices": len(visible_observations),
+            "exact_variant_prices": len(accepted_sources),
+            "model_level_prices": len(model_level_sources),
+            "incomplete_specifications": incomplete_specification_count,
+            "specification_difference_prices": sum(
+                len(group["sources"]) for group in specification_difference_groups
+            ),
+            "out_of_stock_prices": sum(
+                1 for source in visible_observations
+                if source.get("availability") == "out_of_stock"
+            ),
+            "unknown_availability_prices": sum(
+                1 for source in visible_observations
+                if source.get("availability") in {None, "", "unknown"}
+            ),
+        },
         "excluded_sources": deduped_excluded,
         "related_edition_comparisons": related_edition_comparisons,
         "marketplace_sources": marketplace,
@@ -9841,23 +10076,32 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
             "warning": "These indicators are not ML accuracy, invoice authenticity, or fraud probability.",
         },
         "usable_for_risk_calculation": usable,
-        "status": "analyzed" if usable else "partial" if accepted_sources else "no_reliable_comparable",
+        "status": "analyzed" if usable else "partial" if (accepted_sources or model_level_sources or specification_difference_groups) else "no_reliable_comparable",
         "message": (
             "Verified product/variant prices were found across independent sources."
             if usable else
-            "Some sources passed identity and price checks, but at least two independent verified stores are required for a reliable benchmark."
-            if accepted_sources else
+            "Page-verified model-level prices are available, but at least two independent exact-variant stores are required for a reliable benchmark."
+            if model_level_sources else
+            "Only listings with differing material specifications were found; they are shown separately and are not included in the target benchmark."
+            if specification_difference_groups else
             "No price passed exact product, variant, entity-association and page-price validation."
         ),
         "market_quality": {
             "accepted_price_observations": len(accepted_sources),
             "independent_domains": len(domains),
+            "model_level_price_observations": len(model_level_sources),
+            "model_level_independent_domains": len(model_level_domains),
+            "incomplete_specification_observations": incomplete_specification_count,
+            "specification_difference_observations": sum(
+                len(group["sources"]) for group in specification_difference_groups
+            ),
             "excluded_observations": len(deduped_excluded),
             "minimum_independent_domains_for_risk": 2,
             "outlier_filter_activated_at_observations": 5,
             "rules": [
                 "Exact model evidence required when the invoice includes a model code.",
-                "Material variants must be explicitly verified; mismatches and unknown variants are excluded.",
+                "Exact-variant statistics include only explicitly confirmed material specifications.",
+                "Model-level observations may include unknown optional specifications, labeled as indicative; explicit conflicts are shown separately.",
                 "Page-verified out-of-stock prices are included as observations and are not currently purchasable.",
                 "Search-snippet-only prices are excluded from statistics.",
                 "One observation per independent retailer domain is counted.",
@@ -9867,6 +10111,10 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
     })
     diagnostics = result.setdefault("search_diagnostics", {})
     diagnostics["sources_accepted"] = len(accepted_sources)
+    diagnostics["model_level_sources"] = len(model_level_sources)
+    diagnostics["specification_difference_sources"] = sum(
+        len(group["sources"]) for group in specification_difference_groups
+    )
     diagnostics["unique_source_domains"] = len(domains)
     diagnostics["independent_source_count"] = len(domains)
     diagnostics["variant_rejections"] = sum(1 for item in deduped_excluded if "variant" in str(item.get("exclusion_reason")))

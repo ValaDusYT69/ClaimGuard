@@ -119,7 +119,7 @@ def search_serper(
         request = Request(
             SERPER_SEARCH_URL,
             data=json.dumps(
-                {"q": clean_query, "gl": "bd", "hl": "en", "num": 10},
+                {"q": clean_query, "gl": "bd", "hl": "en", "num": 20},
                 separators=(",", ":"),
             ).encode("utf-8"),
             headers={
@@ -181,7 +181,7 @@ def search_serper(
                 "snippet": str(item.get("snippet") or "").strip()[:2500],
                 "engine": "serper",
             })
-            if len(results) >= 10:
+            if len(results) >= 20:
                 break
 
         diagnostics["result_count"] = len(results)

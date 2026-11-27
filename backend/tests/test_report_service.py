@@ -243,11 +243,94 @@ class ComprehensiveInvoiceReportTests(unittest.TestCase):
             },
         })
 
-        for index in range(6):
+        for index in range(8):
             self.assertIn(f"retailer-{index:02}.example", text)
-        self.assertNotIn("retailer-06.example", text)
+        self.assertNotIn("retailer-08.example", text)
         self.assertNotIn("excluded-listing-00", text)
-        self.assertIn("19 additional market listings were not shown", text)
+        self.assertIn("17 additional market listings were not shown", text)
+
+    def test_report_distinguishes_model_level_unknown_specs_and_conflicts(self):
+        model_sources = [
+            {
+                "title": "Antec B550 Power Supply",
+                "source_name": "shop-one.example",
+                "url": "https://shop-one.example/antec-b550",
+                "price": 6500,
+                "currency": "BDT",
+                "availability": "unknown",
+                "price_source": "schema_org_product_offer",
+                "market_comparison_status": "optional_specifications_unknown",
+                "specification_status": "unknown",
+                "comparison_group": "Indicative model-level comparison",
+            },
+            {
+                "title": "Antec B550 Power Supply",
+                "source_name": "shop-two.example",
+                "url": "https://shop-two.example/antec-b550",
+                "price": 6700,
+                "currency": "BDT",
+                "availability": "out_of_stock",
+                "price_source": "page_html",
+                "market_comparison_status": "exact_variant_confirmed",
+                "specification_status": "confirmed",
+                "comparison_group": "Exact-variant benchmark",
+            },
+        ]
+        text = self._extract({
+            "invoice_id": "INV-MODEL-LEVEL",
+            "extracted_data": {
+                "invoice_number": "INV-MODEL-LEVEL",
+                "currency": "BDT",
+                "line_items": [
+                    {"product": "Antec B550 Power Supply", "quantity": 1, "unit_price": 6600, "line_amount": 6600}
+                ],
+            },
+            "market_analysis": {
+                "product_analyses": [{
+                    "product": "Antec B550 Power Supply",
+                    "market": {
+                        "market_statistics": {"currency": "BDT", "average": 6700},
+                        "market_quality": {"independent_domains": 1},
+                        "sources": [model_sources[1]],
+                        "model_level_sources": model_sources,
+                        "model_level_statistics": {
+                            "currency": "BDT", "average": 6600, "lowest": 6500,
+                            "highest": 6700, "median": 6600,
+                        },
+                        "model_level_independent_domains": 2,
+                        "model_level_is_indicative": True,
+                        "comparison_counts": {
+                            "candidate_results_found": 12,
+                            "page_verified_prices": 3,
+                            "incomplete_specifications": 1,
+                            "out_of_stock_prices": 1,
+                            "unknown_availability_prices": 1,
+                        },
+                        "specification_difference_groups": [{
+                            "label": "Wattage mismatch",
+                            "sources": [{
+                                "title": "Antec B550 650W Power Supply",
+                                "source_name": "other.example",
+                                "url": "https://other.example/antec-b550-650w",
+                                "price": 6200,
+                                "currency": "BDT",
+                                "availability": "listed",
+                                "price_source": "page_html",
+                                "market_comparison_status": "specification_difference",
+                                "specification_status": "conflicting",
+                                "comparison_group": "Wattage mismatch",
+                            }],
+                        }],
+                    },
+                }],
+            },
+        })
+
+        self.assertIn("Indicative Model-Level Comparison", text)
+        self.assertIn("Specifications not confirmed", text)
+        self.assertIn("Specification difference", text)
+        self.assertIn("other.example", text)
+        self.assertIn("Availability unknown", text)
 
     def test_out_of_stock_market_price_is_labeled_not_purchasable(self):
         text = self._extract({
@@ -294,7 +377,7 @@ class ComprehensiveInvoiceReportTests(unittest.TestCase):
             },
         })
 
-        self.assertIn("Out of stock (not currently purchasable)", text)
+        self.assertIn("Out of stock (not currently purchasable)", " ".join(text.split()))
         self.assertIn("7,000", text)
 
 

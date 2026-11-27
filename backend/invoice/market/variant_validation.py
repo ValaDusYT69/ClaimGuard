@@ -34,6 +34,11 @@ _FEATURE_PATTERNS: dict[str, re.Pattern[str]] = {
     "motherboard_form_factor_atx": re.compile(r"(?<![a-z0-9-])atx(?![a-z0-9])", re.I),
     "motherboard_form_factor_matx": re.compile(r"\b(?:micro[\s-]*atx|m[\s.-]*atx)\b", re.I),
     "motherboard_form_factor_itx": re.compile(r"\b(?:mini[\s-]*itx|itx)\b", re.I),
+    "storage_interface_nvme": re.compile(r"\bnvme\b", re.I),
+    "storage_interface_sata": re.compile(r"\bsata\b", re.I),
+    "storage_form_factor_m2": re.compile(r"\bm\s*[.]?\s*2\b", re.I),
+    "storage_form_factor_2_5inch": re.compile(r"\b2[.]5\s*(?:inch|in|[\"”])", re.I),
+    "storage_form_factor_3_5inch": re.compile(r"\b3[.]5\s*(?:inch|in|[\"”])", re.I),
     "cpu_tray": re.compile(r"\b(?:tray|oem)\b", re.I),
     "cpu_retail_box": re.compile(r"\b(?:retail\s+box(?:ed)?|boxed\s+(?:cpu|processor))\b", re.I),
     "tri_mode": re.compile(r"\b(?:tri[\s-]*mode|3[\s-]*mode|three[\s-]*mode)\b", re.I),
@@ -199,6 +204,12 @@ def _features(text: str) -> set[str]:
         features.add(f"memory_speed_{int(match.group(1))}")
     for match in re.finditer(r"\bcl\s*(\d{1,2})\b", value, re.I):
         features.add(f"memory_latency_{int(match.group(1))}")
+    for match in re.finditer(
+        r"\b(?:pcie|pci\s+express|gen)\s*(?:gen(?:eration)?\s*)?([345])(?:[.]0)?\b",
+        value,
+        re.I,
+    ):
+        features.add(f"storage_pcie_generation_{match.group(1)}")
     for family, pattern in (
         ("delta", r"\bdelta\b"),
         ("tforce", r"\bt[\s-]*force\b"),
@@ -231,10 +242,15 @@ def _category(text: str) -> str | None:
 
 def _known_brand(text: str) -> str | None:
     lower = (text or "").casefold()
-    for brand in sorted(set(_KNOWN_BRANDS), key=len, reverse=True):
-        if re.search(rf"(?<![a-z0-9]){re.escape(brand)}(?![a-z0-9])", lower):
-            return brand
-    return None
+    matches = [
+        (match.start(), -len(brand), brand)
+        for brand in set(_KNOWN_BRANDS)
+        for match in re.finditer(
+            rf"(?<![a-z0-9]){re.escape(brand)}(?![a-z0-9])",
+            lower,
+        )
+    ]
+    return min(matches)[2] if matches else None
 
 
 def _brand(text: str) -> str | None:
@@ -519,7 +535,15 @@ def assess_product_variant(
             ))
         }
     elif target_category == "storage":
-        required |= {feature for feature in target_features if feature.startswith("capacity_")}
+        required |= {
+            feature for feature in target_features
+            if feature.startswith((
+                "capacity_",
+                "storage_interface_",
+                "storage_form_factor_",
+                "storage_pcie_generation_",
+            ))
+        }
     elif target_category == "motherboard":
         required |= {
             feature for feature in target_features
@@ -568,6 +592,9 @@ def assess_product_variant(
             ("memory_speed_", "memory_speed"),
             ("memory_latency_", "memory_latency"),
             ("memory_family_", "memory_family"),
+            ("storage_interface_", "storage_interface"),
+            ("storage_form_factor_", "storage_form_factor"),
+            ("storage_pcie_generation_", "storage_pcie_generation"),
             ("motherboard_form_factor_", "motherboard_form_factor"),
         ):
             target_values = {feature for feature in required if feature.startswith(prefix)}
@@ -575,7 +602,13 @@ def assess_product_variant(
             if target_values and candidate_values - target_values:
                 conflicts.add(f"{label}_mismatch")
         if conflicts:
-            return {"status": "mismatch", "reason": "variant_mismatch:" + ",".join(sorted(conflicts)), "confidence": 0.0}
+            return {
+                "status": "mismatch",
+                "reason": "variant_mismatch:" + ",".join(sorted(conflicts)),
+                "expected_variant": sorted(required),
+                "observed_variant": sorted(candidate_features),
+                "confidence": 0.0,
+            }
         missing_features = required - candidate_features
         if missing_features:
             return {"status": "unverified", "reason": "required_variant_evidence_missing:" + ",".join(sorted(missing_features)), "confidence": 0.0}
@@ -625,8 +658,11 @@ def effective_search_query(product: str | None) -> str:
 
 def classify_price_observation(source: dict[str, Any]) -> tuple[bool, str | None]:
     """Allow positive, currency-backed page-level price observations."""
+    price_value = source.get("price")
+    if price_value is None:
+        return False, "price_missing_or_invalid"
     try:
-        price = float(source.get("price"))
+        price = float(price_value)
     except (TypeError, ValueError):
         return False, "price_missing_or_invalid"
     if not (price > 0 and price < 1_000_000_000):

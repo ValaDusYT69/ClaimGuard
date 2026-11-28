@@ -1557,6 +1557,14 @@ def search_web(
         _diag_request("serper", int(provider_diagnostics.get("requests_sent") or 0))
     if provider_diagnostics.get("cache_hit"):
         _diag_increment("serper", "cache_hits")
+    if provider_diagnostics.get("query_normalized"):
+        _diag_increment("serper", "normalized_queries")
+    reported_result_count = provider_diagnostics.get("result_count")
+    if reported_result_count is not None:
+        try:
+            _diag_increment("serper", "organic_results_reported", int(reported_result_count))
+        except (TypeError, ValueError):
+            pass
     status_code = provider_diagnostics.get("status_code")
     if provider_diagnostics.get("attempted") and status_code is not None:
         if 200 <= int(status_code) < 300:
@@ -3156,6 +3164,10 @@ def analyze_candidate(
     page_text = ""
     html = ""
     retrieval_method = "search_result"
+    page_fetch_error_type: str | None = None
+    page_fetch_http_status: int | None = None
+    page_fetch_outcome = "not_attempted"
+    jina_reader_attempted = False
 
     def reject_candidate(
         reason: str,
@@ -3170,6 +3182,10 @@ def analyze_candidate(
             "rejection_stage": stage,
             "retrieval_method": retrieval_method,
             "page_evidence_excerpt": page_evidence[:3000] or None,
+            "page_fetch_outcome": page_fetch_outcome,
+            "page_fetch_error_type": page_fetch_error_type,
+            "page_fetch_http_status": page_fetch_http_status,
+            "jina_reader_attempted": jina_reader_attempted,
         }
         _record_market_exclusion(
             diagnostic,
@@ -3252,34 +3268,56 @@ def analyze_candidate(
 
         page_text = parser.get_text()
 
-        if page_text:
+        if html_bytes:
+            page_fetch_outcome = (
+                "direct_http_success"
+                if page_text
+                else "direct_http_success_no_visible_text"
+            )
+        else:
+            page_fetch_outcome = "direct_http_empty_body"
 
+        if page_text:
             retrieval_method = "direct_http"
             url = final_url
             domain = get_domain(final_url)
             normalized_domain = domain.lower().strip()
 
-    except Exception:
-
+    except Exception as exc:
         page_text = ""
-
         html = ""
+        page_fetch_outcome = "direct_http_failed"
+        if isinstance(exc, HTTPError):
+            page_fetch_error_type = "http_error"
+            try:
+                page_fetch_http_status = int(exc.code)
+            except (TypeError, ValueError):
+                page_fetch_http_status = None
+        elif isinstance(exc, (TimeoutError, socket.timeout)):
+            page_fetch_error_type = "timeout"
+        elif isinstance(exc, URLError):
+            page_fetch_error_type = "connection_error"
+        else:
+            page_fetch_error_type = type(exc).__name__
 
     # -----------------------------------------------------
     # Jina page-text fallback.
     # -----------------------------------------------------
 
     if not page_text:
-
-        rendered_text = fetch_url_via_jina(
-            url
-        )
+        jina_reader_attempted = True
+        rendered_text = fetch_url_via_jina(url)
 
         if rendered_text:
-
             page_text = rendered_text
-
             retrieval_method = "jina_reader"
+            page_fetch_outcome = "jina_reader_success"
+        else:
+            page_fetch_outcome = (
+                "direct_http_failed_and_jina_empty"
+                if page_fetch_error_type
+                else "direct_http_empty_and_jina_empty"
+            )
 
     # -----------------------------------------------------
     # Final identity gate on the actual page when available.
@@ -3626,7 +3664,12 @@ def analyze_candidate(
         )
     )
     if needs_reader_fallback:
+        jina_reader_attempted = True
         rendered_text = fetch_url_via_jina(url)
+        if not rendered_text:
+            page_fetch_outcome = "jina_reader_empty_after_direct_page"
+        else:
+            page_fetch_outcome = "jina_reader_content_returned_after_direct_page"
         if rendered_text:
             rendered_models = set(extract_model_tokens(rendered_text[:40000]))
             target_models = set(extract_model_tokens(product_description))
@@ -3657,6 +3700,7 @@ def analyze_candidate(
                         page_binding = reader_binding
                         page_text = rendered_text
                         retrieval_method = "jina_reader"
+                        page_fetch_outcome = "jina_reader_success_after_direct_page"
                         combined_identity_text = rendered_text
                         strong_identity = True
                         confidence = max(
@@ -3668,9 +3712,15 @@ def analyze_candidate(
                         )
 
     if not selected_price:
+        page_was_readable = bool(page_text)
+        rejection_stage = (
+            "price_extraction"
+            if page_was_readable
+            else "candidate_page_fetch"
+        )
         reject_candidate(
             "page_price_not_found",
-            "price_extraction",
+            rejection_stage,
             page_text,
         )
         return None
@@ -3835,6 +3885,18 @@ def analyze_candidate(
 
         "retrieval_method":
             retrieval_method,
+
+        "page_fetch_outcome":
+            page_fetch_outcome,
+
+        "page_fetch_error_type":
+            page_fetch_error_type,
+
+        "page_fetch_http_status":
+            page_fetch_http_status,
+
+        "jina_reader_attempted":
+            jina_reader_attempted,
 
         "price_source":
             (
@@ -5709,7 +5771,10 @@ def build_search_queries(
     effective_product = _effective_market_search_query(normalized_product)
     queries = build_product_search_queries(vendor_name, effective_product)
 
-    # Keep the separate edition discoverable without issuing a second search.
+    # Discover the AJ199 MAX sibling edition in the same bounded query so its
+    # page-verified offers can be classified and shown as a separate edition.
+    # The variant validator must continue to keep MAX/PAW3395 observations out
+    # of the confirmed standard-edition benchmark.
     normalized_identity = normalize_text(effective_product)
     if (
         "aj199" in normalized_identity
@@ -9447,6 +9512,10 @@ def _market_exclusion_record(source: dict, assessment: dict | None, reason: str)
         "evidence_sources": binding.get("evidence_sources") or {},
         "price_extraction_method": source.get("price_source"),
         "page_fetch_method": source.get("retrieval_method"),
+        "page_fetch_outcome": source.get("page_fetch_outcome"),
+        "page_fetch_error_type": source.get("page_fetch_error_type"),
+        "page_fetch_http_status": source.get("page_fetch_http_status"),
+        "jina_reader_attempted": source.get("jina_reader_attempted"),
         "product_entity_id": entity_id or None,
         "price_entity_id": price_entity_id or None,
         "price_and_specifications_same_entity": bool(
@@ -10139,6 +10208,25 @@ def _rebuild_market_result(result: dict, product_description: str, context: dict
         rejection_stage_counts[stage] = rejection_stage_counts.get(stage, 0) + 1
     diagnostics["exclusion_reason_counts"] = dict(sorted(exclusion_reason_counts.items()))
     diagnostics["rejection_stage_counts"] = dict(sorted(rejection_stage_counts.items()))
+
+    page_fetch_outcomes: dict[str, int] = {}
+    page_fetch_errors: dict[str, int] = {}
+    page_fetch_http_statuses: dict[str, int] = {}
+    for item in deduped_excluded:
+        outcome = str(item.get("page_fetch_outcome") or "").strip()
+        error_type = str(item.get("page_fetch_error_type") or "").strip()
+        http_status = item.get("page_fetch_http_status")
+        if outcome:
+            page_fetch_outcomes[outcome] = page_fetch_outcomes.get(outcome, 0) + 1
+        if error_type:
+            page_fetch_errors[error_type] = page_fetch_errors.get(error_type, 0) + 1
+        if http_status is not None:
+            status_key = str(http_status)
+            page_fetch_http_statuses[status_key] = page_fetch_http_statuses.get(status_key, 0) + 1
+
+    diagnostics["page_fetch_outcome_counts"] = dict(sorted(page_fetch_outcomes.items()))
+    diagnostics["page_fetch_error_type_counts"] = dict(sorted(page_fetch_errors.items()))
+    diagnostics["page_fetch_http_status_counts"] = dict(sorted(page_fetch_http_statuses.items()))
     return result
 
 

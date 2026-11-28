@@ -102,6 +102,24 @@ def _eligible_sources(
                 excluded.append(_excluded(source, "product_variant_not_verified"))
                 continue
 
+        # Out-of-stock offers remain useful as historical observations in the
+        # market-research evidence, but they must not enter the current-price
+        # benchmark used for invoice comparison. Support both Schema.org's
+        # OutOfStock value and common retailer status spellings.
+        availability_raw = str(source.get("availability") or "").casefold()
+        availability_compact = "".join(
+            character for character in availability_raw if character.isalnum()
+        )
+        if availability_compact in {
+            "outofstock",
+            "soldout",
+            "unavailable",
+            "notavailable",
+            "discontinued",
+        } or "outofstock" in availability_compact:
+            excluded.append(_excluded(source, "out_of_stock"))
+            continue
+
         domain = _domain(source)
         if not domain:
             excluded.append(_excluded(source, "independent_domain_not_identified"))

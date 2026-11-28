@@ -72,6 +72,93 @@ def _keyboard_variant_query(product: str, model_phrase: str) -> str:
     return " ".join(terms) if len(terms) > 1 else ""
 
 
+def _mouse_variant_query(product: str, model_phrase: str) -> str:
+    """Keep mouse edition-defining terms in the single Serper query."""
+    if not model_phrase or not re.search(r"\b(?:mouse|mice)\b", product, re.IGNORECASE):
+        return ""
+
+    terms = [f'"{model_phrase}"']
+
+    mode = re.search(
+        r"\b(?:tri[\s-]*mode|three[\s-]*mode|3[\s-]*mode|dual[\s-]*mode|two[\s-]*mode|2[\s-]*mode)\b",
+        product,
+        re.IGNORECASE,
+    )
+    if mode:
+        terms.append(re.sub(r"\s+", "-", mode.group(0)).lower())
+
+    material = re.search(r"\bcarbon[\s-]*fiber\b", product, re.IGNORECASE)
+    if material:
+        terms.extend(("carbon", "fiber"))
+
+    sensor = re.search(r"\b(?:paw|pmw)?\s*(3311|3395)\b", product, re.IGNORECASE)
+    if sensor:
+        terms.append(sensor.group(1))
+
+    dpi = re.search(r"\b(?:26[, ]?000|26000)\s*dpi\b", product, re.IGNORECASE)
+    if dpi:
+        terms.append("26000 dpi")
+
+    battery = re.search(r"\b(\d{3,4})\s*m?ah\b", product, re.IGNORECASE)
+    if battery:
+        terms.append(f"{battery.group(1)}mAh")
+
+    return " ".join(terms) if len(terms) > 1 else ""
+
+
+def _storage_variant_query(product: str, model_phrase: str) -> str:
+    """Include capacity, form factor and interface to avoid sibling SSD results."""
+    if not model_phrase or not re.search(r"\b(?:ssd|hdd|nvme|storage)\b", product, re.IGNORECASE):
+        return ""
+
+    terms = [f'"{model_phrase}"']
+
+    capacity = re.search(r"\b(\d+(?:\.\d+)?\s*(?:TB|GB|MB))\b", product, re.IGNORECASE)
+    if capacity:
+        terms.append(re.sub(r"\s+", "", capacity.group(1)).upper())
+
+    if re.search(r"\bM\.?2\b", product, re.IGNORECASE):
+        terms.append("M.2")
+
+    length = re.search(r"\b2280\b", product)
+    if length:
+        terms.append("2280")
+
+    interface = re.search(r"\b(NVMe|SATA)\b", product, re.IGNORECASE)
+    if interface:
+        terms.append(interface.group(1).upper())
+
+    pcie_gen = re.search(r"\bPCIe\s*(?:Gen)?\s*(\d)\b", product, re.IGNORECASE)
+    if pcie_gen:
+        terms.append(f"PCIe Gen{pcie_gen.group(1)}")
+
+    return " ".join(terms)
+
+
+def _monitor_variant_query(product: str, model_phrase: str) -> str:
+    """Add core display attributes while keeping the query short."""
+    if not model_phrase or not re.search(r"\b(?:monitor|display)\b", product, re.IGNORECASE):
+        return ""
+
+    terms = [f'"{model_phrase}"']
+
+    size = re.search(r'\b(\d{2}(?:\.\d)?)\s*(?:inches|inch|in\b|")', product, re.IGNORECASE)
+    if size:
+        terms.append(f"{size.group(1)} inch")
+
+    refresh = re.search(r"\b(\d{2,3})\s*Hz\b", product, re.IGNORECASE)
+    if refresh:
+        terms.append(f"{refresh.group(1)}Hz")
+
+    if re.search(r"\bIPS\b", product, re.IGNORECASE):
+        terms.append("IPS")
+
+    if re.search(r"\b(?:FHD|Full\s+HD|1920\s*[x×]\s*1080)\b", product, re.IGNORECASE):
+        terms.append("FHD")
+
+    return " ".join(terms) if len(terms) > 1 else ""
+
+
 def _power_supply_query_phrase(product: str, brand_and_model: str) -> str:
     if not re.search(r"\b(?:psu|power\s+suppl(?:y|ies))\b", product, re.IGNORECASE):
         return ""
@@ -243,7 +330,7 @@ def _dedupe(values: list[str], limit: int = 12) -> list[str]:
 
 
 def build_product_search_queries(vendor_name: str | None, product_description: str | None) -> list[str]:
-    """Build one concise model-and-category query for the configured provider."""
+    """Build one concise, variant-aware query for the configured Serper provider."""
 
     product = re.sub(r"\s+", " ", str(product_description or "")).strip()
     if not product:
@@ -266,8 +353,19 @@ def build_product_search_queries(vendor_name: str | None, product_description: s
     case_phrase = _computer_case_query_phrase(product)
     memory_phrase = _memory_query_phrase(product)
     keyboard_phrase = _keyboard_variant_query(product, model_phrase)
+    mouse_phrase = _mouse_variant_query(product, model_phrase)
+    storage_phrase = _storage_variant_query(product, model_phrase)
+    monitor_phrase = _monitor_variant_query(product, model_phrase)
 
-    specific_phrase = psu_phrase or case_phrase or memory_phrase or keyboard_phrase
+    specific_phrase = (
+        psu_phrase
+        or case_phrase
+        or memory_phrase
+        or keyboard_phrase
+        or mouse_phrase
+        or storage_phrase
+        or monitor_phrase
+    )
     query_parts = [specific_phrase or f'"{model_phrase}"']
     if not specific_phrase and re.search(r"\b(?:tray|oem)\b", product, re.IGNORECASE):
         query_parts.append('"Tray Box"')

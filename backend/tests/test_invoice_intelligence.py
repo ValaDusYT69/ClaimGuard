@@ -349,7 +349,10 @@ Grand Total
 
     def test_one_product_search_failure_does_not_hide_other_line_offers(self):
         def fake_search(query):
-            if "Keyboard model K1" in query:
+            # The query builder intentionally removes generic words such as
+            # "model", so the generated query contains "Keyboard K1". Match
+            # the normalized query identity rather than the raw invoice text.
+            if "keyboard k1" in " ".join(query.casefold().split()):
                 raise RuntimeError("temporary search failure")
             return [
                 {
